@@ -541,11 +541,7 @@ interface TemplateCardProps {
 function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardProps) {
   return (
     <motion.div
-      className={`bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer flex flex-col ${
-        isSelected 
-          ? 'border-[#6C82FF] bg-[#6C82FF]/5 scale-[0.98]' 
-          : 'border-[#43444B] hover:border-[#6C82FF]/50'
-      }`}
+      className="bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50 pl-[0px] pr-[0px]"
       style={{ 
         width: '320px', 
         height: '256px',
@@ -597,7 +593,6 @@ function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardPro
           <span className="text-xs">{pack.members.length}</span>
         </div>
       </div>
-
       {/* Team Preview - Scrollable */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto space-y-2">
@@ -626,7 +621,6 @@ function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardPro
           </div>
         </div>
       </div>
-
       {/* CTA Button - Fixed at bottom */}
       <div className="mt-auto pt-3 border-t border-[#43444B]">
         <button
