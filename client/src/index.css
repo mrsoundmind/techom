@@ -133,6 +133,10 @@
   .agent-dot-green {
     background-color: var(--hatchin-green);
   }
+
+  .agent-dot-purple {
+    background-color: #8b5cf6;
+  }
 }
 
 /* Custom scrollbar */

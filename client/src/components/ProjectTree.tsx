@@ -57,6 +57,8 @@ export function ProjectTree({
         return 'agent-dot-blue';
       case 'green':
         return 'agent-dot-green';
+      case 'purple':
+        return 'agent-dot-purple';
       default:
         return 'agent-dot-blue';
     }

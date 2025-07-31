@@ -160,19 +160,62 @@ export default function Home() {
   // Handle egg hatching completion
   const handleEggHatchingComplete = async () => {
     setIsEggHatching(false);
-    setIdeaProjectData(null);
     
-    // Find the Maya agent for the newly created project
-    const mayaAgent = agents.find(agent => 
-      agent.isSpecialAgent && 
-      agent.name === "Maya" &&
-      ideaProjectData
-    );
-    
-    if (mayaAgent) {
-      // Navigate to Maya chat
-      window.location.href = `/maya/${mayaAgent.projectId}`;
-    }
+    // Wait a moment for data to sync, then find the most recent project with Maya
+    setTimeout(async () => {
+      // Refresh all data first
+      await Promise.all([refetchProjects(), refetchTeams(), refetchAgents()]);
+      
+      // Get the latest projects data
+      const [projectsRes, teamsRes, agentsRes] = await Promise.all([
+        fetch('/api/projects'),
+        fetch('/api/teams'),
+        fetch('/api/agents')
+      ]);
+      
+      const latestProjects = await projectsRes.json();
+      const latestTeams = await teamsRes.json();
+      const latestAgents = await agentsRes.json();
+      
+      // Find the most recently created project (highest timestamp or by name match)
+      const newProject = latestProjects.find((p: any) => 
+        ideaProjectData && p.name === ideaProjectData.name
+      ) || latestProjects[latestProjects.length - 1];
+      
+      if (newProject) {
+        // Find Maya agent for this project
+        const mayaAgent = latestAgents.find((a: any) => 
+          a.projectId === newProject.id && a.name === "Maya" && a.isSpecialAgent
+        );
+        
+        // Find the Core Team for this project
+        const coreTeam = latestTeams.find((t: any) => 
+          t.projectId === newProject.id && t.name === "Core Team"
+        );
+        
+        // Set this project as active and expand it, and expand the Core Team to show Maya
+        setActiveProjectId(newProject.id);
+        setActiveTeamId(null);
+        setActiveAgentId(mayaAgent?.id || null);
+        
+        // Expand both project and core team to show Maya
+        setExpandedProjects(prev => {
+          const newSet = new Set(prev);
+          newSet.add(newProject.id);
+          return newSet;
+        });
+        
+        if (coreTeam) {
+          setExpandedTeams(prev => {
+            const newSet = new Set(prev);
+            newSet.add(coreTeam.id);
+            return newSet;
+          });
+        }
+      }
+      
+      setIdeaProjectData(null);
+    }, 500);
   };
 
   const handleCreateProjectFromTemplate = async (pack: any, name: string, description?: string) => {
