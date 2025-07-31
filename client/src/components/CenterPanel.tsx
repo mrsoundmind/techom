@@ -201,6 +201,40 @@ export function CenterPanel({
 
   // === END SUBTASK 2.1.3 ===
 
+  // === SUBTASK 2.1.4: Memory Architecture Setup ===
+  
+  // Get memory context for current chat
+  const getCurrentMemoryContext = () => {
+    const sharedMemory = getSharedProjectMemory();
+    if (!sharedMemory || !currentChatContext) return null;
+
+    return {
+      ...sharedMemory,
+      // Chat-specific context
+      currentMode: currentChatContext.mode,
+      conversationId: currentChatContext.conversationId,
+      activeParticipants: getCurrentChatParticipants(),
+      // Memory scope - all participants share the same project memory
+      memoryAccess: {
+        canRead: sharedMemory.projectId ? true : false,
+        canWrite: sharedMemory.projectId ? true : false,
+        scope: 'project-wide'
+      }
+    };
+  };
+
+  // Connect chat context to memory system
+  const chatMemoryContext = getCurrentMemoryContext();
+
+  // Memory persistence check
+  const isMemoryContextValid = () => {
+    return chatMemoryContext && 
+           chatMemoryContext.projectId && 
+           chatMemoryContext.activeParticipants.length > 0;
+  };
+
+  // === END SUBTASK 2.1.4 ===
+
   const handleActionClick = (action: string) => {
     console.log('Action triggered:', action);
     
@@ -217,8 +251,16 @@ export function CenterPanel({
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const input = form.elements.namedItem('message') as HTMLInputElement;
-    if (input.value.trim()) {
-      console.log('Message sent:', input.value);
+    if (input.value.trim() && isMemoryContextValid()) {
+      // Message with memory context
+      console.log('Message sent with memory context:', {
+        message: input.value,
+        conversationId: currentChatContext?.conversationId,
+        mode: currentChatContext?.mode,
+        participants: getCurrentChatParticipants().map(p => p.name),
+        sharedMemory: chatMemoryContext?.sharedContext,
+        memoryScope: chatMemoryContext?.memoryAccess?.scope
+      });
       input.value = '';
     }
   };
