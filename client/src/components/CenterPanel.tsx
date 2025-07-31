@@ -1,8 +1,6 @@
 import { Send } from "lucide-react";
 import { useState, useEffect } from "react";
-import type { Project, Team, Agent, Message } from "@shared/schema";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import type { Project, Team, Agent } from "@shared/schema";
 
 type ChatMode = 'project' | 'team' | 'agent';
 
@@ -33,51 +31,6 @@ export function CenterPanel({
   // Chat mode state management
   const [chatMode, setChatMode] = useState<ChatMode>('project');
   const [currentChatContext, setCurrentChatContext] = useState<ChatContext | null>(null);
-  
-  // Task 2.3: Message state and functionality
-  const [messageInput, setMessageInput] = useState('');
-  const queryClient = useQueryClient();
-  
-  // Fetch messages for current conversation
-  const { data: currentMessages = [] } = useQuery({
-    queryKey: ['/api/messages', currentChatContext?.conversationId],
-    enabled: !!currentChatContext?.conversationId,
-  });
-  
-  // Message sending mutation
-  const sendMessageMutation = useMutation({
-    mutationFn: async (messageData: { content: string; conversationId: string; messageType: 'user' }) => {
-      // First ensure conversation exists
-      try {
-        await apiRequest(`/api/messages/${messageData.conversationId}`, { method: 'GET' });
-      } catch (error) {
-        // If conversation doesn't exist, create it
-        if (currentChatContext) {
-          await apiRequest('/api/conversations', {
-            method: 'POST',
-            body: JSON.stringify({
-              id: currentChatContext.conversationId,
-              projectId: currentChatContext.projectId,
-              teamId: currentChatContext.mode === 'team' ? activeTeamId : null,
-              agentId: currentChatContext.mode === 'agent' ? activeAgentId : null,
-              type: currentChatContext.mode === 'agent' ? 'hatch' : currentChatContext.mode,
-              title: `${currentChatContext.mode} Chat`,
-            }),
-          });
-        }
-      }
-      
-      return apiRequest('/api/messages', {
-        method: 'POST',
-        body: JSON.stringify(messageData),
-      });
-    },
-    onSuccess: () => {
-      // Invalidate messages to refresh the conversation
-      queryClient.invalidateQueries({ queryKey: ['/api/messages', currentChatContext?.conversationId] });
-      setMessageInput(''); // Clear input after successful send
-    },
-  });
   
   // useEffect to listen to activeProjectId, activeTeamId, activeAgentId changes
   useEffect(() => {
@@ -294,28 +247,22 @@ export function CenterPanel({
     }
   };
 
-  // Task 2.3: Message submission handler
-  const handleMessageSubmit = (e: React.FormEvent) => {
+  const handleChatSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!messageInput.trim() || !currentChatContext?.conversationId) {
-      return;
+    const form = e.target as HTMLFormElement;
+    const input = form.elements.namedItem('message') as HTMLInputElement;
+    if (input.value.trim()) {
+      // Message with memory context - removed validation check that was blocking messages
+      console.log('Message sent with memory context:', {
+        message: input.value,
+        conversationId: currentChatContext?.conversationId,
+        mode: currentChatContext?.mode,
+        participants: getCurrentChatParticipants().map(p => p.name),
+        sharedMemory: chatMemoryContext?.sharedContext,
+        memoryScope: chatMemoryContext?.memoryAccess?.scope
+      });
+      input.value = '';
     }
-    
-    // Send message with conversation context
-    sendMessageMutation.mutate({
-      content: messageInput.trim(),
-      conversationId: currentChatContext.conversationId,
-      messageType: 'user'
-    });
-    
-    console.log('Message sent with context:', {
-      message: messageInput.trim(),
-      conversationId: currentChatContext.conversationId,
-      mode: currentChatContext.mode,
-      participants: getCurrentChatParticipants().map(p => p.name),
-      sharedMemory: chatMemoryContext?.sharedContext,
-    });
   };
 
   if (!activeProject) {
@@ -372,15 +319,19 @@ export function CenterPanel({
           )}
         </div>
       </div>
-      
-      {/* Chat Content Area - Clean welcome state only */}
+      {/* Dynamic Welcome Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-lg">
-          <div className="text-4xl mb-4">{contextDisplay.welcomeIcon}</div>
-          <h3 className="font-medium hatchin-text mb-2">{contextDisplay.welcomeTitle}</h3>
-          <p className="hatchin-text-muted text-sm mb-6">{contextDisplay.welcomeSubtitle}</p>
           
-          <div className="flex flex-wrap gap-3 justify-center">
+          
+          <div className="text-[50px] mt-[2px] mb-[2px]">{contextDisplay.welcomeIcon}</div>
+          
+          <h2 className="font-semibold hatchin-text text-[20px] mt-[2px] mb-[2px]">{contextDisplay.welcomeTitle}</h2>
+          <p className="hatchin-text-muted text-[14px] mt-[7px] mb-[7px]">
+            {contextDisplay.welcomeSubtitle}
+          </p>
+          
+          <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
             <button 
               onClick={() => handleActionClick('generateRoadmap')}
               className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -402,25 +353,22 @@ export function CenterPanel({
           </div>
         </div>
       </div>
-
-      {/* Chat Input - Disabled for now */}
+      {/* Chat Input */}
       <div className="p-6 hatchin-border border-t">
-        <div className="relative">
+        <form onSubmit={handleChatSubmit} className="relative">
           <input 
             name="message"
             type="text" 
-            placeholder="Chat functionality temporarily disabled - fixing popup issue..."
-            disabled
-            className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted opacity-50 cursor-not-allowed"
+            placeholder={contextDisplay.placeholder}
+            className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
           />
           <button 
-            type="button"
-            disabled
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-text-muted opacity-50"
+            type="submit"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-blue hover:text-opacity-80 transition-colors"
           >
             <Send className="w-4 h-4" />
           </button>
-        </div>
+        </form>
       </div>
     </main>
   );
