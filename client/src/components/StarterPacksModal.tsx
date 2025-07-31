@@ -549,7 +549,6 @@ function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardPro
     <motion.div
       className="bg-[#37383B] rounded-xl p-3 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50"
       style={{ 
-        height: '200px',
         minHeight: '200px'
       }}
       onClick={onSelect}
