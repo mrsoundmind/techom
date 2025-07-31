@@ -5,7 +5,16 @@ import type { Project, Team, Agent } from "@shared/schema";
 import QuickStartModal from "@/components/QuickStartModal";
 import StarterPacksModal from "@/components/StarterPacksModal";
 import ProjectNameModal from "@/components/ProjectNameModal";
-import type { StarterPack } from "../../../shared/templates";
+// Temporary type definition until import issues are resolved
+interface StarterPack {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  color: string;
+  members: string[];
+  welcomeMessage: string;
+}
 
 interface LeftSidebarProps {
   projects: Project[];

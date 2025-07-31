@@ -70,6 +70,17 @@ export default function Home() {
     setActiveAgentId(agentId);
   };
 
+  // Project creation handlers
+  const handleCreateProject = async (name: string, description?: string) => {
+    console.log('Creating project:', { name, description });
+    // TODO: Implement project creation API call
+  };
+
+  const handleCreateProjectFromTemplate = async (pack: any, name: string, description?: string) => {
+    console.log('Creating project from template:', { pack, name, description });
+    // TODO: Implement template-based project creation API call
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
@@ -104,6 +115,8 @@ export default function Home() {
           onSelectAgent={handleSelectAgent}
           onToggleProjectExpanded={toggleProjectExpanded}
           onToggleTeamExpanded={toggleTeamExpanded}
+          onCreateProject={handleCreateProject}
+          onCreateProjectFromTemplate={handleCreateProjectFromTemplate}
         />
         
         <CenterPanel

@@ -14,7 +14,76 @@ import {
   GraduationCap,
   Lightbulb
 } from 'lucide-react';
-import { starterPacksByCategory, getHatchTemplate, type StarterPack, type TemplateCategory } from '../../../shared/templates';
+// Temporary inline template data until import issues are resolved
+interface StarterPack {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  color: string;
+  members: string[];
+  welcomeMessage: string;
+}
+
+interface TemplateCategory {
+  id: string;
+  title: string;
+  icon: string;
+  packs: StarterPack[];
+}
+
+// Simplified template data for testing
+const starterPacksByCategory: Record<string, TemplateCategory> = {
+  business: {
+    id: "business",
+    title: "Business + Startups",
+    icon: "Briefcase",
+    packs: [
+      {
+        id: "saas-startup",
+        title: "SaaS Startup",
+        description: "Perfect for launching software products and digital platforms",
+        emoji: "🚀",
+        color: "blue",
+        members: ["Product Manager", "Technical Lead", "Copywriter"],
+        welcomeMessage: "Ready to build your SaaS product!"
+      },
+      {
+        id: "ai-tool-startup",
+        title: "AI Tool Startup",
+        description: "Build cutting-edge AI-powered tools and applications",
+        emoji: "🤖",
+        color: "purple",
+        members: ["AI Developer", "Product Manager", "Growth Marketer"],
+        welcomeMessage: "Let's create innovative AI tools!"
+      }
+    ]
+  },
+  creative: {
+    id: "creative",
+    title: "Creative & Content",
+    icon: "Palette",
+    packs: [
+      {
+        id: "creative-studio",
+        title: "Creative Studio",
+        description: "Full-service creative team for branding and design",
+        emoji: "🎨",
+        color: "purple",
+        members: ["Creative Director", "Brand Strategist", "Copywriter"],
+        welcomeMessage: "Ready to bring creative visions to life!"
+      }
+    ]
+  }
+};
+
+const getHatchTemplate = (name: string) => ({
+  name,
+  role: name,
+  description: `Expert ${name} with specialized skills`,
+  color: "blue" as const,
+  category: "general"
+});
 
 // Icon mapping for categories
 const categoryIcons = {
