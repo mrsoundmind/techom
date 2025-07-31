@@ -41,7 +41,7 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
           <X className="w-4 h-4" />
         </button>
       </div>
-      <p className="text-sm hatchin-text-muted mb-6">
+      <p className="hatchin-text-muted mb-6 text-[12px]">
         A shared brain for your team to stay aligned.
       </p>
       {/* Project Progress */}
