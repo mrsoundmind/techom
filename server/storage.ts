@@ -226,7 +226,18 @@ export class MemStorage implements IStorage {
 
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = randomUUID();
-    const project: Project = { ...insertProject, id };
+    const project: Project = { 
+      ...insertProject, 
+      id,
+      emoji: insertProject.emoji || "🚀",
+      color: insertProject.color || "blue",
+      isExpanded: insertProject.isExpanded ?? true,
+      progress: insertProject.progress || 0,
+      timeSpent: insertProject.timeSpent || "0h 0m",
+      coreDirection: insertProject.coreDirection || null,
+      executionRules: insertProject.executionRules || null,
+      teamCulture: insertProject.teamCulture || null,
+    };
     this.projects.set(id, project);
     return project;
   }
@@ -259,7 +270,11 @@ export class MemStorage implements IStorage {
 
   async createTeam(insertTeam: InsertTeam): Promise<Team> {
     const id = randomUUID();
-    const team: Team = { ...insertTeam, id };
+    const team: Team = { 
+      ...insertTeam, 
+      id,
+      isExpanded: insertTeam.isExpanded ?? true,
+    };
     this.teams.set(id, team);
     return team;
   }
@@ -296,7 +311,11 @@ export class MemStorage implements IStorage {
 
   async createAgent(insertAgent: InsertAgent): Promise<Agent> {
     const id = randomUUID();
-    const agent: Agent = { ...insertAgent, id };
+    const agent: Agent = { 
+      ...insertAgent, 
+      id,
+      color: insertAgent.color || "blue",
+    };
     this.agents.set(id, agent);
     return agent;
   }

@@ -72,13 +72,77 @@ export default function Home() {
 
   // Project creation handlers
   const handleCreateProject = async (name: string, description?: string) => {
-    console.log('Creating project:', { name, description });
-    // TODO: Implement project creation API call
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description: description || `${name} project`,
+          emoji: '🚀',
+          color: 'blue'
+        }),
+      });
+
+      if (response.ok) {
+        const newProject = await response.json();
+        console.log('Project created successfully:', newProject);
+        
+        // Set the new project as active
+        setActiveProjectId(newProject.id);
+        setActiveTeamId(null);
+        setActiveAgentId(null);
+        
+        // Expand the new project
+        setExpandedProjects(prev => new Set([...prev, newProject.id]));
+        
+        // Refresh data
+        window.location.reload();
+      } else {
+        console.error('Failed to create project');
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+    }
   };
 
   const handleCreateProjectFromTemplate = async (pack: any, name: string, description?: string) => {
-    console.log('Creating project from template:', { pack, name, description });
-    // TODO: Implement template-based project creation API call
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description: description || pack.description,
+          emoji: pack.emoji || '🚀',
+          color: pack.color || 'blue'
+        }),
+      });
+
+      if (response.ok) {
+        const newProject = await response.json();
+        console.log('Project created from template:', newProject);
+        
+        // Set the new project as active
+        setActiveProjectId(newProject.id);
+        setActiveTeamId(null);
+        setActiveAgentId(null);
+        
+        // Expand the new project
+        setExpandedProjects(prev => new Set([...prev, newProject.id]));
+        
+        // Refresh data
+        window.location.reload();
+      } else {
+        console.error('Failed to create project from template');
+      }
+    } catch (error) {
+      console.error('Error creating project from template:', error);
+    }
   };
 
   // Keyboard shortcuts

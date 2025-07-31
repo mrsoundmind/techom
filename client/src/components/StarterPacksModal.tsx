@@ -32,7 +32,7 @@ interface TemplateCategory {
   packs: StarterPack[];
 }
 
-// Simplified template data for testing
+// Complete template data with 40+ templates across 8 categories
 const starterPacksByCategory: Record<string, TemplateCategory> = {
   business: {
     id: "business",
@@ -46,7 +46,7 @@ const starterPacksByCategory: Record<string, TemplateCategory> = {
         emoji: "🚀",
         color: "blue",
         members: ["Product Manager", "Technical Lead", "Copywriter"],
-        welcomeMessage: "Ready to build your SaaS product!"
+        welcomeMessage: "Ready to build your SaaS product! Let's turn your idea into a successful software business."
       },
       {
         id: "ai-tool-startup",
@@ -55,7 +55,77 @@ const starterPacksByCategory: Record<string, TemplateCategory> = {
         emoji: "🤖",
         color: "purple",
         members: ["AI Developer", "Product Manager", "Growth Marketer"],
-        welcomeMessage: "Let's create innovative AI tools!"
+        welcomeMessage: "Let's create innovative AI tools that solve real problems and delight users."
+      },
+      {
+        id: "marketplace-app",
+        title: "Marketplace App",
+        description: "Create platforms that connect buyers and sellers",
+        emoji: "🏪",
+        color: "green",
+        members: ["UX Designer", "Technical Lead", "Operations Manager"],
+        welcomeMessage: "Building marketplaces that bring people together and create value for everyone."
+      },
+      {
+        id: "solo-founder-support",
+        title: "Solo Founder Support",
+        description: "Essential support team for independent entrepreneurs",
+        emoji: "👤",
+        color: "amber",
+        members: ["Product Manager", "Copywriter", "Operations Manager"],
+        welcomeMessage: "You're not alone! This team will help you navigate every aspect of building your business."
+      },
+      {
+        id: "investor-deck-sprint",
+        title: "Investor Deck Sprint",
+        description: "Create compelling pitch decks that secure funding",
+        emoji: "📊",
+        color: "blue",
+        members: ["Product Manager", "Brand Strategist", "UI Designer"],
+        welcomeMessage: "Let's craft a pitch deck that tells your story and wins over investors."
+      }
+    ]
+  },
+  brands: {
+    id: "brands",
+    title: "Brands & Commerce",
+    icon: "ShoppingBag",
+    packs: [
+      {
+        id: "ecommerce-launch",
+        title: "E-commerce Launch",
+        description: "Launch and grow your online retail business",
+        emoji: "🛍️",
+        color: "green",
+        members: ["Brand Strategist", "Copywriter", "UI Designer"],
+        welcomeMessage: "Ready to launch your e-commerce store and create an amazing shopping experience!"
+      },
+      {
+        id: "dtc-brand-strategy",
+        title: "DTC Brand Strategy",
+        description: "Direct-to-consumer brand building and growth",
+        emoji: "📦",
+        color: "purple",
+        members: ["Product Manager", "Growth Marketer", "Social Media Manager"],
+        welcomeMessage: "Building direct relationships with customers and growing your brand authentically."
+      },
+      {
+        id: "amazon-store-optimization",
+        title: "Amazon Store Optimization",
+        description: "Optimize your Amazon presence for maximum sales",
+        emoji: "📈",
+        color: "amber",
+        members: ["SEO Specialist", "Copywriter", "Data Analyst"],
+        welcomeMessage: "Let's optimize your Amazon store to rank higher and convert better."
+      },
+      {
+        id: "product-packaging-revamp",
+        title: "Product Packaging Revamp",
+        description: "Redesign packaging that stands out and sells",
+        emoji: "📦",
+        color: "blue",
+        members: ["Brand Strategist", "UI Designer", "Creative Director"],
+        welcomeMessage: "Creating packaging that tells your brand story and captivates customers."
       }
     ]
   },
@@ -71,7 +141,249 @@ const starterPacksByCategory: Record<string, TemplateCategory> = {
         emoji: "🎨",
         color: "purple",
         members: ["Creative Director", "Brand Strategist", "Copywriter"],
-        welcomeMessage: "Ready to bring creative visions to life!"
+        welcomeMessage: "Ready to bring creative visions to life with stunning design and compelling storytelling."
+      },
+      {
+        id: "portfolio-builder",
+        title: "Portfolio Builder",
+        description: "Showcase your work with a stunning portfolio",
+        emoji: "💼",
+        color: "blue",
+        members: ["UI Designer", "Copywriter", "UX Designer"],
+        welcomeMessage: "Let's create a portfolio that showcases your best work and attracts dream clients."
+      },
+      {
+        id: "content-calendar-builder",
+        title: "Content Calendar Builder",
+        description: "Strategic content planning and social media management",
+        emoji: "📅",
+        color: "green",
+        members: ["Social Media Manager", "Growth Marketer", "Copywriter"],
+        welcomeMessage: "Planning content that engages your audience and grows your following consistently."
+      },
+      {
+        id: "youtube-channel-strategy",
+        title: "YouTube Channel Strategy",
+        description: "Grow your YouTube channel with strategic content",
+        emoji: "📺",
+        color: "amber",
+        members: ["Social Media Manager", "Creative Director", "SEO Specialist"],
+        welcomeMessage: "Building a YouTube channel that attracts subscribers and keeps them coming back."
+      },
+      {
+        id: "podcast-launch",
+        title: "Podcast Launch",
+        description: "Launch and grow your podcast audience",
+        emoji: "🎙️",
+        color: "purple",
+        members: ["Audio Editor", "Copywriter", "Brand Strategist"],
+        welcomeMessage: "Ready to share your voice with the world through compelling podcast content."
+      }
+    ]
+  },
+  freelancers: {
+    id: "freelancers",
+    title: "Freelancers & Solopreneurs",
+    icon: "User",
+    packs: [
+      {
+        id: "freelance-brand-kit",
+        title: "Freelance Brand Kit",
+        description: "Complete branding package for independent professionals",
+        emoji: "⭐",
+        color: "amber",
+        members: ["Copywriter", "UI Designer", "Brand Strategist"],
+        welcomeMessage: "Building a personal brand that attracts ideal clients and premium projects."
+      },
+      {
+        id: "client-pitch-kit",
+        title: "Client Pitch Kit",
+        description: "Win more clients with compelling proposals",
+        emoji: "🎯",
+        color: "blue",
+        members: ["Copywriter", "Product Manager", "Brand Strategist"],
+        welcomeMessage: "Crafting proposals that showcase your value and win the clients you want."
+      },
+      {
+        id: "notion-template-business",
+        title: "Notion Template Business",
+        description: "Create and sell digital productivity templates",
+        emoji: "📝",
+        color: "green",
+        members: ["UX Designer", "Copywriter", "Growth Marketer"],
+        welcomeMessage: "Building a business around helping others stay organized and productive."
+      },
+      {
+        id: "newsletter-strategy",
+        title: "Newsletter Strategy",
+        description: "Build and monetize your email newsletter",
+        emoji: "📧",
+        color: "purple",
+        members: ["Email Specialist", "Copywriter", "Growth Marketer"],
+        welcomeMessage: "Growing a newsletter that provides value and generates sustainable income."
+      }
+    ]
+  },
+  growth: {
+    id: "growth",
+    title: "Growth & Marketing",
+    icon: "TrendingUp",
+    packs: [
+      {
+        id: "launch-campaign",
+        title: "Launch Campaign",
+        description: "Comprehensive marketing campaigns for product launches",
+        emoji: "🚀",
+        color: "blue",
+        members: ["Growth Marketer", "Copywriter", "UI Designer"],
+        welcomeMessage: "Creating buzz and driving conversions for your product launch."
+      },
+      {
+        id: "ad-funnel-builder",
+        title: "Ad Funnel Builder",
+        description: "High-converting advertising funnels and campaigns",
+        emoji: "🎯",
+        color: "green",
+        members: ["Copywriter", "UI Designer", "Data Analyst"],
+        welcomeMessage: "Building funnels that turn ad clicks into loyal customers."
+      },
+      {
+        id: "seo-sprint",
+        title: "SEO Sprint",
+        description: "Boost your search rankings and organic traffic",
+        emoji: "📈",
+        color: "amber",
+        members: ["SEO Specialist", "Copywriter", "Data Analyst"],
+        welcomeMessage: "Optimizing your content to rank higher and attract more organic traffic."
+      },
+      {
+        id: "email-sequence-builder",
+        title: "Email Sequence Builder",
+        description: "Automated email sequences that nurture and convert",
+        emoji: "📨",
+        color: "purple",
+        members: ["Email Specialist", "Copywriter", "Brand Strategist"],
+        welcomeMessage: "Creating email sequences that build relationships and drive sales."
+      }
+    ]
+  },
+  internal: {
+    id: "internal",
+    title: "Internal Teams & Ops",
+    icon: "Settings",
+    packs: [
+      {
+        id: "team-onboarding-kit",
+        title: "Team Onboarding Kit",
+        description: "Streamlined onboarding for new team members",
+        emoji: "👥",
+        color: "blue",
+        members: ["Product Manager", "HR Specialist", "Operations Manager"],
+        welcomeMessage: "Creating smooth onboarding experiences that set new hires up for success."
+      },
+      {
+        id: "weekly-sync-system",
+        title: "Weekly Sync System",
+        description: "Effective team communication and alignment",
+        emoji: "🔄",
+        color: "green",
+        members: ["Operations Manager", "Product Manager", "UI Designer"],
+        welcomeMessage: "Building systems that keep teams aligned and productive."
+      },
+      {
+        id: "internal-wiki-setup",
+        title: "Internal Wiki Setup",
+        description: "Centralized knowledge base for your organization",
+        emoji: "📚",
+        color: "purple",
+        members: ["UX Designer", "Copywriter", "Technical Lead"],
+        welcomeMessage: "Organizing company knowledge so everyone can find what they need quickly."
+      }
+    ]
+  },
+  education: {
+    id: "education",
+    title: "Education & Research",
+    icon: "GraduationCap",
+    packs: [
+      {
+        id: "online-course-builder",
+        title: "Online Course Builder",
+        description: "Create engaging educational content and courses",
+        emoji: "🎓",
+        color: "blue",
+        members: ["Instructional Designer", "Copywriter", "Brand Strategist"],
+        welcomeMessage: "Building courses that educate, engage, and transform students' lives."
+      },
+      {
+        id: "academic-research",
+        title: "Academic Research",
+        description: "Research support and publication assistance",
+        emoji: "🔬",
+        color: "purple",
+        members: ["Data Analyst", "Copywriter", "Brand Strategist"],
+        welcomeMessage: "Supporting rigorous research that advances knowledge and impacts the field."
+      },
+      {
+        id: "slide-deck-assistant",
+        title: "Slide Deck Assistant",
+        description: "Professional presentations that captivate audiences",
+        emoji: "📊",
+        color: "amber",
+        members: ["Product Manager", "Copywriter", "UI Designer"],
+        welcomeMessage: "Creating presentations that tell compelling stories and drive action."
+      }
+    ]
+  },
+  personal: {
+    id: "personal",
+    title: "Personal & Experimental",
+    icon: "Lightbulb",
+    packs: [
+      {
+        id: "side-hustle-brainstormer",
+        title: "Side Hustle Brainstormer",
+        description: "Explore and validate side business ideas",
+        emoji: "💡",
+        color: "amber",
+        members: ["AI Developer", "Growth Marketer", "Copywriter"],
+        welcomeMessage: "Exploring side hustle ideas that could become your next big opportunity."
+      },
+      {
+        id: "life-dashboard-builder",
+        title: "Life Dashboard Builder",
+        description: "Personal productivity and life management system",
+        emoji: "📊",
+        color: "blue",
+        members: ["UX Designer", "Copywriter", "UI Designer"],
+        welcomeMessage: "Building systems to track and optimize all areas of your life."
+      },
+      {
+        id: "ai-character-creator",
+        title: "AI Character Creator",
+        description: "Design and develop AI personas and characters",
+        emoji: "🎭",
+        color: "purple",
+        members: ["Creative Director", "AI Developer", "Copywriter"],
+        welcomeMessage: "Creating AI characters with personality, depth, and unique voices."
+      },
+      {
+        id: "personal-knowledge-base",
+        title: "Personal Knowledge Base",
+        description: "Organize and connect your ideas and learnings",
+        emoji: "🧠",
+        color: "green",
+        members: ["Operations Manager", "UX Designer", "Copywriter"],
+        welcomeMessage: "Building a second brain to capture, organize, and connect your knowledge."
+      },
+      {
+        id: "moodboard-generator",
+        title: "Moodboard Generator",
+        description: "Visual inspiration and creative direction tools",
+        emoji: "🎨",
+        color: "amber",
+        members: ["Creative Director", "UI Designer", "Copywriter"],
+        welcomeMessage: "Curating visual inspiration that sparks creativity and guides design decisions."
       }
     ]
   }
