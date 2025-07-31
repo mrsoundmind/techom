@@ -372,40 +372,7 @@ export function CenterPanel({
           )}
         </div>
       </div>
-      {/* Dynamic Welcome Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-        <div className="max-w-lg">
-          
-          
-          <div className="text-[50px] mt-[2px] mb-[2px]">{contextDisplay.welcomeIcon}</div>
-          
-          <h2 className="font-semibold hatchin-text text-[20px] mt-[2px] mb-[2px]">{contextDisplay.welcomeTitle}</h2>
-          <p className="hatchin-text-muted text-[14px] mt-[7px] mb-[7px]">
-            {contextDisplay.welcomeSubtitle}
-          </p>
-          
-          <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
-            <button 
-              onClick={() => handleActionClick('generateRoadmap')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Give me a product roadmap
-            </button>
-            <button 
-              onClick={() => handleActionClick('setGoals')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Set team goals
-            </button>
-            <button 
-              onClick={() => handleActionClick('summarizeTasks')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Summarize each team's task
-            </button>
-          </div>
-        </div>
-      </div>
+      
       {/* Chat Content Area - Clean welcome state only */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-lg">
