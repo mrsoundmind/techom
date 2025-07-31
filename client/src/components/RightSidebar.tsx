@@ -46,7 +46,7 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
       </p>
       {/* Project Progress */}
       <div className="mt-[18px] mb-[18px]">
-        <h3 className="text-sm font-medium mb-4 hatchin-text">Project Progress</h3>
+        <h3 className="text-sm font-medium hatchin-text mt-[3px] mb-[3px]">Project Progress</h3>
         
         <div className="hatchin-bg-card rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
