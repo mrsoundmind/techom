@@ -68,7 +68,7 @@ export function CenterPanel({
         </div>
         
         <div className="flex items-center gap-6 mt-3">
-          <span className="text-sm hatchin-text-muted">Active Teams:</span>
+          <span className="hatchin-text-muted text-[12px] font-medium">Active Teams:</span>
           <div className="flex items-center gap-4">
             {activeProjectTeams.map(team => {
               const teamAgentCount = activeProjectAgents.filter(a => a.teamId === team.id).length;
