@@ -1,4 +1,5 @@
 import { type User, type InsertUser, type Project, type InsertProject, type Team, type InsertTeam, type Agent, type InsertAgent } from "@shared/schema";
+import { starterPacksByCategory, allHatchTemplates } from "@shared/templates";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -32,6 +33,9 @@ export interface IStorage {
   
   // Special initialization for idea projects
   initializeIdeaProject(projectId: string): Promise<void>;
+  
+  // Special initialization for starter pack projects
+  initializeStarterPackProject(projectId: string, starterPackId: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -252,10 +256,10 @@ export class MemStorage implements IStorage {
       isExpanded: insertProject.isExpanded ?? true,
       progress: insertProject.progress || 0,
       timeSpent: insertProject.timeSpent || "0h 0m",
-      coreDirection: insertProject.coreDirection || {},
+      coreDirection: insertProject.coreDirection || {} as any,
       executionRules: insertProject.executionRules || null,
       teamCulture: insertProject.teamCulture || null,
-      brain: insertProject.brain || {},
+      brain: insertProject.brain || {} as any,
     };
     this.projects.set(id, project);
     return project;
@@ -334,7 +338,7 @@ export class MemStorage implements IStorage {
       ...insertAgent, 
       id,
       color: insertAgent.color || "blue",
-      personality: insertAgent.personality || {},
+      personality: insertAgent.personality || {} as any,
       isSpecialAgent: insertAgent.isSpecialAgent || false,
     };
     this.agents.set(id, agent);
@@ -397,6 +401,122 @@ export class MemStorage implements IStorage {
             createdAt: new Date().toISOString()
           }],
           sharedMemory: "Project initialized for idea development with Maya as the AI partner."
+        }
+      };
+      this.projects.set(projectId, updatedProject);
+    }
+  }
+
+  async initializeStarterPackProject(projectId: string, starterPackId: string): Promise<void> {
+    // Find the starter pack from templates
+    let starterPack = null;
+    for (const category of Object.values(starterPacksByCategory)) {
+      starterPack = category.packs.find(pack => pack.id === starterPackId);
+      if (starterPack) break;
+    }
+
+    if (!starterPack) {
+      console.error(`Starter pack not found: ${starterPackId}`);
+      return;
+    }
+
+    // Create teams based on starter pack structure
+    const teamData = {
+      development: { name: "Development", emoji: "💻" },
+      design: { name: "Design", emoji: "🎨" },
+      marketing: { name: "Marketing", emoji: "📈" },
+      strategy: { name: "Strategy", emoji: "🎯" },
+      operations: { name: "Operations", emoji: "⚙️" },
+      content: { name: "Content", emoji: "✍️" }
+    };
+
+    // Determine which teams to create based on member roles
+    const teamsToCreate = new Set<string>();
+    for (const memberName of starterPack.members) {
+      const hatchTemplate = allHatchTemplates.find(h => h.name === memberName);
+      if (hatchTemplate) {
+        // Map category to team
+        const categoryToTeam: Record<string, string> = {
+          "development": "development",
+          "strategy": "strategy", 
+          "analytics": "strategy",
+          "design": "design",
+          "marketing": "marketing",
+          "content": "content",
+          "operations": "operations"
+        };
+        const teamKey = categoryToTeam[hatchTemplate.category] || "strategy";
+        teamsToCreate.add(teamKey);
+      }
+    }
+
+    // Create teams
+    const createdTeams: Record<string, Team> = {};
+    for (const teamKey of Array.from(teamsToCreate)) {
+      const teamInfo = teamData[teamKey as keyof typeof teamData];
+      const team: Team = {
+        id: randomUUID(),
+        name: teamInfo.name,
+        emoji: teamInfo.emoji,
+        projectId: projectId,
+        isExpanded: true,
+      };
+      this.teams.set(team.id, team);
+      createdTeams[teamKey] = team;
+    }
+
+    // Create agents based on starter pack members
+    for (const memberName of starterPack.members) {
+      const hatchTemplate = allHatchTemplates.find(h => h.name === memberName);
+      if (hatchTemplate) {
+        // Determine which team this agent belongs to
+        const categoryToTeam: Record<string, string> = {
+          "development": "development",
+          "strategy": "strategy",
+          "analytics": "strategy", 
+          "design": "design",
+          "marketing": "marketing",
+          "content": "content",
+          "operations": "operations"
+        };
+        const teamKey = categoryToTeam[hatchTemplate.category] || "strategy";
+        const team = createdTeams[teamKey];
+        
+        if (team) {
+          const agent: Agent = {
+            id: randomUUID(),
+            name: hatchTemplate.name,
+            role: hatchTemplate.role,
+            color: hatchTemplate.color,
+            teamId: team.id,
+            projectId: projectId,
+            personality: {
+              traits: hatchTemplate.skills?.slice(0, 3) || [],
+              communicationStyle: hatchTemplate.description,
+              expertise: hatchTemplate.skills || [],
+              welcomeMessage: `Hi! I'm ${hatchTemplate.name}, your ${hatchTemplate.role}. ${hatchTemplate.description}`
+            },
+            isSpecialAgent: false,
+          };
+          this.agents.set(agent.id, agent);
+        }
+      }
+    }
+
+    // Initialize project brain with starter pack welcome message
+    const project = this.projects.get(projectId);
+    if (project) {
+      const updatedProject = {
+        ...project,
+        brain: {
+          documents: [{
+            id: randomUUID(),
+            title: `${starterPack.title} - Welcome`,
+            content: starterPack.welcomeMessage,
+            type: "project-plan" as const,
+            createdAt: new Date().toISOString()
+          }],
+          sharedMemory: `Project initialized with ${starterPack.title} starter pack. Team members: ${starterPack.members.join(", ")}.`
         }
       };
       this.projects.set(projectId, updatedProject);

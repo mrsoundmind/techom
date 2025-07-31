@@ -4,9 +4,16 @@ import { motion, AnimatePresence } from "framer-motion";
 interface EggHatchingAnimationProps {
   onComplete: () => void;
   projectName: string;
+  completionTitle?: string;
+  completionSubtitle?: string;
 }
 
-export function EggHatchingAnimation({ onComplete, projectName }: EggHatchingAnimationProps) {
+export function EggHatchingAnimation({ 
+  onComplete, 
+  projectName, 
+  completionTitle = "Maya is Ready!", 
+  completionSubtitle = "Your AI idea partner is ready to help." 
+}: EggHatchingAnimationProps) {
   const [stage, setStage] = useState<'floating' | 'cracking' | 'hatched' | 'maya-appears'>('floating');
 
   useEffect(() => {
@@ -124,8 +131,8 @@ export function EggHatchingAnimation({ onComplete, projectName }: EggHatchingAni
                 transition={{ delay: 0.3, duration: 0.4 }}
                 className="mt-3"
               >
-                <h3 className="text-lg font-semibold text-white mb-1">Maya is Ready!</h3>
-                <p className="text-purple-200 text-sm">Your AI idea partner is ready to help.</p>
+                <h3 className="text-lg font-semibold text-white mb-1">{completionTitle}</h3>
+                <p className="text-purple-200 text-sm">{completionSubtitle}</p>
               </motion.div>
             </motion.div>
           )}

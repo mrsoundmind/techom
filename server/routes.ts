@@ -37,6 +37,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.initializeIdeaProject(project.id);
       }
       
+      // If this is a starter pack project, set up teams and agents
+      if (req.body.starterPackId) {
+        await storage.initializeStarterPackProject(project.id, req.body.starterPackId);
+      }
+      
       res.status(201).json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {

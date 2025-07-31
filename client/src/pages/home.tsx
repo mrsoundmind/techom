@@ -18,6 +18,13 @@ export default function Home() {
     name: string;
     description?: string;
   } | null>(null);
+  const [starterPackProjectData, setStarterPackProjectData] = useState<{
+    name: string;
+    description?: string;
+    starterPackId: string;
+    starterPackTitle: string;
+  } | null>(null);
+  const [isPackHatching, setIsPackHatching] = useState(false);
 
   const { data: projects = [], refetch: refetchProjects } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
@@ -225,6 +232,14 @@ export default function Home() {
 
   const handleCreateProjectFromTemplate = async (pack: any, name: string, description?: string) => {
     try {
+      setStarterPackProjectData({ 
+        name, 
+        description, 
+        starterPackId: pack.id,
+        starterPackTitle: pack.title 
+      });
+      setIsPackHatching(true);
+      
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: {
@@ -233,35 +248,70 @@ export default function Home() {
         body: JSON.stringify({
           name,
           description: description || pack.description,
-          emoji: pack.emoji || '🚀',
-          color: pack.color || 'blue'
+          emoji: pack.emoji,
+          color: pack.color,
+          starterPackId: pack.id
         }),
       });
-
-      if (response.ok) {
-        const newProject = await response.json();
-        console.log('Project created from template:', newProject);
-        
-        // Set the new project as active
-        setActiveProjectId(newProject.id);
-        setActiveTeamId(null);
-        setActiveAgentId(null);
-        
-        // Expand the new project
-        setExpandedProjects(prev => {
-          const newSet = new Set(prev);
-          newSet.add(newProject.id);
-          return newSet;
-        });
-        
-        // Trigger data refresh
-        refetchProjects();
-      } else {
-        console.error('Failed to create project from template');
+      
+      if (!response.ok) {
+        throw new Error('Failed to create project');
       }
+      
+      const project = await response.json();
+      console.log("Project created from template:", project);
+      
     } catch (error) {
       console.error('Error creating project from template:', error);
+      setIsPackHatching(false);
+      setStarterPackProjectData(null);
     }
+  };
+
+  // Pack hatching completion handler
+  const handlePackHatchingComplete = async () => {
+    setTimeout(async () => {
+      try {
+        // Close animation first
+        setIsPackHatching(false);
+
+        if (starterPackProjectData) {
+          // Refresh data to get the new project with teams and agents
+          refetchProjects();
+          
+          // Find the newly created project
+          const projects = (await fetch('/api/projects').then(res => res.json())) as Project[];
+          const newProject = projects.find(p => p.name === starterPackProjectData.name);
+          
+          if (newProject) {
+            // Set the new project as active and expand it
+            setActiveProjectId(newProject.id);
+            setActiveTeamId(null);
+            setActiveAgentId(null);
+            
+            // Expand the new project and all its teams
+            setExpandedProjects(prev => {
+              const newSet = new Set(prev);
+              newSet.add(newProject.id);
+              return newSet;
+            });
+            
+            // Get teams for this project and expand them
+            const teams = (await fetch(`/api/projects/${newProject.id}/teams`).then(res => res.json())) as Team[];
+            setExpandedTeams(prev => {
+              const newSet = new Set(prev);
+              teams.forEach(team => newSet.add(team.id));
+              return newSet;
+            });
+          }
+        }
+        
+        setStarterPackProjectData(null);
+      } catch (error) {
+        console.error('Error in handlePackHatchingComplete:', error);
+        setStarterPackProjectData(null);
+      }
+    }, 500);
   };
 
   // Keyboard shortcuts
@@ -321,6 +371,16 @@ export default function Home() {
         <EggHatchingAnimation
           projectName={ideaProjectData.name}
           onComplete={handleEggHatchingComplete}
+        />
+      )}
+      
+      {/* Starter Pack Hatching Animation */}
+      {isPackHatching && starterPackProjectData && (
+        <EggHatchingAnimation
+          projectName={starterPackProjectData.name}
+          completionTitle={`${starterPackProjectData.starterPackTitle} is Ready!`}
+          completionSubtitle="Your team is assembled and ready to work."
+          onComplete={handlePackHatchingComplete}
         />
       )}
     </div>
