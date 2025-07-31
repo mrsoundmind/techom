@@ -59,7 +59,7 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
           </div>
           
           <div className="mb-4">
-            <div className="text-sm hatchin-text-muted mb-2">
+            <div className="hatchin-text-muted mb-2 text-[12px]">
               2.5 weeks — 3 working phases
             </div>
             
