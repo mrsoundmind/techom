@@ -1,5 +1,8 @@
-import { Send } from "lucide-react";
+import { useState } from 'react';
+import { Send, MessageSquare } from "lucide-react";
 import type { Project, Team, Agent } from "@shared/schema";
+import { ChatInterface } from '@/components/chat/ChatInterface';
+import { ChatTypeSelector } from '@/components/chat/ChatTypeSelector';
 
 interface CenterPanelProps {
   activeProject: Project | undefined;
@@ -16,6 +19,16 @@ export function CenterPanel({
   activeTeamId,
   activeAgentId,
 }: CenterPanelProps) {
+  const [chatState, setChatState] = useState<{
+    isActive: boolean;
+    type?: 'project' | 'team' | 'hatch';
+    conversationId?: string;
+    projectId?: string;
+    teamId?: string;
+    agentId?: string;
+    agentName?: string;
+    agentColor?: string;
+  }>({ isActive: false });
   const handleActionClick = (action: string) => {
     console.log('Action triggered:', action);
     
@@ -61,9 +74,18 @@ export function CenterPanel({
             <h1 className="font-semibold hatchin-text text-[16px]">
               {activeProject.emoji} {activeProject.name}
             </h1>
-            <button className="hatchin-bg-blue text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors">
-              + Add Hatch
-            </button>
+            <div className="flex gap-2">
+              <button 
+                className="hatchin-bg-blue text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors"
+                onClick={() => setChatState({ isActive: true })}
+              >
+                <MessageSquare className="w-4 h-4 inline mr-1" />
+                Start Chat
+              </button>
+              <button className="hatchin-bg-blue text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors">
+                + Add Hatch
+              </button>
+            </div>
           </div>
         </div>
         
@@ -81,56 +103,86 @@ export function CenterPanel({
           </div>
         </div>
       </div>
-      {/* Welcome Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-        <div className="max-w-lg">
-          
-          
-          <div className="text-[50px] mt-[2px] mb-[2px]">🚀</div>
-          
-          <h2 className="font-semibold hatchin-text text-[20px] mt-[2px] mb-[2px]">Kickstart your project</h2>
-          <p className="hatchin-text-muted text-[14px] mt-[7px] mb-[7px]">
-            Share your vision and get instant help from your AI team.
-          </p>
-          
-          <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
-            <button 
-              onClick={() => handleActionClick('generateRoadmap')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Give me a product roadmap
-            </button>
-            <button 
-              onClick={() => handleActionClick('setGoals')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Set team goals
-            </button>
-            <button 
-              onClick={() => handleActionClick('summarizeTasks')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Summarize each team's task
-            </button>
-          </div>
-        </div>
-      </div>
-      {/* Chat Input */}
-      <div className="p-6 hatchin-border border-t">
-        <form onSubmit={handleChatSubmit} className="relative">
-          <input 
-            name="message"
-            type="text" 
-            placeholder={`Message ${activeProject.name} team...`}
-            className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
+      {/* Chat System */}
+      <div className="flex-1 flex flex-col">
+        {chatState.isActive && chatState.conversationId ? (
+          <ChatInterface
+            conversationId={chatState.conversationId}
+            chatType={chatState.type!}
+            projectId={chatState.projectId!}
+            teamId={chatState.teamId}
+            agentId={chatState.agentId}
+            agentName={chatState.agentName}
+            agentColor={chatState.agentColor}
           />
-          <button 
-            type="submit"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-blue hover:text-opacity-80 transition-colors"
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
+        ) : chatState.isActive ? (
+          <ChatTypeSelector
+            projectId={activeProject.id}
+            onChatSelect={(chatInfo) => {
+              setChatState({
+                isActive: true,
+                type: chatInfo.type,
+                conversationId: chatInfo.conversationId,
+                projectId: chatInfo.projectId,
+                teamId: chatInfo.teamId,
+                agentId: chatInfo.agentId,
+                agentName: chatInfo.agentName,
+                agentColor: chatInfo.agentColor,
+              });
+            }}
+          />
+        ) : (
+          <>
+            {/* Welcome Content */}
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div className="max-w-lg">
+                <div className="text-[50px] mt-[2px] mb-[2px]">🚀</div>
+                <h2 className="font-semibold hatchin-text text-[20px] mt-[2px] mb-[2px]">Kickstart your project</h2>
+                <p className="hatchin-text-muted text-[14px] mt-[7px] mb-[7px]">
+                  Share your vision and get instant help from your AI team.
+                </p>
+                
+                <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
+                  <button 
+                    onClick={() => handleActionClick('generateRoadmap')}
+                    className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Give me a product roadmap
+                  </button>
+                  <button 
+                    onClick={() => handleActionClick('setGoals')}
+                    className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Set team goals
+                  </button>
+                  <button 
+                    onClick={() => handleActionClick('summarizeTasks')}
+                    className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Summarize each team's task
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* Chat Input */}
+            <div className="p-6 hatchin-border border-t">
+              <form onSubmit={handleChatSubmit} className="relative">
+                <input 
+                  name="message"
+                  type="text" 
+                  placeholder={`Message ${activeProject.name} team...`}
+                  className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-blue hover:text-opacity-80 transition-colors"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
