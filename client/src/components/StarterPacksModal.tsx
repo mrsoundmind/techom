@@ -505,9 +505,9 @@ export default function StarterPacksModal({
 
           {/* Template Grid */}
           <div className="flex-1 overflow-y-scroll scrollbar-stable">
-            <div className="p-6">
+            <div className="p-4">
               <div 
-                className="grid gap-4"
+                className="grid gap-3"
                 style={{ 
                   gridTemplateColumns: 'repeat(auto-fit, 320px)', 
                   justifyContent: 'center'
@@ -541,7 +541,7 @@ interface TemplateCardProps {
 function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardProps) {
   return (
     <motion.div
-      className="bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50 pl-[19px] pr-[19px]"
+      className="bg-[#37383B] rounded-xl p-3 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50"
       style={{ 
         width: '320px', 
         height: '256px',

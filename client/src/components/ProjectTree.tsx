@@ -52,16 +52,26 @@ export function ProjectTree({
   const getAgentColorClass = (color: string) => {
     switch (color) {
       case 'orange':
-        return 'agent-dot-orange';
+      case 'amber':
+        return 'bg-[#FFB547]';
       case 'blue':
-        return 'agent-dot-blue';
+        return 'bg-[#6C82FF]';
       case 'green':
-        return 'agent-dot-green';
+        return 'bg-[#47DB9A]';
       case 'purple':
-        return 'agent-dot-purple';
+        return 'bg-[#9F7BFF]';
       default:
-        return 'agent-dot-blue';
+        return 'bg-[#6C82FF]';
     }
+  };
+
+  const getAgentInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -164,7 +174,11 @@ export function ProjectTree({
                                 }`}
                                 onClick={() => onSelectAgent(agent.id)}
                               >
-                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getAgentColorClass(agent.color)}`}></div>
+                                <div className={`w-6 h-6 rounded-full flex-shrink-0 ${getAgentColorClass(agent.color)} flex items-center justify-center`}>
+                                  <span className="text-xs font-semibold text-white">
+                                    {getAgentInitials(agent.name)}
+                                  </span>
+                                </div>
                                 <span className="text-sm hatchin-text-muted truncate">
                                   {highlightMatch(agent.name, searchQuery)}
                                 </span>
