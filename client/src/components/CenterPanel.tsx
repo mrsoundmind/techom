@@ -152,7 +152,7 @@ export function CenterPanel({
       case 'project':
         return {
           title: `${activeProject?.emoji} ${activeProject?.name}`,
-          subtitle: `Project Chat • ${participants.length} Colleagues`,
+          subtitle: `Project Chat • ${activeProjectTeams.length} teams`,
           participants,
           placeholder: `Message all teams in ${activeProject?.name}...`,
           welcomeTitle: 'Talk to your entire project team',
