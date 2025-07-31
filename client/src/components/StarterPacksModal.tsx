@@ -506,7 +506,7 @@ export default function StarterPacksModal({
           {/* Template Grid */}
           <div className="flex-1 overflow-y-auto">
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 justify-items-center">
                 {starterPacksByCategory[activeCategory]?.packs.map(pack => (
                   <TemplateCard 
                     key={pack.id} 
@@ -535,7 +535,7 @@ interface TemplateCardProps {
 function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardProps) {
   return (
     <motion.div
-      className={`bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer ${
+      className={`bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer w-80 h-64 flex flex-col ${
         isSelected 
           ? 'border-[#6C82FF] bg-[#6C82FF]/5 scale-[0.98]' 
           : 'border-[#43444B] hover:border-[#6C82FF]/50'
@@ -581,35 +581,37 @@ function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardPro
         </div>
       </div>
 
-      {/* Team Preview */}
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-1">
-          {pack.members.slice(0, 3).map((memberName: string) => {
-            const hatch = getHatchTemplate(memberName);
-            return (
-              <div key={memberName} className="flex items-center gap-1 bg-[#23262B] rounded px-2 py-1">
-                <div className={`w-4 h-4 rounded-full ${
-                  hatch?.color === 'blue' ? 'bg-[#6C82FF]' :
-                  hatch?.color === 'green' ? 'bg-[#47DB9A]' :
-                  hatch?.color === 'purple' ? 'bg-[#9F7BFF]' :
-                  hatch?.color === 'amber' ? 'bg-[#FFB547]' :
-                  'bg-[#6C82FF]'
-                }`} />
-                <span className="text-xs text-[#F1F1F3]">{memberName}</span>
+      {/* Team Preview - Scrollable */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto space-y-2">
+          <div className="flex flex-wrap gap-1">
+            {pack.members.slice(0, 3).map((memberName: string) => {
+              const hatch = getHatchTemplate(memberName);
+              return (
+                <div key={memberName} className="flex items-center gap-1 bg-[#23262B] rounded px-2 py-1">
+                  <div className={`w-4 h-4 rounded-full ${
+                    hatch?.color === 'blue' ? 'bg-[#6C82FF]' :
+                    hatch?.color === 'green' ? 'bg-[#47DB9A]' :
+                    hatch?.color === 'purple' ? 'bg-[#9F7BFF]' :
+                    hatch?.color === 'amber' ? 'bg-[#FFB547]' :
+                    'bg-[#6C82FF]'
+                  }`} />
+                  <span className="text-xs text-[#F1F1F3]">{memberName}</span>
+                </div>
+              );
+            })}
+            
+            {pack.members.length > 3 && (
+              <div className="flex items-center justify-center bg-[#23262B] rounded px-2 py-1">
+                <span className="text-xs text-[#A6A7AB]">+{pack.members.length - 3}</span>
               </div>
-            );
-          })}
-          
-          {pack.members.length > 3 && (
-            <div className="flex items-center justify-center bg-[#23262B] rounded px-2 py-1">
-              <span className="text-xs text-[#A6A7AB]">+{pack.members.length - 3}</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {/* CTA Button */}
-      <div className="mt-3 pt-3 border-t border-[#43444B]">
+      {/* CTA Button - Fixed at bottom */}
+      <div className="mt-auto pt-3 border-t border-[#43444B]">
         <button
           className={`w-full px-3 py-2 rounded-lg transition-all duration-200 text-xs font-medium ${
             isSelected 
