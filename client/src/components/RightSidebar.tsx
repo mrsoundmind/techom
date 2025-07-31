@@ -50,7 +50,7 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
         
         <div className="hatchin-bg-card rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm hatchin-text-muted">
+            <span className="hatchin-text-muted text-[12px]">
               Time spent: {activeProject.timeSpent}
             </span>
             <span className="text-sm font-medium hatchin-text">
