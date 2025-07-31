@@ -406,57 +406,54 @@ export function CenterPanel({
           </div>
         </div>
       </div>
-      {/* Chat Messages Area - Task 2.3 Implementation */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {currentMessages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center">
-            <div>
-              <div className="text-4xl mb-4">{contextDisplay.welcomeIcon}</div>
-              <h3 className="font-medium hatchin-text mb-2">{contextDisplay.welcomeTitle}</h3>
-              <p className="hatchin-text-muted text-sm">{contextDisplay.welcomeSubtitle}</p>
-            </div>
+      {/* Chat Content Area - Clean welcome state only */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div className="max-w-lg">
+          <div className="text-4xl mb-4">{contextDisplay.welcomeIcon}</div>
+          <h3 className="font-medium hatchin-text mb-2">{contextDisplay.welcomeTitle}</h3>
+          <p className="hatchin-text-muted text-sm mb-6">{contextDisplay.welcomeSubtitle}</p>
+          
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button 
+              onClick={() => handleActionClick('generateRoadmap')}
+              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Give me a product roadmap
+            </button>
+            <button 
+              onClick={() => handleActionClick('setGoals')}
+              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Set team goals
+            </button>
+            <button 
+              onClick={() => handleActionClick('summarizeTasks')}
+              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Summarize each team's task
+            </button>
           </div>
-        ) : (
-          currentMessages.map((message: any) => (
-            <div key={message.id} className={`flex ${message.messageType === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                message.messageType === 'user' 
-                  ? 'bg-hatchin-blue text-white' 
-                  : 'hatchin-bg-card hatchin-text'
-              }`}>
-                {message.messageType === 'agent' && (
-                  <div className="text-xs hatchin-text-muted mb-1">
-                    {getCurrentChatParticipants().find(p => p.id === message.agentId)?.name || 'AI Assistant'}
-                  </div>
-                )}
-                <div className="text-sm">{message.content}</div>
-                <div className="text-xs mt-1 opacity-70">
-                  {new Date(message.createdAt).toLocaleTimeString()}
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+        </div>
       </div>
 
-      {/* Chat Input - Task 2.3 Implementation */}
+      {/* Chat Input - Disabled for now */}
       <div className="p-6 hatchin-border border-t">
-        <form onSubmit={handleMessageSubmit} className="relative">
+        <div className="relative">
           <input 
             name="message"
             type="text" 
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            placeholder={contextDisplay.placeholder}
-            className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
+            placeholder="Chat functionality temporarily disabled - fixing popup issue..."
+            disabled
+            className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted opacity-50 cursor-not-allowed"
           />
           <button 
-            type="submit"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-blue hover:text-opacity-80 transition-colors"
+            type="button"
+            disabled
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-text-muted opacity-50"
           >
             <Send className="w-4 h-4" />
           </button>
-        </form>
+        </div>
       </div>
     </main>
   );
