@@ -138,26 +138,17 @@ export interface StopTypingMessage {
   agentId: string;
 }
 
-// Connection status indicator component
-export function ConnectionStatus({ status }: { status: 'connecting' | 'connected' | 'disconnected' | 'error' }) {
-  const statusConfig = {
-    connecting: { color: 'text-yellow-500', text: 'Connecting...' },
-    connected: { color: 'text-green-500', text: 'Connected' },
-    disconnected: { color: 'text-gray-500', text: 'Disconnected' },
-    error: { color: 'text-red-500', text: 'Connection Error' }
-  };
-
-  const config = statusConfig[status];
-
-  return (
-    <div className={`flex items-center gap-2 text-xs ${config.color}`}>
-      <div className={`w-2 h-2 rounded-full ${
-        status === 'connected' ? 'bg-green-500' :
-        status === 'connecting' ? 'bg-yellow-500 animate-pulse' :
-        status === 'error' ? 'bg-red-500' :
-        'bg-gray-500'
-      }`} />
-      {config.text}
-    </div>
-  );
+// Connection status indicator component (to be used in React components)
+export interface ConnectionStatusProps { 
+  status: 'connecting' | 'connected' | 'disconnected' | 'error';
 }
+
+export const getConnectionStatusConfig = (status: ConnectionStatusProps['status']) => {
+  const statusConfig = {
+    connecting: { color: 'text-yellow-500', text: 'Connecting...', bgColor: 'bg-yellow-500 animate-pulse' },
+    connected: { color: 'text-green-500', text: 'Connected', bgColor: 'bg-green-500' },
+    disconnected: { color: 'text-gray-500', text: 'Disconnected', bgColor: 'bg-gray-500' },
+    error: { color: 'text-red-500', text: 'Connection Error', bgColor: 'bg-red-500' }
+  };
+  return statusConfig[status];
+};

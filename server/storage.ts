@@ -548,7 +548,11 @@ export class MemStorage implements IStorage {
   async createConversation(conversation: InsertConversation): Promise<Conversation> {
     const newConversation: Conversation = {
       id: randomUUID(),
-      ...conversation,
+      projectId: conversation.projectId,
+      teamId: conversation.teamId || null,
+      agentId: conversation.agentId || null,
+      type: conversation.type,
+      title: conversation.title || null,
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -567,7 +571,11 @@ export class MemStorage implements IStorage {
   async createMessage(message: InsertMessage): Promise<Message> {
     const newMessage: Message = {
       id: randomUUID(),
-      ...message,
+      conversationId: message.conversationId,
+      userId: message.userId || null,
+      agentId: message.agentId || null,
+      content: message.content,
+      messageType: message.messageType,
       metadata: message.metadata || {},
       createdAt: new Date(),
       updatedAt: new Date(),

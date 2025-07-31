@@ -173,6 +173,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const validatedData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(validatedData);
+      res.status(201).json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid message data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create message" });
+    }
+  });
+
+  // Test endpoint for message storage validation
+  app.post("/api/test/chat-storage", async (req, res) => {
+    try {
+      // Test conversation creation
+      const testConversation = await storage.createConversation({
+        projectId: "saas-startup",
+        teamId: null,
+        agentId: null,
+        type: "project",
+        title: "Test Project Chat"
+      });
+
+      // Test message creation
+      const testMessage = await storage.createMessage({
+        conversationId: testConversation.id,
+        userId: null,
+        agentId: "product-designer",
+        content: "Hello! This is a test message from storage validation.",
+        messageType: "agent",
+        metadata: {
+          isStreaming: false,
+          personality: "friendly"
+        }
+      });
+
+      // Test message retrieval
+      const messages = await storage.getMessagesByConversation(testConversation.id);
+
+      res.json({
+        success: true,
+        testResults: {
+          conversationCreated: testConversation,
+          messageCreated: testMessage,
+          messagesRetrieved: messages,
+          messageCount: messages.length
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Storage test failed", details: error });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket Server Setup
