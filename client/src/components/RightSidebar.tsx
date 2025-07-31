@@ -53,7 +53,7 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
             <span className="hatchin-text-muted text-[12px]">
               Time spent: {activeProject.timeSpent}
             </span>
-            <span className="text-sm font-medium hatchin-text">
+            <span className="hatchin-text text-[#1cd979] font-bold text-[12px]">
               {activeProject.progress}% complete
             </span>
           </div>
