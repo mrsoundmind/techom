@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ProjectTree } from "@/components/ProjectTree";
-import { ChevronDown, Search, Settings, LogOut, User } from "lucide-react";
+import { ChevronDown, Search, Settings, LogOut, User, X } from "lucide-react";
 import type { Project, Team, Agent } from "@shared/schema";
 
 interface LeftSidebarProps {
@@ -35,7 +35,9 @@ export function LeftSidebar({
   onToggleTeamExpanded,
 }: LeftSidebarProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -48,6 +50,51 @@ export function LeftSidebar({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape' && searchQuery) {
+        setSearchQuery("");
+        searchInputRef.current?.blur();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, [searchQuery]);
+
+  // Filter projects, teams, and agents based on search
+  const filterData = () => {
+    if (!searchQuery.trim()) {
+      return { filteredProjects: projects, filteredTeams: teams, filteredAgents: agents };
+    }
+
+    const query = searchQuery.toLowerCase();
+    
+    const filteredAgents = agents.filter(agent =>
+      agent.name.toLowerCase().includes(query) ||
+      agent.role.toLowerCase().includes(query)
+    );
+    
+    const filteredTeams = teams.filter(team =>
+      team.name.toLowerCase().includes(query) ||
+      filteredAgents.some(agent => agent.teamId === team.id)
+    );
+    
+    const filteredProjects = projects.filter(project =>
+      project.name.toLowerCase().includes(query) ||
+      filteredTeams.some(team => team.projectId === project.id)
+    );
+
+    return { filteredProjects, filteredTeams, filteredAgents };
+  };
+
+  const { filteredProjects, filteredTeams, filteredAgents } = filterData();
 
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-4 overflow-y-auto pl-[20px] pr-[20px]">
@@ -91,10 +138,21 @@ export function LeftSidebar({
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 hatchin-text-muted" />
         <input 
+          ref={searchInputRef}
           type="text" 
-          placeholder="Search projects or hatches"
-          className="w-full hatchin-bg-card hatchin-border border rounded-lg pl-10 pr-4 py-2.5 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
+          placeholder="Search projects or hatches (⌘K)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full hatchin-bg-card hatchin-border border rounded-lg pl-10 pr-10 py-2.5 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
         />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-text-muted hover:hatchin-text transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
       {/* Projects Section */}
       <div className="mb-6">
@@ -107,21 +165,36 @@ export function LeftSidebar({
           </button>
         </div>
         
-        <ProjectTree
-          projects={projects}
-          teams={teams}
-          agents={agents}
-          activeProjectId={activeProjectId}
-          activeTeamId={activeTeamId}
-          activeAgentId={activeAgentId}
-          expandedProjects={expandedProjects}
-          expandedTeams={expandedTeams}
-          onSelectProject={onSelectProject}
-          onSelectTeam={onSelectTeam}
-          onSelectAgent={onSelectAgent}
-          onToggleProjectExpanded={onToggleProjectExpanded}
-          onToggleTeamExpanded={onToggleTeamExpanded}
-        />
+        {filteredProjects.length > 0 ? (
+          <ProjectTree
+            projects={filteredProjects}
+            teams={filteredTeams}
+            agents={filteredAgents}
+            activeProjectId={activeProjectId}
+            activeTeamId={activeTeamId}
+            activeAgentId={activeAgentId}
+            expandedProjects={expandedProjects}
+            expandedTeams={expandedTeams}
+            onSelectProject={onSelectProject}
+            onSelectTeam={onSelectTeam}
+            onSelectAgent={onSelectAgent}
+            onToggleProjectExpanded={onToggleProjectExpanded}
+            onToggleTeamExpanded={onToggleTeamExpanded}
+            searchQuery={searchQuery}
+          />
+        ) : searchQuery ? (
+          <div className="text-center py-8">
+            <div className="hatchin-text-muted text-sm">
+              No results found for "{searchQuery}"
+            </div>
+            <button 
+              onClick={() => setSearchQuery("")}
+              className="hatchin-blue text-sm hover:underline mt-2"
+            >
+              Clear search
+            </button>
+          </div>
+        ) : null}
       </div>
     </aside>
   );

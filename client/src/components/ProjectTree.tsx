@@ -15,6 +15,7 @@ interface ProjectTreeProps {
   onSelectAgent: (agentId: string | null) => void;
   onToggleProjectExpanded: (projectId: string) => void;
   onToggleTeamExpanded: (teamId: string) => void;
+  searchQuery?: string;
 }
 
 export function ProjectTree({
@@ -31,7 +32,23 @@ export function ProjectTree({
   onSelectAgent,
   onToggleProjectExpanded,
   onToggleTeamExpanded,
+  searchQuery = "",
 }: ProjectTreeProps) {
+  // Helper function to highlight search matches
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    
+    const regex = new RegExp(`(${query})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <span key={index} className="bg-hatchin-blue/20 text-hatchin-blue rounded px-1">
+          {part}
+        </span>
+      ) : part
+    );
+  };
   const getAgentColorClass = (color: string) => {
     switch (color) {
       case 'orange':
@@ -84,7 +101,7 @@ export function ProjectTree({
                 </div>
                 <span className="text-sm font-medium hatchin-text truncate">
                   <span className="mr-2">{project.emoji}</span>
-                  {project.name}
+                  {highlightMatch(project.name, searchQuery)}
                 </span>
               </div>
               <button className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:hatchin-text transition-opacity flex-shrink-0">
@@ -131,7 +148,7 @@ export function ProjectTree({
                           </div>
                           <span className="text-sm hatchin-text truncate">
                             <span className="mr-2">{team.emoji}</span>
-                            {team.name}
+                            {highlightMatch(team.name, searchQuery)}
                           </span>
                           <span className="text-xs hatchin-text-muted flex-shrink-0">
                             ({teamAgents.length})
@@ -157,7 +174,7 @@ export function ProjectTree({
                               >
                                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getAgentColorClass(agent.color)}`}></div>
                                 <span className="text-sm hatchin-text-muted truncate">
-                                  {agent.name}
+                                  {highlightMatch(agent.name, searchQuery)}
                                 </span>
                               </div>
                             );
