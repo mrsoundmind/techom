@@ -143,7 +143,7 @@ export function LeftSidebar({
           placeholder="Search projects or hatches (⌘K)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full hatchin-bg-card hatchin-border border rounded-lg pl-10 pr-10 py-2.5 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
+          className="w-full hatchin-bg-card hatchin-border border rounded-lg py-2.5 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent pl-[32px] pr-[32px]"
         />
         {searchQuery && (
           <button
