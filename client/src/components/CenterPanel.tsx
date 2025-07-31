@@ -58,7 +58,7 @@ export function CenterPanel({
       <div className="p-6 hatchin-border border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold hatchin-text">
+            <h1 className="font-semibold hatchin-text text-[16px]">
               {activeProject.emoji} {activeProject.name}
             </h1>
             <button className="hatchin-bg-blue text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors">
