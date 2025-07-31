@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   X, 
@@ -433,6 +433,13 @@ export default function StarterPacksModal({
     setSelectedPack(pack.id);
     onSelectTemplate(pack);
   };
+
+  // Reset selected pack when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedPack(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

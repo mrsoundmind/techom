@@ -309,6 +309,7 @@ export default function Home() {
           }
         }
         
+        // Reset the starter pack project data
         setStarterPackProjectData(null);
       } catch (error) {
         console.error('Error in handlePackHatchingComplete:', error);

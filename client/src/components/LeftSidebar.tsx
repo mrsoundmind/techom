@@ -177,6 +177,8 @@ export function LeftSidebar({
     setSelectedTemplate(null);
   };
 
+
+
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-4 overflow-y-auto pl-[20px] pr-[20px]">
       {/* Welcome Header */}
