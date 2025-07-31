@@ -551,7 +551,7 @@ export class MemStorage implements IStorage {
       projectId: conversation.projectId,
       teamId: conversation.teamId || null,
       agentId: conversation.agentId || null,
-      type: conversation.type,
+      type: conversation.type as "project" | "team" | "hatch",
       title: conversation.title || null,
       isActive: true,
       createdAt: new Date(),
@@ -575,8 +575,14 @@ export class MemStorage implements IStorage {
       userId: message.userId || null,
       agentId: message.agentId || null,
       content: message.content,
-      messageType: message.messageType,
-      metadata: message.metadata || {},
+      messageType: message.messageType as "user" | "agent" | "system",
+      metadata: (message.metadata || {}) as {
+        isStreaming?: boolean;
+        typingDuration?: number;
+        responseTime?: number;
+        personality?: string;
+        mentions?: string[];
+      },
       createdAt: new Date(),
       updatedAt: new Date(),
     };
