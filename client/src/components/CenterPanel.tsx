@@ -83,6 +83,63 @@ export function CenterPanel({
   }, [activeProject?.id, activeTeamId, activeAgentId, activeProjectAgents]);
 
   // === END SUBTASK 2.1.1 ===
+
+  // === SUBTASK 2.1.2: Context Calculation Logic ===
+  
+  // Get participants for current chat context
+  const getCurrentChatParticipants = (): Agent[] => {
+    if (!activeProject || !currentChatContext) return [];
+    
+    switch (currentChatContext.mode) {
+      case 'project':
+        // Project mode: Return all agents under activeProject
+        return activeProjectAgents;
+      
+      case 'team':
+        // Team mode: Return all agents under activeTeam
+        return activeProjectAgents.filter(agent => agent.teamId === activeTeamId);
+      
+      case 'agent':
+        // Agent mode: Return single activeAgent
+        return activeProjectAgents.filter(agent => agent.id === activeAgentId);
+      
+      default:
+        return [];
+    }
+  };
+
+  // Get shared project memory context
+  const getSharedProjectMemory = () => {
+    if (!activeProject) return null;
+    
+    return {
+      projectId: activeProject.id,
+      projectName: activeProject.name,
+      projectGoal: activeProject.description || '',
+      teams: activeProjectTeams,
+      agents: activeProjectAgents,
+      // All participants share this memory regardless of chat mode
+      sharedContext: `Project: ${activeProject.name}`,
+      memoryScope: 'project-wide' // Same memory for all team/agent chats
+    };
+  };
+
+  // Generate conversation ID based on chat context (already implemented in useEffect)
+  const generateConversationId = (mode: ChatMode, projectId: string, contextId?: string): string => {
+    switch (mode) {
+      case 'project':
+        return `project-${projectId}`;
+      case 'team':
+        return `team-${projectId}-${contextId}`;
+      case 'agent':
+        return `agent-${projectId}-${contextId}`;
+      default:
+        return `project-${projectId}`;
+    }
+  };
+
+  // === END SUBTASK 2.1.2 ===
+
   const handleActionClick = (action: string) => {
     console.log('Action triggered:', action);
     
