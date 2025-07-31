@@ -36,16 +36,14 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold hatchin-text">🧠 Project Overview</h2>
+        <h2 className="font-semibold hatchin-text text-[16px]">🧠 Project Overview</h2>
         <button className="hatchin-text-muted hover:text-hatchin-text">
           <X className="w-4 h-4" />
         </button>
       </div>
-      
       <p className="text-sm hatchin-text-muted mb-6">
         A shared brain for your team to stay aligned.
       </p>
-      
       {/* Project Progress */}
       <div className="mb-8">
         <h3 className="text-sm font-medium mb-4 hatchin-text">Project Progress</h3>
@@ -75,7 +73,6 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
           </div>
         </div>
       </div>
-      
       {/* Core Direction */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -130,7 +127,6 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
           </div>
         </div>
       </div>
-      
       {/* Execution Ground Rules */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -152,7 +148,6 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
           placeholder="Define team principles, constraints, or guidelines"
         />
       </div>
-      
       {/* Team Culture & Style */}
       <div>
         <div className="flex items-center justify-between mb-4">
