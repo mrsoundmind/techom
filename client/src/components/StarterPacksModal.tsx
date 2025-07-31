@@ -467,50 +467,57 @@ export default function StarterPacksModal({
           </button>
         </div>
 
-        {/* Category Navigation */}
-        <div className="px-6 py-4 border-b border-[#43444B]">
-          <div className="flex gap-2 overflow-x-auto">
-            {Object.entries(starterPacksByCategory).map(([categoryId, category]: [string, TemplateCategory]) => {
-              const IconComponent = categoryIcons[category.icon as keyof typeof categoryIcons] || Briefcase;
-              const packCount = category.packs.length;
-              
-              return (
-                <button
-                  key={categoryId}
-                  onClick={() => setActiveCategory(categoryId)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all duration-200 ${
-                    activeCategory === categoryId 
-                      ? 'bg-[#6C82FF] text-white' 
-                      : 'bg-[#37383B] text-[#A6A7AB] hover:bg-[#43444B] hover:text-[#F1F1F3]'
-                  }`}
-                >
-                  <IconComponent size={16} />
-                  <span className="text-sm font-medium">{category.title}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${
-                    activeCategory === categoryId 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-[#43444B] text-[#A6A7AB]'
-                  }`}>
-                    {packCount}
-                  </span>
-                </button>
-              );
-            })}
+        {/* Content Area with Sidebar Layout */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Category Sidebar */}
+          <div className="w-64 border-r border-[#43444B] bg-[#1A1C1F]">
+            <div className="p-4">
+              <div className="space-y-1">
+                {Object.entries(starterPacksByCategory).map(([categoryId, category]: [string, TemplateCategory]) => {
+                  const IconComponent = categoryIcons[category.icon as keyof typeof categoryIcons] || Briefcase;
+                  const packCount = category.packs.length;
+                  
+                  return (
+                    <button
+                      key={categoryId}
+                      onClick={() => setActiveCategory(categoryId)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 ${
+                        activeCategory === categoryId 
+                          ? 'bg-[#6C82FF] text-white' 
+                          : 'text-[#A6A7AB] hover:bg-[#37383B] hover:text-[#F1F1F3]'
+                      }`}
+                    >
+                      <IconComponent size={16} className="flex-shrink-0" />
+                      <span className="text-sm font-medium flex-1">{category.title}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        activeCategory === categoryId 
+                          ? 'bg-white/20 text-white' 
+                          : 'bg-[#43444B] text-[#A6A7AB]'
+                      }`}>
+                        {packCount}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Template Grid */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {starterPacksByCategory[activeCategory]?.packs.map(pack => (
-              <TemplateCard 
-                key={pack.id} 
-                pack={pack} 
-                isSelected={selectedPack === pack.id}
-                isLoading={isLoading && selectedPack === pack.id}
-                onSelect={() => handleSelectPack(pack)}
-              />
-            ))}
+          {/* Template Grid */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {starterPacksByCategory[activeCategory]?.packs.map(pack => (
+                  <TemplateCard 
+                    key={pack.id} 
+                    pack={pack} 
+                    isSelected={selectedPack === pack.id}
+                    isLoading={isLoading && selectedPack === pack.id}
+                    onSelect={() => handleSelectPack(pack)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

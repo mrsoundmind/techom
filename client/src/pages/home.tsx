@@ -95,11 +95,12 @@ export default function Home() {
         setActiveTeamId(null);
         setActiveAgentId(null);
         
-        // Expand the new project
-        setExpandedProjects(prev => new Set([...prev, newProject.id]));
-        
-        // Refresh data
-        window.location.reload();
+        // Expand the new project  
+        setExpandedProjects(prev => {
+          const newSet = new Set(prev);
+          newSet.add(newProject.id);
+          return newSet;
+        });
       } else {
         console.error('Failed to create project');
       }
@@ -133,10 +134,11 @@ export default function Home() {
         setActiveAgentId(null);
         
         // Expand the new project
-        setExpandedProjects(prev => new Set([...prev, newProject.id]));
-        
-        // Refresh data
-        window.location.reload();
+        setExpandedProjects(prev => {
+          const newSet = new Set(prev);
+          newSet.add(newProject.id);
+          return newSet;
+        });
       } else {
         console.error('Failed to create project from template');
       }
