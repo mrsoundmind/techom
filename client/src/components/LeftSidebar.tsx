@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { ProjectTree } from "@/components/ProjectTree";
 import { ChevronDown, Search, Settings, LogOut, User, X } from "lucide-react";
 import type { Project, Team, Agent } from "@shared/schema";
+import QuickStartModal from "@/components/QuickStartModal";
+import StarterPacksModal from "@/components/StarterPacksModal";
+import ProjectNameModal from "@/components/ProjectNameModal";
+import type { StarterPack } from "../../../shared/templates";
 
 interface LeftSidebarProps {
   projects: Project[];
@@ -17,6 +21,8 @@ interface LeftSidebarProps {
   onSelectAgent: (agentId: string | null) => void;
   onToggleProjectExpanded: (projectId: string) => void;
   onToggleTeamExpanded: (teamId: string) => void;
+  onCreateProject?: (name: string, description?: string) => void;
+  onCreateProjectFromTemplate?: (pack: StarterPack, name: string, description?: string) => void;
 }
 
 export function LeftSidebar({
@@ -33,15 +39,21 @@ export function LeftSidebar({
   onSelectAgent,
   onToggleProjectExpanded,
   onToggleTeamExpanded,
+  onCreateProject,
+  onCreateProjectFromTemplate,
 }: LeftSidebarProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectEmoji, setNewProjectEmoji] = useState("🚀");
+  
+  // Add Project flow modals
+  const [showQuickStart, setShowQuickStart] = useState(false);
+  const [showStarterPacks, setShowStarterPacks] = useState(false);
+  const [showProjectName, setShowProjectName] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<StarterPack | null>(null);
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const addProjectRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -99,6 +111,57 @@ export function LeftSidebar({
   };
 
   const { filteredProjects, filteredTeams, filteredAgents } = filterData();
+
+  // Add Project flow handlers
+  const handleAddProjectClick = () => {
+    setShowQuickStart(true);
+  };
+
+  const handleStartWithIdea = () => {
+    setShowQuickStart(false);
+    setShowProjectName(true);
+    setSelectedTemplate(null);
+  };
+
+  const handleUseStarterPack = () => {
+    setShowQuickStart(false);
+    setShowStarterPacks(true);
+  };
+
+  const handleTemplateSelect = (pack: StarterPack) => {
+    setSelectedTemplate(pack);
+    setShowStarterPacks(false);
+    setShowProjectName(true);
+  };
+
+  const handleProjectNameConfirm = async (name: string, description?: string) => {
+    if (!name.trim()) return;
+    
+    setIsCreatingProject(true);
+    
+    try {
+      if (selectedTemplate && onCreateProjectFromTemplate) {
+        await onCreateProjectFromTemplate(selectedTemplate, name, description);
+      } else if (onCreateProject) {
+        await onCreateProject(name, description);
+      }
+      
+      // Close all modals and reset state
+      setShowProjectName(false);
+      setSelectedTemplate(null);
+    } catch (error) {
+      console.error('Error creating project:', error);
+    } finally {
+      setIsCreatingProject(false);
+    }
+  };
+
+  const handleCloseModals = () => {
+    setShowQuickStart(false);
+    setShowStarterPacks(false);
+    setShowProjectName(false);
+    setSelectedTemplate(null);
+  };
 
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-4 overflow-y-auto pl-[20px] pr-[20px]">
@@ -164,7 +227,10 @@ export function LeftSidebar({
           <h2 className="font-medium hatchin-text-muted uppercase tracking-wide text-[12px]">
             Projects
           </h2>
-          <button className="hatchin-blue hover:bg-hatchin-card px-2 py-1 rounded text-xs font-medium transition-colors">
+          <button 
+            onClick={handleAddProjectClick}
+            className="hatchin-blue hover:bg-hatchin-card px-2 py-1 rounded text-xs font-medium transition-colors"
+          >
             + ADD PROJECT
           </button>
         </div>
@@ -200,6 +266,42 @@ export function LeftSidebar({
           </div>
         ) : null}
       </div>
+
+      {/* Add Project Modals */}
+      <QuickStartModal
+        isOpen={showQuickStart}
+        onClose={handleCloseModals}
+        onStartWithIdea={handleStartWithIdea}
+        onUseStarterPack={handleUseStarterPack}
+      />
+
+      <StarterPacksModal
+        isOpen={showStarterPacks}
+        onClose={handleCloseModals}
+        onBack={() => {
+          setShowStarterPacks(false);
+          setShowQuickStart(true);
+        }}
+        onSelectTemplate={handleTemplateSelect}
+        isLoading={isCreatingProject}
+      />
+
+      <ProjectNameModal
+        isOpen={showProjectName}
+        onClose={handleCloseModals}
+        onBack={() => {
+          setShowProjectName(false);
+          if (selectedTemplate) {
+            setShowStarterPacks(true);
+          } else {
+            setShowQuickStart(true);
+          }
+        }}
+        onConfirm={handleProjectNameConfirm}
+        templateName={selectedTemplate?.title}
+        templateDescription={selectedTemplate?.description}
+        isLoading={isCreatingProject}
+      />
     </aside>
   );
 }
