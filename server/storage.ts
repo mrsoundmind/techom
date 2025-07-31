@@ -251,6 +251,7 @@ export class MemStorage implements IStorage {
     const project: Project = { 
       ...insertProject, 
       id,
+      description: insertProject.description || null,
       emoji: insertProject.emoji || "🚀",
       color: insertProject.color || "blue",
       isExpanded: insertProject.isExpanded ?? true,

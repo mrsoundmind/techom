@@ -29,17 +29,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/projects", async (req, res) => {
     try {
-      const validatedData = insertProjectSchema.parse(req.body);
-      const project = await storage.createProject(validatedData);
+      const validatedData = insertProjectSchema.extend({
+        starterPackId: z.string().optional(),
+        projectType: z.string().optional()
+      }).parse(req.body);
+      const { starterPackId, projectType, ...projectData } = validatedData;
+      const project = await storage.createProject(projectData);
       
       // If this is an "idea" project, automatically set up Maya agent and brain
-      if (req.body.projectType === 'idea') {
+      if (projectType === 'idea') {
         await storage.initializeIdeaProject(project.id);
       }
       
       // If this is a starter pack project, set up teams and agents
-      if (req.body.starterPackId) {
-        await storage.initializeStarterPackProject(project.id, req.body.starterPackId);
+      if (starterPackId) {
+        await storage.initializeStarterPackProject(project.id, starterPackId);
       }
       
       res.status(201).json(project);
