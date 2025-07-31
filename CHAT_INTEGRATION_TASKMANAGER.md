@@ -9,12 +9,19 @@
 ## 🎯 Project Overview
 Integration of comprehensive chat system into existing EnhancedMultiAgentChat component with three chat modes (Project/Team/Agent), real-time WebSocket communication, and contextual UI that adapts to current selection states from ProjectSidebar.
 
+**Chat Context Hierarchy:**
+- **Project Chat**: Talk to all teams and agents under one project (shared project memory)
+- **Team Chat**: Talk to all agents under a specific team (shared project memory)  
+- **Agent Chat**: Talk to one specific agent (shared project memory)
+- **Shared Memory**: All teams and agents under one project share the same memory and context
+
 **Key Integration Points:**
-- **EnhancedMultiAgentChat Component**: Main chat interface in center panel
-- **ProjectSidebar Integration**: Chat context changes with project/team/agent selection
+- **EnhancedMultiAgentChat Component**: Main chat interface in center panel (UI unchanged)
+- **ProjectSidebar Integration**: Chat context changes with project/team/agent selection from left panel
 - **DynamicSidebar Integration**: Project brain context affects chat memory
 - **Real-time Communication**: WebSocket for live messaging and typing indicators
 - **Existing State Management**: Leverages activeProjectId, activeTeamId, activeAgentId
+- **No UI Changes**: Selection happens from left sidebar, chat interface remains the same
 
 ---
 
@@ -49,20 +56,28 @@ Integration of comprehensive chat system into existing EnhancedMultiAgentChat co
 #### Task 2.1: Chat Mode State Management
 - [ ] Integrate chat modes into EnhancedMultiAgentChat component
 - [ ] Add chatMode state with Project/Team/Agent modes
-- [ ] Connect chat context to ProjectSidebar selection states
+- [ ] Connect chat context to ProjectSidebar selection states (no UI changes to chat)
 - [ ] Implement automatic mode switching based on sidebar selections
+- [ ] Ensure project memory is shared across all teams/agents under same project
 
 #### Task 2.2: Chat Header Enhancement
-- [ ] Update existing chat header with mode selector tabs
-- [ ] Add contextual title display (project/team/agent name)
+- [ ] Update existing chat header with contextual title (no mode selector tabs)
+- [ ] Display project/team/agent name based on left sidebar selection
 - [ ] Implement participant avatars for current chat context
-- [ ] Add chat settings and info display
+- [ ] Add empty state placeholders with context-specific text:
+  * Project: "Start a conversation with all teams in [Project Name]"
+  * Team: "Start a conversation with [Team Name] members"
+  * Agent: "Start a conversation with [Agent Name]"
 
-#### Task 2.3: Message Context Filtering
+#### Task 2.3: Message Context Filtering & Participant Logic
 - [ ] Filter messages by current chat context (project/team/agent)
-- [ ] Implement conversation switching logic
-- [ ] Add conversation history management
-- [ ] Create message routing based on chat mode
+- [ ] Implement conversation switching logic based on left sidebar selections
+- [ ] Add conversation history management with shared project memory
+- [ ] Create message routing with participant logic:
+  * Project Chat: All teams and agents under project participate
+  * Team Chat: All agents under specific team participate  
+  * Agent Chat: Only specific agent participates
+- [ ] Ensure all participants share the same project memory context
 
 ---
 
@@ -169,14 +184,21 @@ Integration of comprehensive chat system into existing EnhancedMultiAgentChat co
 ## 🎛️ Integration Strategy
 1. **Component Integration**: Enhance existing EnhancedMultiAgentChat instead of creating new components
 2. **State Synchronization**: Leverage existing activeProjectId, activeTeamId, activeAgentId from App.tsx
-3. **UI Consistency**: Match existing dark theme and component styling
+3. **UI Consistency**: Keep existing chat UI unchanged, selection happens from left ProjectSidebar
 4. **Incremental Enhancement**: Build on existing foundation without breaking current functionality
+5. **Memory Architecture**: Shared project memory for all teams/agents under same project
+6. **Context-Driven Placeholders**: Different empty state messages for project/team/agent chats
 
 ## 🔄 Decision Points
-1. **Chat Modes**: Project Chat (global) → Team Chat (team-specific) → Agent Chat (1-on-1)
-2. **Context Switching**: Automatic mode changes based on ProjectSidebar selections
-3. **Database**: Use existing PostgreSQL with WebSocket infrastructure
-4. **AI Integration**: Mock responses initially, integrate with project brain memory
+1. **Chat Modes**: 
+   - Project Chat → Talk to all teams + agents under project
+   - Team Chat → Talk to all agents under specific team
+   - Agent Chat → Talk to specific agent (1-on-1)
+2. **Context Switching**: Automatic mode changes based on ProjectSidebar selections (no chat UI changes)
+3. **Memory Sharing**: All teams/agents under same project share identical memory context
+4. **Database**: Use existing PostgreSQL with WebSocket infrastructure
+5. **AI Integration**: Mock responses initially, integrate with project brain memory
+6. **Empty States**: Context-specific placeholder text for different chat modes
 
 ---
 
