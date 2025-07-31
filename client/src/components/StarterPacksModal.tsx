@@ -514,10 +514,9 @@ export default function StarterPacksModal({
           <div className="flex-1 overflow-y-auto scrollbar-stable">
             <div className="p-4">
               <div 
-                className="grid gap-4"
+                className="grid gap-4 grid-cols-3"
                 style={{ 
-                  gridTemplateColumns: 'repeat(3, 320px)', 
-                  justifyContent: 'start'
+                  gridTemplateColumns: 'repeat(3, 1fr)'
                 }}
               >
                 {starterPacksByCategory[activeCategory]?.packs.map(pack => (
@@ -550,7 +549,6 @@ function TemplateCard({ pack, isSelected, isLoading, onSelect }: TemplateCardPro
     <motion.div
       className="bg-[#37383B] rounded-xl p-3 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50"
       style={{ 
-        width: '320px',
         minHeight: '200px'
       }}
       onClick={onSelect}
