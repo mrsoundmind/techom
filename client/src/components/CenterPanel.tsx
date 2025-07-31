@@ -140,6 +140,67 @@ export function CenterPanel({
 
   // === END SUBTASK 2.1.2 ===
 
+  // === SUBTASK 2.1.3: Automatic Mode Switching ===
+  
+  // Get chat context display information
+  const getChatContextDisplay = () => {
+    if (!currentChatContext) return { title: 'Loading...', subtitle: '', participants: [] };
+    
+    const participants = getCurrentChatParticipants();
+    
+    switch (currentChatContext.mode) {
+      case 'project':
+        return {
+          title: `${activeProject?.emoji} ${activeProject?.name}`,
+          subtitle: `Project Chat • ${participants.length} AI teammates`,
+          participants,
+          placeholder: `Message all teams in ${activeProject?.name}...`,
+          welcomeTitle: 'Talk to your entire project team',
+          welcomeSubtitle: 'Get insights and coordination across all teams and roles.',
+          welcomeIcon: '🚀'
+        };
+      
+      case 'team':
+        const activeTeam = activeProjectTeams.find(t => t.id === activeTeamId);
+        return {
+          title: `${activeTeam?.emoji} ${activeTeam?.name}`,
+          subtitle: `Team Chat • ${participants.length} AI teammates`,
+          participants,
+          placeholder: `Message ${activeTeam?.name} team...`,
+          welcomeTitle: `Collaborate with ${activeTeam?.name}`,
+          welcomeSubtitle: 'Focus on team-specific goals and coordination.',
+          welcomeIcon: activeTeam?.emoji || '👥'
+        };
+      
+      case 'agent':
+        const activeAgent = activeProjectAgents.find(a => a.id === activeAgentId);
+        return {
+          title: `🤖 ${activeAgent?.name}`,
+          subtitle: `1-on-1 Chat • ${activeAgent?.role}`,
+          participants,
+          placeholder: `Message ${activeAgent?.name}...`,
+          welcomeTitle: `Chat with ${activeAgent?.name}`,
+          welcomeSubtitle: `Get specialized help with ${activeAgent?.role.toLowerCase()} tasks.`,
+          welcomeIcon: '🤖'
+        };
+      
+      default:
+        return {
+          title: 'Loading...',
+          subtitle: '',
+          participants: [],
+          placeholder: 'Loading...',
+          welcomeTitle: 'Loading...',
+          welcomeSubtitle: '',
+          welcomeIcon: '⏳'
+        };
+    }
+  };
+
+  const contextDisplay = getChatContextDisplay();
+
+  // === END SUBTASK 2.1.3 ===
+
   const handleActionClick = (action: string) => {
     console.log('Action triggered:', action);
     
@@ -178,12 +239,12 @@ export function CenterPanel({
 
   return (
     <main className="flex-1 hatchin-bg-panel rounded-2xl flex flex-col">
-      {/* Project Header */}
+      {/* Dynamic Chat Header */}
       <div className="p-6 hatchin-border border-b pt-[16px] pb-[16px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="font-semibold hatchin-text text-[16px]">
-              {activeProject.emoji} {activeProject.name}
+              {contextDisplay.title}
             </h1>
             <button className="hatchin-bg-blue text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors">
               + Add Hatch
@@ -192,29 +253,31 @@ export function CenterPanel({
         </div>
         
         <div className="flex items-center gap-6 mt-3">
-          <span className="hatchin-text-muted text-[12px] font-medium">Active Teams:</span>
-          <div className="flex items-center gap-4">
-            {activeProjectTeams.map(team => {
-              const teamAgentCount = activeProjectAgents.filter(a => a.teamId === team.id).length;
-              return (
-                <span key={team.id} className="hatchin-text text-[12px]">
-                  {team.emoji} {team.name}({teamAgentCount})
-                                  </span>
-              );
-            })}
-          </div>
+          <span className="hatchin-text-muted text-[12px] font-medium">{contextDisplay.subtitle}</span>
+          {currentChatContext?.mode === 'project' && (
+            <div className="flex items-center gap-4">
+              {activeProjectTeams.map(team => {
+                const teamAgentCount = activeProjectAgents.filter(a => a.teamId === team.id).length;
+                return (
+                  <span key={team.id} className="hatchin-text text-[12px]">
+                    {team.emoji} {team.name}({teamAgentCount})
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
-      {/* Welcome Content */}
+      {/* Dynamic Welcome Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
         <div className="max-w-lg">
           
           
-          <div className="text-[50px] mt-[2px] mb-[2px]">🚀</div>
+          <div className="text-[50px] mt-[2px] mb-[2px]">{contextDisplay.welcomeIcon}</div>
           
-          <h2 className="font-semibold hatchin-text text-[20px] mt-[2px] mb-[2px]">Kickstart your project</h2>
+          <h2 className="font-semibold hatchin-text text-[20px] mt-[2px] mb-[2px]">{contextDisplay.welcomeTitle}</h2>
           <p className="hatchin-text-muted text-[14px] mt-[7px] mb-[7px]">
-            Share your vision and get instant help from your AI team.
+            {contextDisplay.welcomeSubtitle}
           </p>
           
           <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
@@ -245,7 +308,7 @@ export function CenterPanel({
           <input 
             name="message"
             type="text" 
-            placeholder={`Message ${activeProject.name} team...`}
+            placeholder={contextDisplay.placeholder}
             className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
           />
           <button 
