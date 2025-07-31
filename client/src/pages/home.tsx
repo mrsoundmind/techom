@@ -13,7 +13,7 @@ export default function Home() {
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set(["saas-startup"]));
   const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
 
-  const { data: projects = [] } = useQuery<Project[]>({
+  const { data: projects = [], refetch: refetchProjects } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
 
@@ -101,6 +101,9 @@ export default function Home() {
           newSet.add(newProject.id);
           return newSet;
         });
+        
+        // Trigger data refresh
+        refetchProjects();
       } else {
         console.error('Failed to create project');
       }
@@ -139,6 +142,9 @@ export default function Home() {
           newSet.add(newProject.id);
           return newSet;
         });
+        
+        // Trigger data refresh
+        refetchProjects();
       } else {
         console.error('Failed to create project from template');
       }
