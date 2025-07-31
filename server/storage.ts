@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Project, type InsertProject, type Team, type InsertTeam, type Agent, type InsertAgent } from "@shared/schema";
+import { type User, type InsertUser, type Project, type InsertProject, type Team, type InsertTeam, type Agent, type InsertAgent, type Conversation, type InsertConversation, type Message, type InsertMessage, type TypingIndicator, type InsertTypingIndicator } from "@shared/schema";
 import { starterPacksByCategory, allHatchTemplates } from "@shared/templates";
 import { randomUUID } from "crypto";
 
@@ -36,6 +36,13 @@ export interface IStorage {
   
   // Special initialization for starter pack projects
   initializeStarterPackProject(projectId: string, starterPackId: string): Promise<void>;
+  
+  // Chat methods
+  getConversationsByProject(projectId: string): Promise<Conversation[]>;
+  createConversation(conversation: InsertConversation): Promise<Conversation>;
+  getMessagesByConversation(conversationId: string): Promise<Message[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  setTypingIndicator(conversationId: string, agentId: string, isTyping: boolean, estimatedDuration?: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -43,12 +50,18 @@ export class MemStorage implements IStorage {
   private projects: Map<string, Project>;
   private teams: Map<string, Team>;
   private agents: Map<string, Agent>;
+  private conversations: Map<string, Conversation>;
+  private messages: Map<string, Message>;
+  private typingIndicators: Map<string, TypingIndicator>;
 
   constructor() {
     this.users = new Map();
     this.projects = new Map();
     this.teams = new Map();
     this.agents = new Map();
+    this.conversations = new Map();
+    this.messages = new Map();
+    this.typingIndicators = new Map();
     
     // Initialize with sample data matching the prototype
     this.initializeSampleData();
@@ -521,6 +534,64 @@ export class MemStorage implements IStorage {
         }
       };
       this.projects.set(projectId, updatedProject);
+    }
+  }
+
+  // Chat methods implementation
+  async getConversationsByProject(projectId: string): Promise<Conversation[]> {
+    const conversations = Array.from(this.conversations.values()).filter(
+      conv => conv.projectId === projectId
+    );
+    return conversations;
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    const newConversation: Conversation = {
+      id: randomUUID(),
+      ...conversation,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.conversations.set(newConversation.id, newConversation);
+    return newConversation;
+  }
+
+  async getMessagesByConversation(conversationId: string): Promise<Message[]> {
+    const messages = Array.from(this.messages.values()).filter(
+      msg => msg.conversationId === conversationId
+    );
+    return messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const newMessage: Message = {
+      id: randomUUID(),
+      ...message,
+      metadata: message.metadata || {},
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.messages.set(newMessage.id, newMessage);
+    return newMessage;
+  }
+
+  async setTypingIndicator(conversationId: string, agentId: string, isTyping: boolean, estimatedDuration?: number): Promise<void> {
+    const indicatorKey = `${conversationId}-${agentId}`;
+    
+    if (isTyping) {
+      const indicator: TypingIndicator = {
+        id: indicatorKey,
+        conversationId,
+        agentId,
+        isTyping: true,
+        estimatedDuration: estimatedDuration || null,
+        startedAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.typingIndicators.set(indicatorKey, indicator);
+    } else {
+      this.typingIndicators.delete(indicatorKey);
     }
   }
 }
