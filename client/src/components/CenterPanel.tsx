@@ -55,7 +55,7 @@ export function CenterPanel({
   return (
     <main className="flex-1 hatchin-bg-panel rounded-2xl flex flex-col">
       {/* Project Header */}
-      <div className="p-6 hatchin-border border-b">
+      <div className="p-6 hatchin-border border-b pt-[16px] pb-[16px]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="font-semibold hatchin-text text-[16px]">
