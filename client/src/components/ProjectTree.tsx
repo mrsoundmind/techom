@@ -75,11 +75,7 @@ export function ProjectTree({
             {/* Project Level */}
             <div className="flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group">
               <div 
-                className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-2 transition-all duration-200 ${
-                  isProjectActive 
-                    ? 'hatchin-bg-card hatchin-border border shadow-sm' 
-                    : 'hover:bg-hatchin-border hover:shadow-sm'
-                }`}
+                className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-2 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm pt-[7px] pb-[7px] ml-[4px] mr-[4px] mt-[-3px] mb-[-3px]"
                 onClick={() => onSelectProject(project.id)}
               >
                 <div 
