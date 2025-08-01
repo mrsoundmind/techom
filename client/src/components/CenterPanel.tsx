@@ -295,95 +295,20 @@ export function CenterPanel({
         </div>
         
         <div className="flex items-center gap-6 mt-3">
-          <span className="hatchin-text-muted text-[12px] font-medium">{contextDisplay.subtitle}</span>
-          {currentChatContext?.mode === 'agent' && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span className="hatchin-text-muted text-[12px] font-medium">1-on-1 chat</span>
-              </div>
-              {contextDisplay.participants.map(agent => (
-                <div
-                  key={agent.id}
-                  className="w-6 h-6 rounded-full bg-hatchin-blue flex items-center justify-center text-white text-[10px] font-medium cursor-pointer hover:bg-opacity-80 transition-colors"
-                  title={`${agent.name} - ${agent.role}`}
-                >
-                  {agent.name.charAt(0).toUpperCase()}
-                </div>
-              ))}
-            </div>
-          )}
-          {currentChatContext?.mode === 'project' && (
-            <div className="flex items-center gap-4">
-              {activeProjectTeams.map(team => {
-                const teamAgentCount = activeProjectAgents.filter(a => a.teamId === team.id).length;
-                const teamAgents = activeProjectAgents.filter(a => a.teamId === team.id);
-                return (
-                  <div key={team.id} className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                      </svg>
-                      <span className="hatchin-text text-[12px]">{team.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {teamAgents.slice(0, 3).map(agent => (
-                        <div
-                          key={agent.id}
-                          className="w-5 h-5 rounded-full bg-hatchin-blue flex items-center justify-center text-white text-[8px] font-medium cursor-pointer hover:bg-opacity-80 transition-colors"
-                          title={`${agent.name} - ${agent.role}`}
-                        >
-                          {agent.name.charAt(0).toUpperCase()}
-                        </div>
-                      ))}
-                      {teamAgentCount > 3 && (
-                        <div className="w-5 h-5 rounded-full bg-hatchin-border flex items-center justify-center text-hatchin-text-muted text-[8px] font-medium">
-                          +{teamAgentCount - 3}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          {currentChatContext?.mode === 'team' && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          <span className="hatchin-text-muted text-[12px] font-medium uppercase tracking-wide">ACTIVE HATCHES:</span>
+          <div className="flex items-center gap-4">
+            {getCurrentChatParticipants().map(agent => (
+              <div key={agent.id} className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
                   </svg>
-                  <span className="hatchin-text-muted text-[12px] font-medium">{contextDisplay.participants.length} colleagues</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  {contextDisplay.participants.slice(0, 4).map(agent => (
-                    <div
-                      key={agent.id}
-                      className="w-5 h-5 rounded-full bg-hatchin-blue flex items-center justify-center text-white text-[8px] font-medium cursor-pointer hover:bg-opacity-80 transition-colors"
-                      title={`${agent.name} - ${agent.role}`}
-                    >
-                      {agent.name.charAt(0).toUpperCase()}
-                    </div>
-                  ))}
-                  {contextDisplay.participants.length > 4 && (
-                    <div className="w-5 h-5 rounded-full bg-hatchin-border flex items-center justify-center text-hatchin-text-muted text-[8px] font-medium">
-                      +{contextDisplay.participants.length - 4}
-                    </div>
-                  )}
-                </div>
+                <span className="hatchin-text text-[12px] font-medium">{agent.name}</span>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
       {/* Dynamic Welcome Content */}
