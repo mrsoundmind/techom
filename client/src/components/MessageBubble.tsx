@@ -21,13 +21,18 @@ interface MessageBubbleProps {
   isGrouped?: boolean; // whether this message is grouped with previous message from same sender
   showReactions?: boolean; // only show reactions for agent messages
   onReaction?: (messageId: string, reactionType: 'thumbs_up' | 'thumbs_down') => void;
+  chatContext?: {
+    mode: 'project' | 'team' | 'agent';
+    color: string;
+  };
 }
 
 export function MessageBubble({ 
   message, 
   isGrouped = false, 
   showReactions = false,
-  onReaction 
+  onReaction,
+  chatContext
 }: MessageBubbleProps) {
   const [showActions, setShowActions] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -35,6 +40,22 @@ export function MessageBubble({
 
   const isUser = message.messageType === 'user';
   const isAgent = message.messageType === 'agent';
+
+  // Determine bubble styling based on chat context
+  const getBubbleClasses = () => {
+    if (isUser) {
+      return 'chat-bubble-user text-gray-100 rounded-br-sm';
+    }
+    
+    // AI messages - use context color with lower opacity
+    if (isAgent && chatContext) {
+      const colorClass = `chat-bubble-ai-${chatContext.color.toLowerCase()}`;
+      return `${colorClass} text-gray-100 rounded-bl-sm`;
+    }
+    
+    // Fallback for agent messages without context
+    return 'bg-gray-700 text-gray-100 rounded-bl-sm border border-gray-600';
+  };
 
   // A1.1: Relative time formatting  
   const formatRelativeTime = (timestamp: string) => {
@@ -118,11 +139,7 @@ export function MessageBubble({
 
               {/* Message bubble */}
               <div
-                className={`p-3 rounded-lg ${
-                  isUser
-                    ? 'bg-purple-600 text-white rounded-br-sm'
-                    : 'bg-gray-700 text-gray-100 rounded-bl-sm border border-gray-600'
-                }`}
+                className={`p-3 rounded-lg ${getBubbleClasses()}`}
               >
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">
                   {message.content}

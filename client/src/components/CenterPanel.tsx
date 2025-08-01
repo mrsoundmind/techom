@@ -575,6 +575,28 @@ export function CenterPanel({
 
   const contextDisplay = getChatContextDisplay();
 
+  // Get chat context color for bubble styling
+  const getChatContextColor = () => {
+    if (!currentChatContext) return 'blue';
+    
+    switch (currentChatContext.mode) {
+      case 'project':
+        // Use project color from schema
+        return activeProject?.color || 'blue';
+      case 'team':
+        // Teams use green color (as per sidebar specification)
+        return 'green';
+      case 'agent':
+        // Use agent color from schema
+        const activeAgent = activeProjectAgents.find(a => a.id === activeAgentId);
+        return activeAgent?.color || 'purple';
+      default:
+        return 'blue';
+    }
+  };
+
+  const chatContextColor = getChatContextColor();
+
   // === END SUBTASK 2.1.3 ===
 
   // === SUBTASK 2.1.4: Memory Architecture Setup ===
@@ -717,15 +739,12 @@ export function CenterPanel({
       reactionType: 'thumbs_up' | 'thumbs_down';
       agentId?: string;
     }) => {
-      return await apiRequest(`/api/messages/${messageId}/reactions`, {
-        method: 'POST',
-        body: {
-          reactionType,
-          agentId,
-          feedbackData: {
-            responseQuality: reactionType === 'thumbs_up' ? 5 : 2,
-            helpfulness: reactionType === 'thumbs_up' ? 5 : 2
-          }
+      return await apiRequest(`/api/messages/${messageId}/reactions`, 'POST', {
+        reactionType,
+        agentId,
+        feedbackData: {
+          responseQuality: reactionType === 'thumbs_up' ? 5 : 2,
+          helpfulness: reactionType === 'thumbs_up' ? 5 : 2
         }
       });
     }
@@ -986,6 +1005,10 @@ export function CenterPanel({
                     isGrouped={isGrouped}
                     showReactions={message.messageType === 'agent'}
                     onReaction={handleMessageReaction}
+                    chatContext={{
+                      mode: currentChatContext?.mode || 'project',
+                      color: chatContextColor
+                    }}
                   />
                 );
               })}
