@@ -105,6 +105,10 @@
     background-color: var(--hatchin-blue);
   }
 
+  .bg-hatchin-muted {
+    background-color: var(--hatchin-card);
+  }
+
   .hatchin-green {
     color: var(--hatchin-green);
   }

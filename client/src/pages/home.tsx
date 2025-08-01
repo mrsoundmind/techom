@@ -81,8 +81,9 @@ export default function Home() {
     });
   };
 
-  // Selection handlers with proper state clearing
+  // Selection handlers - ensure users can switch between projects
   const handleSelectProject = (projectId: string) => {
+    console.log('Selecting project:', projectId);
     setActiveProjectId(projectId);
     setActiveTeamId(null);
     setActiveAgentId(null);
