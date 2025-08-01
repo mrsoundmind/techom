@@ -105,7 +105,11 @@ export function ProjectTree({
             {/* Project Level */}
             <div className="flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group">
               <div 
-                className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-2 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm pt-[7px] pb-[7px] ml-[4px] mr-[4px] mt-[-3px] mb-[-3px]"
+                className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-2 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm pt-[7px] pb-[7px] ml-[4px] mr-[4px] mt-[-3px] mb-[-3px] relative ${
+                  isProjectActive && !activeTeamId && !activeAgentId 
+                    ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
+                    : ''
+                }`}
                 onClick={() => onSelectProject(project.id)}
               >
                 <div 
@@ -147,7 +151,11 @@ export function ProjectTree({
                       {/* Team Level */}
                       <div className="flex items-center justify-between px-3 py-1.5 rounded-lg transition-all duration-200">
                         <div 
-                          className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-1 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm mt-[-4px] mb-[-4px]"
+                          className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-1 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm mt-[-4px] mb-[-4px] relative ${
+                            isTeamActive && !activeAgentId 
+                              ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
+                              : ''
+                          }`}
                           onClick={() => onSelectTeam(team.id)}
                         >
                           <div 
@@ -185,9 +193,9 @@ export function ProjectTree({
                             return (
                               <div 
                                 key={agent.id}
-                                className={`flex items-center gap-3 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 ${
+                                className={`flex items-center gap-3 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 relative ${
                                   isAgentActive 
-                                    ? 'hatchin-bg-card hatchin-border border shadow-sm' 
+                                    ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
                                     : 'hover:bg-hatchin-border hover:shadow-sm'
                                 }`}
                                 onClick={() => onSelectAgent(agent.id)}

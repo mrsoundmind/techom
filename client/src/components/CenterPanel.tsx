@@ -33,8 +33,8 @@ export function CenterPanel({
   const [chatMode, setChatMode] = useState<ChatMode>('project');
   const [currentChatContext, setCurrentChatContext] = useState<ChatContext | null>(null);
   
-  // Message state management
-  const [messages, setMessages] = useState<Array<{
+  // Message state management - persistent across conversations
+  const [allMessages, setAllMessages] = useState<Record<string, Array<{
     id: string;
     content: string;
     senderId: string;
@@ -44,9 +44,10 @@ export function CenterPanel({
     conversationId: string;
     status: 'sending' | 'sent' | 'delivered' | 'failed';
     metadata?: any;
-  }>>([]);
+  }>>>({});
   const [messageQueue, setMessageQueue] = useState<Array<any>>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [typingColleagues, setTypingColleagues] = useState<string[]>([]);
 
   // === SUBTASK 3.1.1: Connect WebSocket to Chat UI ===
   
@@ -93,11 +94,9 @@ export function CenterPanel({
       messageQueue.forEach(messageData => {
         sendWebSocketMessage(messageData);
         // Update message status to sent
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageData.tempId 
-            ? { ...msg, status: 'sent' as const }
-            : msg
-        ));
+        if (currentChatContext) {
+          updateMessageInConversation(currentChatContext.conversationId, messageData.tempId, { status: 'sent' });
+        }
       });
       setMessageQueue([]);
     }
@@ -114,11 +113,9 @@ export function CenterPanel({
         await saveMessageToStorage(messageData.message);
         
         // Update message status to sent
-        setMessages(prev => prev.map(msg => 
-          msg.id === tempMessageId 
-            ? { ...msg, status: 'sent' as const }
-            : msg
-        ));
+        if (currentChatContext) {
+          updateMessageInConversation(currentChatContext.conversationId, tempMessageId, { status: 'sent' });
+        }
         
         console.log('Message sent successfully:', messageData);
       } else {
@@ -126,11 +123,9 @@ export function CenterPanel({
         queueMessage({ ...messageData, tempId: tempMessageId });
         
         // Update message status to queued
-        setMessages(prev => prev.map(msg => 
-          msg.id === tempMessageId 
-            ? { ...msg, status: 'sending' as const }
-            : msg
-        ));
+        if (currentChatContext) {
+          updateMessageInConversation(currentChatContext.conversationId, tempMessageId, { status: 'sending' });
+        }
         
         console.log('Message queued for delivery:', messageData);
       }
@@ -138,11 +133,9 @@ export function CenterPanel({
       console.error('Failed to send message:', error);
       
       // Update message status to failed
-      setMessages(prev => prev.map(msg => 
-        msg.id === tempMessageId 
-          ? { ...msg, status: 'failed' as const }
-          : msg
-      ));
+      if (currentChatContext) {
+        updateMessageInConversation(currentChatContext.conversationId, tempMessageId, { status: 'failed' });
+      }
     }
   };
 
@@ -163,28 +156,20 @@ export function CenterPanel({
         metadata: message.message.metadata
       };
 
-      // Filter: only add if message belongs to current conversation
-      if (currentChatContext && newMessage.conversationId === currentChatContext.conversationId) {
-        setMessages(prev => {
-          // Prevent duplicates
-          const exists = prev.some(msg => msg.id === newMessage.id);
-          if (exists) return prev;
-          
-          // Add and sort by timestamp
-          return [...prev, newMessage].sort((a, b) => 
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-          );
-        });
-        
-        console.log('Received message for current conversation:', newMessage);
+      // Add incoming message to appropriate conversation
+      const conversationMessages = allMessages[newMessage.conversationId] || [];
+      const exists = conversationMessages.some(msg => msg.id === newMessage.id);
+      
+      if (!exists) {
+        addMessageToConversation(newMessage.conversationId, newMessage);
+        console.log('Received message for conversation:', newMessage.conversationId);
       }
     } else if (message.type === 'message_delivered') {
-      // Update message status to delivered
-      setMessages(prev => prev.map(msg => 
-        msg.id === message.messageId 
-          ? { ...msg, status: 'delivered' as const }
-          : msg
-      ));
+      // Update message status to delivered in appropriate conversation
+      const conversationId = message.conversationId;
+      if (conversationId) {
+        updateMessageInConversation(conversationId, message.messageId, { status: 'delivered' });
+      }
     }
   };
 
@@ -207,25 +192,96 @@ export function CenterPanel({
     }
   };
 
-  // Load conversation history when context changes
-  const loadConversationHistory = async (conversationId: string) => {
-    if (isLoadingMessages) return;
+  // Get current conversation messages
+  const getCurrentMessages = () => {
+    if (!currentChatContext) return [];
+    return allMessages[currentChatContext.conversationId] || [];
+  };
+
+  // Add message to specific conversation
+  const addMessageToConversation = (conversationId: string, message: any) => {
+    setAllMessages(prev => ({
+      ...prev,
+      [conversationId]: [...(prev[conversationId] || []), message]
+    }));
+  };
+
+  // Update message status in specific conversation
+  const updateMessageInConversation = (conversationId: string, messageId: string, updates: any) => {
+    setAllMessages(prev => ({
+      ...prev,
+      [conversationId]: (prev[conversationId] || []).map(msg => 
+        msg.id === messageId ? { ...msg, ...updates } : msg
+      )
+    }));
+  };
+
+  // Simulate colleague responses
+  const simulateColleagueResponse = async (userMessage: string, conversationId: string) => {
+    const participants = getCurrentChatParticipants();
     
-    setIsLoadingMessages(true);
-    try {
-      // Future implementation: API call to load messages
-      // const response = await fetch(`/api/messages?conversationId=${conversationId}`);
-      // const conversationMessages = await response.json();
-      
-      // For now, clear messages when switching conversations
-      setMessages([]);
-      
-      console.log('Loaded conversation history for:', conversationId);
-    } catch (error) {
-      console.error('Failed to load conversation history:', error);
-    } finally {
-      setIsLoadingMessages(false);
-    }
+    // PM always responds first to general messages
+    const pm = participants.find(p => p.role.toLowerCase().includes('manager')) || participants[0];
+    if (!pm) return;
+
+    // Show typing indicator
+    setTypingColleagues([pm.name]);
+    
+    // Simulate typing delay
+    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 2000));
+    
+    // Remove typing indicator
+    setTypingColleagues([]);
+    
+    // Generate PM response
+    const pmResponse = {
+      id: `agent-${Date.now()}`,
+      content: generatePMResponse(userMessage, currentChatContext?.mode || 'project'),
+      senderId: pm.id,
+      senderName: pm.name,
+      messageType: 'agent' as const,
+      timestamp: new Date().toISOString(),
+      conversationId,
+      status: 'delivered' as const,
+      metadata: { role: pm.role }
+    };
+
+    // Add PM response
+    addMessageToConversation(conversationId, pmResponse);
+    
+    // Send through WebSocket for real-time sync
+    sendWebSocketMessage({
+      type: 'agent_response',
+      conversationId,
+      message: pmResponse
+    });
+  };
+
+  // Generate PM responses based on context
+  const generatePMResponse = (userMessage: string, mode: string) => {
+    const responses = {
+      project: [
+        "Got it! Let me coordinate with the teams on this.",
+        "I'll make sure all teams are aligned on this request.",
+        "Thanks for bringing this up. I'll sync with everyone.",
+        "This affects multiple teams - I'll handle the coordination."
+      ],
+      team: [
+        "Perfect, let me get the team focused on this.",
+        "I'll prioritize this with the team right away.",
+        "Good point - I'll discuss this in our next standup.",
+        "The team will handle this efficiently."
+      ],
+      agent: [
+        "Absolutely, I can help you with that specific request.",
+        "That's exactly what I specialize in handling.",
+        "Let me dive into the details on this for you.",
+        "I'll take care of this personally."
+      ]
+    };
+    
+    return responses[mode as keyof typeof responses]?.[Math.floor(Math.random() * responses[mode as keyof typeof responses].length)] || 
+           "I'll take care of that right away.";
   };
 
   // === END TASK 3.1 ===
@@ -270,9 +326,12 @@ export function CenterPanel({
       projectId: activeProject.id
     };
     
-    // Load conversation history for new context
-    if (currentChatContext && currentChatContext.conversationId !== conversationId) {
-      loadConversationHistory(conversationId);
+    // Initialize conversation if it doesn't exist
+    if (!allMessages[conversationId]) {
+      setAllMessages(prev => ({
+        ...prev,
+        [conversationId]: []
+      }));
     }
     
     setCurrentChatContext(newChatContext);
@@ -588,8 +647,8 @@ export function CenterPanel({
           }
         };
 
-        // Add message to UI immediately
-        setMessages(prev => [...prev, userMessage]);
+        // Add message to current conversation
+        addMessageToConversation(currentChatContext?.conversationId || '', userMessage);
 
         // Prepare WebSocket message data
         const messageData = {
@@ -621,6 +680,14 @@ export function CenterPanel({
 
         // Send with confirmation and retry logic
         sendMessageWithConfirmation(messageData, tempMessageId);
+        
+        // Store the message content before clearing input
+        const messageContent = input.value;
+        
+        // Trigger colleague response after short delay
+        setTimeout(() => {
+          simulateColleagueResponse(messageContent, currentChatContext?.conversationId || '');
+        }, 500);
         
         input.value = '';
       } else {
@@ -710,7 +777,7 @@ export function CenterPanel({
       </div>
       {/* Message Display Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {messages.length === 0 ? (
+        {getCurrentMessages().length === 0 ? (
           /* Welcome Screen - Show when no messages */
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div className="max-w-lg">
@@ -753,7 +820,18 @@ export function CenterPanel({
                 </div>
               )}
               
-              {messages.map((message) => (
+              {/* Typing Indicators */}
+              {typingColleagues.length > 0 && (
+                <div className="flex justify-start">
+                  <div className="hatchin-bg-card hatchin-text rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="text-sm hatchin-text-muted italic">
+                      {typingColleagues.join(', ')} {typingColleagues.length === 1 ? 'is' : 'are'} typing...
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {getCurrentMessages().map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.messageType === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -824,7 +902,7 @@ export function CenterPanel({
             
             {/* Auto-scroll helper */}
             <div ref={(el) => {
-              if (el && messages.length > 0) {
+              if (el && (getCurrentMessages().length > 0 || typingColleagues.length > 0)) {
                 el.scrollIntoView({ behavior: 'smooth' });
               }
             }} />
