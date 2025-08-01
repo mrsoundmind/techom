@@ -163,7 +163,20 @@ export function MessageBubble({
               {/* Agent sender info (only if not grouped) */}
               {showSenderInfo && (
                 <div className="flex items-center gap-2 mb-2 px-1">
-                  <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-xs font-medium text-white">
+                  <div 
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
+                    style={{
+                      backgroundColor: chatContext ? (() => {
+                        const colorMap = {
+                          'amber': 'hsl(45, 100%, 55%)',
+                          'green': 'hsl(158, 66%, 57%)', 
+                          'blue': 'hsl(207, 90%, 54%)',
+                          'purple': 'hsl(264, 68%, 60%)'
+                        };
+                        return colorMap[chatContext.color.toLowerCase() as keyof typeof colorMap] || colorMap.blue;
+                      })() : 'hsl(264, 68%, 60%)'
+                    }}
+                  >
                     {message.senderName.charAt(0)}
                   </div>
                   <span className="text-sm font-medium text-gray-300">{message.senderName}</span>
