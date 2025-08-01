@@ -41,7 +41,7 @@ export function MessageBubble({
   const isUser = message.messageType === 'user';
   const isAgent = message.messageType === 'agent';
 
-  // Get bubble colors based on chat context
+  // Get bubble colors - using single consistent color like sidebar
   const getBubbleStyles = () => {
     if (isUser) {
       return {
@@ -50,40 +50,18 @@ export function MessageBubble({
       };
     }
     
-    // AI messages - use context color with lower opacity
-    if (isAgent && chatContext) {
-      console.log('Chat context:', chatContext); // Debug log
-      
-      const colorMap = {
-        'amber': 'hsla(45, 100%, 55%, 0.15)',
-        'green': 'hsla(158, 66%, 57%, 0.15)', 
-        'blue': 'hsla(207, 90%, 54%, 0.15)',
-        'purple': 'hsla(264, 68%, 60%, 0.15)'
-      };
-      
-      const borderColorMap = {
-        'amber': 'hsla(45, 100%, 55%, 0.3)',
-        'green': 'hsla(158, 66%, 57%, 0.3)',
-        'blue': 'hsla(207, 90%, 54%, 0.3)', 
-        'purple': 'hsla(264, 68%, 60%, 0.3)'
-      };
-      
-      const color = chatContext.color.toLowerCase();
-      const bgColor = colorMap[color as keyof typeof colorMap] || colorMap.blue;
-      const borderColor = borderColorMap[color as keyof typeof borderColorMap] || borderColorMap.blue;
-      
-      console.log('Using colors:', { bgColor, borderColor }); // Debug log
-      
+    // AI messages - use single consistent color with lower opacity (matching sidebar)
+    if (isAgent) {
       return {
         className: 'text-gray-100 rounded-bl-sm',
         style: { 
-          backgroundColor: bgColor,
-          border: `1px solid ${borderColor}`
+          backgroundColor: 'hsla(158, 66%, 57%, 0.15)', // Green with 15% opacity
+          border: '1px solid hsla(158, 66%, 57%, 0.3)' // Green with 30% opacity border
         }
       };
     }
     
-    // Fallback for agent messages without context
+    // Fallback
     return {
       className: 'bg-gray-700 text-gray-100 rounded-bl-sm border border-gray-600',
       style: {}
@@ -165,17 +143,7 @@ export function MessageBubble({
                 <div className="flex items-center gap-2 mb-2 px-1">
                   <div 
                     className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
-                    style={{
-                      backgroundColor: chatContext ? (() => {
-                        const colorMap = {
-                          'amber': 'hsl(45, 100%, 55%)',
-                          'green': 'hsl(158, 66%, 57%)', 
-                          'blue': 'hsl(207, 90%, 54%)',
-                          'purple': 'hsl(264, 68%, 60%)'
-                        };
-                        return colorMap[chatContext.color.toLowerCase() as keyof typeof colorMap] || colorMap.blue;
-                      })() : 'hsl(264, 68%, 60%)'
-                    }}
+                    style={{ backgroundColor: 'hsl(158, 66%, 57%)' }} // Single consistent green color
                   >
                     {message.senderName.charAt(0)}
                   </div>
