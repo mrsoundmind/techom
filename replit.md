@@ -8,6 +8,7 @@ Hatchin is a no-code AI creation workspace that enables users to design custom A
 
 Preferred communication style: Simple, everyday language.
 Always ask for permission before implementing any changes - this is a system requirement.
+Chat header design preference: No emojis or icons in project/team/agent names in chat headers - keep headers clean with text-only titles.
 
 ## Current Project Phase
 

@@ -84,13 +84,36 @@ Integration of comprehensive chat system into existing EnhancedMultiAgentChat co
 - [x] Test memory persistence across context switches
 
 #### Task 2.2: Chat Header Enhancement
-- [ ] Update existing chat header with contextual title (no mode selector tabs)
-- [ ] Display project/team/agent name based on left sidebar selection
-- [ ] Implement participant avatars for current chat context
-- [ ] Add empty state placeholders with context-specific text:
-  * Project: "Start a conversation with all teams in [Project Name]"
-  * Team: "Start a conversation with [Team Name] members"
-  * Agent: "Start a conversation with [Agent Name]"
+
+**Subtask 2.2.1: Remove Emojis from Chat Header**
+- [ ] Remove all emojis from project names in chat header display
+- [ ] Remove all emojis from team names in chat header display  
+- [ ] Remove all emojis from agent/hatch names in chat header display
+- [ ] Keep header clean with text-only titles
+
+**Subtask 2.2.2: Participant Avatar Display** 
+- [ ] Replace text participant names with actual avatar circles
+- [ ] Add participant profile pictures/initials in header
+- [ ] Show participant count badge (e.g., "5 colleagues")
+- [ ] Add hover tooltips with participant details
+
+**Subtask 2.2.3: Enhanced Header Layout**
+- [ ] Improve spacing and visual hierarchy in header
+- [ ] Add participant status indicators (online/offline dots)
+- [ ] Better alignment of avatars and action buttons
+- [ ] Responsive header layout for different screen sizes
+
+**Subtask 2.2.4: Context-Specific Empty States**
+- [ ] Project mode: "Start chatting with all 5 colleagues in SaaS Startup"
+- [ ] Team mode: "Start chatting with Design Team (3 colleagues)"  
+- [ ] Agent mode: "Start chatting with Product Designer"
+- [ ] Add appropriate icons and styling for each mode
+
+**Subtask 2.2.5: Header Interactive Elements**
+- [ ] Make participant avatars clickable to show details
+- [ ] Add "View all participants" dropdown when there are many
+- [ ] Improve "+ Add Hatch" button positioning and functionality
+- [ ] Add chat settings/options menu in header
 
 #### Task 2.3: Message Context Filtering & Participant Logic
 - [ ] Filter messages by current chat context (project/team/agent)
