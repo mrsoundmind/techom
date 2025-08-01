@@ -719,12 +719,12 @@ export function CenterPanel({
         // Send with confirmation and retry logic
         sendMessageWithConfirmation(messageData, tempMessageId);
         
-        // Store the message content and context before clearing input
-        const messageContent = input.value;
-        const contextId = currentChatContext?.conversationId;
-        
         // Clear input immediately to prevent double-send
         input.value = '';
+        
+        // Store the message content and context for response
+        const messageContent = messageData.message.content;
+        const contextId = currentChatContext?.conversationId;
         
         // Trigger colleague response after short delay - only if context hasn't changed
         setTimeout(() => {
@@ -892,7 +892,7 @@ export function CenterPanel({
                       <div className={`${
                         message.messageType === 'user' 
                           ? 'hatchin-bg-blue text-white' 
-                          : 'bg-hatchin-muted hatchin-text'
+                          : 'bg-hatchin-colleague hatchin-text border hatchin-border'
                       } rounded-2xl px-4 py-3 shadow-sm`}>
                         
                         {/* Message Content */}
@@ -960,7 +960,7 @@ export function CenterPanel({
                       <span className="text-sm font-medium hatchin-text mb-1">
                         {typingColleagues[0]}
                       </span>
-                      <div className="bg-hatchin-muted hatchin-text rounded-2xl px-4 py-3 shadow-sm">
+                      <div className="bg-hatchin-colleague hatchin-text border hatchin-border rounded-2xl px-4 py-3 shadow-sm">
                         <div className="text-sm hatchin-text-muted italic">
                           {typingColleagues[0]} is typing...
                         </div>

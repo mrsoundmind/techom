@@ -109,6 +109,10 @@
     background-color: var(--hatchin-card);
   }
 
+  .bg-hatchin-colleague {
+    background-color: hsl(216, 8%, 18%);
+  }
+
   .hatchin-green {
     color: var(--hatchin-green);
   }
