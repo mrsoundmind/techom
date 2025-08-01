@@ -85,11 +85,12 @@ Integration of comprehensive chat system into existing EnhancedMultiAgentChat co
 
 #### Task 2.2: Chat Header Enhancement
 
-**Subtask 2.2.1: Remove Emojis from Chat Header**
-- [ ] Remove all emojis from project names in chat header display
-- [ ] Remove all emojis from team names in chat header display  
-- [ ] Remove all emojis from agent/hatch names in chat header display
-- [ ] Keep header clean with text-only titles
+**Subtask 2.2.1: Clean Chat Header Titles** ✅ COMPLETED
+- [x] Remove emojis from main project/team/agent titles in chat header
+- [x] Keep header titles clean with text-only names
+- [x] BUT keep team icons (🎨, 💻, etc.) when showing teams under project
+- [x] BUT keep agent icons (🤖) when showing agents under team
+- [x] Only remove emojis from the main conversation title
 
 **Subtask 2.2.2: Participant Avatar Display** 
 - [ ] Replace text participant names with actual avatar circles
@@ -223,9 +224,9 @@ Integration of comprehensive chat system into existing EnhancedMultiAgentChat co
 **Next Task**: Phase 2, Task 2.1 - Chat Mode State Management
 
 ## 📊 Progress Tracking
-- **Completed**: 7/18 tasks (39%)
+- **Completed**: 8/18 tasks (44%)
 - **In Progress**: 0/18 tasks  
-- **Pending**: 11/18 tasks (61%)
+- **Pending**: 10/18 tasks (56%)
 
 ## 🎛️ Integration Strategy
 1. **Component Integration**: Enhance existing EnhancedMultiAgentChat instead of creating new components

@@ -151,7 +151,7 @@ export function CenterPanel({
     switch (currentChatContext.mode) {
       case 'project':
         return {
-          title: `${activeProject?.emoji} ${activeProject?.name}`,
+          title: `${activeProject?.name}`,
           subtitle: `Project Chat • ${activeProjectTeams.length} teams`,
           participants,
           placeholder: `Message all teams in ${activeProject?.name}...`,
@@ -163,7 +163,7 @@ export function CenterPanel({
       case 'team':
         const activeTeam = activeProjectTeams.find(t => t.id === activeTeamId);
         return {
-          title: `${activeTeam?.emoji} ${activeTeam?.name}`,
+          title: `${activeTeam?.name}`,
           subtitle: `Team Chat • ${participants.length} Colleagues`,
           participants,
           placeholder: `Message ${activeTeam?.name} team...`,
@@ -175,7 +175,7 @@ export function CenterPanel({
       case 'agent':
         const activeAgent = activeProjectAgents.find(a => a.id === activeAgentId);
         return {
-          title: `🤖 ${activeAgent?.name}`,
+          title: `${activeAgent?.name}`,
           subtitle: `1-on-1 Chat • ${activeAgent?.role}`,
           participants,
           placeholder: `Message ${activeAgent?.name}...`,
@@ -302,7 +302,7 @@ export function CenterPanel({
                 const teamAgentCount = activeProjectAgents.filter(a => a.teamId === team.id).length;
                 return (
                   <span key={team.id} className="hatchin-text text-[12px]">
-                    {team.emoji} {team.name}({teamAgentCount})
+                    {team.emoji} {team.name} ({teamAgentCount})
                   </span>
                 );
               })}
