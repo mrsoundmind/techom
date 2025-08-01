@@ -41,20 +41,53 @@ export function MessageBubble({
   const isUser = message.messageType === 'user';
   const isAgent = message.messageType === 'agent';
 
-  // Determine bubble styling based on chat context
-  const getBubbleClasses = () => {
+  // Get bubble colors based on chat context
+  const getBubbleStyles = () => {
     if (isUser) {
-      return 'chat-bubble-user text-gray-100 rounded-br-sm';
+      return {
+        className: 'text-gray-100 rounded-br-sm',
+        style: { backgroundColor: 'hsl(216, 8%, 18%)' }
+      };
     }
     
     // AI messages - use context color with lower opacity
     if (isAgent && chatContext) {
-      const colorClass = `chat-bubble-ai-${chatContext.color.toLowerCase()}`;
-      return `${colorClass} text-gray-100 rounded-bl-sm`;
+      console.log('Chat context:', chatContext); // Debug log
+      
+      const colorMap = {
+        'amber': 'hsla(45, 100%, 55%, 0.15)',
+        'green': 'hsla(158, 66%, 57%, 0.15)', 
+        'blue': 'hsla(207, 90%, 54%, 0.15)',
+        'purple': 'hsla(264, 68%, 60%, 0.15)'
+      };
+      
+      const borderColorMap = {
+        'amber': 'hsla(45, 100%, 55%, 0.3)',
+        'green': 'hsla(158, 66%, 57%, 0.3)',
+        'blue': 'hsla(207, 90%, 54%, 0.3)', 
+        'purple': 'hsla(264, 68%, 60%, 0.3)'
+      };
+      
+      const color = chatContext.color.toLowerCase();
+      const bgColor = colorMap[color as keyof typeof colorMap] || colorMap.blue;
+      const borderColor = borderColorMap[color as keyof typeof borderColorMap] || borderColorMap.blue;
+      
+      console.log('Using colors:', { bgColor, borderColor }); // Debug log
+      
+      return {
+        className: 'text-gray-100 rounded-bl-sm',
+        style: { 
+          backgroundColor: bgColor,
+          border: `1px solid ${borderColor}`
+        }
+      };
     }
     
     // Fallback for agent messages without context
-    return 'bg-gray-700 text-gray-100 rounded-bl-sm border border-gray-600';
+    return {
+      className: 'bg-gray-700 text-gray-100 rounded-bl-sm border border-gray-600',
+      style: {}
+    };
   };
 
   // A1.1: Relative time formatting  
@@ -139,7 +172,8 @@ export function MessageBubble({
 
               {/* Message bubble */}
               <div
-                className={`p-3 rounded-lg ${getBubbleClasses()}`}
+                className={`p-3 rounded-lg ${getBubbleStyles().className}`}
+                style={getBubbleStyles().style}
               >
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">
                   {message.content}

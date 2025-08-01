@@ -129,35 +129,29 @@
     background-color: var(--hatchin-orange);
   }
 
-  /* Chat context colors - defined as CSS custom properties */
-  --chat-amber: hsl(45, 100%, 55%);
-  --chat-green: hsl(158, 66%, 57%);
-  --chat-blue: hsl(207, 90%, 54%);
-  --chat-purple: hsl(264, 68%, 60%);
-
   /* Chat bubble colors - AI responses use lower opacity */
   .chat-bubble-user {
-    background-color: hsl(216, 8%, 18%);
+    background-color: hsl(216, 8%, 18%) !important;
   }
 
   .chat-bubble-ai-amber {
-    background-color: hsla(45, 100%, 55%, 0.15);
-    border: 1px solid hsla(45, 100%, 55%, 0.3);
+    background-color: hsla(45, 100%, 55%, 0.15) !important;
+    border: 1px solid hsla(45, 100%, 55%, 0.3) !important;
   }
 
   .chat-bubble-ai-green {
-    background-color: hsla(158, 66%, 57%, 0.15);
-    border: 1px solid hsla(158, 66%, 57%, 0.3);
+    background-color: hsla(158, 66%, 57%, 0.15) !important;
+    border: 1px solid hsla(158, 66%, 57%, 0.3) !important;
   }
 
   .chat-bubble-ai-blue {
-    background-color: hsla(207, 90%, 54%, 0.15);
-    border: 1px solid hsla(207, 90%, 54%, 0.3);
+    background-color: hsla(207, 90%, 54%, 0.15) !important;
+    border: 1px solid hsla(207, 90%, 54%, 0.3) !important;
   }
 
   .chat-bubble-ai-purple {
-    background-color: hsla(264, 68%, 60%, 0.15);
-    border: 1px solid hsla(264, 68%, 60%, 0.3);
+    background-color: hsla(264, 68%, 60%, 0.15) !important;
+    border: 1px solid hsla(264, 68%, 60%, 0.3) !important;
   }
 
   .hatchin-bg-orange {

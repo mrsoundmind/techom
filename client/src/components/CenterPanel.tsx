@@ -596,6 +596,10 @@ export function CenterPanel({
   };
 
   const chatContextColor = getChatContextColor();
+  
+  // Debug log to check what color is being determined
+  console.log('Current chat context:', currentChatContext);
+  console.log('Chat context color:', chatContextColor);
 
   // === END SUBTASK 2.1.3 ===
 
