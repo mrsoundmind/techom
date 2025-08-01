@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { ProjectTree } from "@/components/ProjectTree";
-import { ChevronDown, Search, Settings, LogOut, User, X } from "lucide-react";
+import { ChevronDown, Search, Settings, LogOut, User, X, Brain } from "lucide-react";
 import type { Project, Team, Agent } from "@shared/schema";
 import QuickStartModal from "@/components/QuickStartModal";
 import StarterPacksModal from "@/components/StarterPacksModal";
 import ProjectNameModal from "@/components/ProjectNameModal";
+import { TrainingDashboard } from "@/components/TrainingDashboard";
 // Temporary type definition until import issues are resolved
 interface StarterPack {
   id: string;
@@ -62,6 +63,7 @@ export function LeftSidebar({
   const [showProjectName, setShowProjectName] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<StarterPack | null>(null);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [showTrainingDashboard, setShowTrainingDashboard] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -208,6 +210,13 @@ export function LeftSidebar({
                 <Settings className="w-4 h-4" />
                 Preferences
               </button>
+              <button 
+                onClick={() => setShowTrainingDashboard(true)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm hatchin-text hover:bg-hatchin-border transition-colors"
+              >
+                <Brain className="w-4 h-4" />
+                Train Colleagues
+              </button>
               <div className="border-t hatchin-border my-1"></div>
               <button className="w-full flex items-center gap-3 px-3 py-2 text-sm hatchin-text hover:bg-hatchin-border transition-colors">
                 <LogOut className="w-4 h-4" />
@@ -317,6 +326,12 @@ export function LeftSidebar({
         templateName={selectedTemplate?.title}
         templateDescription={selectedTemplate?.description}
         isLoading={isCreatingProject}
+      />
+
+      {/* Training Dashboard */}
+      <TrainingDashboard
+        isOpen={showTrainingDashboard}
+        onClose={() => setShowTrainingDashboard(false)}
       />
     </aside>
   );

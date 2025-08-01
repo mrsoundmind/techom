@@ -244,6 +244,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Role Profile Customization API
+  app.post("/api/training/role-profile", async (req, res) => {
+    try {
+      const profile = trainingSystem.updateRoleProfile(req.body);
+      res.json({ success: true, profile });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update role profile" });
+    }
+  });
+
+  app.get("/api/training/role-profile/:agentRole", async (req, res) => {
+    try {
+      const profile = trainingSystem.getCustomRoleProfile(req.params.agentRole);
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get role profile" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket Server Setup

@@ -1,5 +1,5 @@
-// AI Training System for Hatchin Colleagues
-// Learns from user feedback to improve responses over time
+// Combined AI Training System for Hatchin Colleagues
+// Integrates: 1) User Feedback, 2) Custom Examples, 3) Role Profile Editing
 
 interface TrainingFeedback {
   id: string;
@@ -22,6 +22,20 @@ interface CustomExample {
   createdAt: string;
 }
 
+interface CustomRoleProfile {
+  id: string;
+  agentRole: string;
+  personality?: string;
+  expertMindset?: string;
+  communicationStyle?: string;
+  responseLength?: 'short' | 'medium' | 'long';
+  tone?: 'formal' | 'casual' | 'technical' | 'friendly';
+  customPrompt?: string;
+  companyTerminology?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface LearningPattern {
   agentRole: string;
   keywords: string[];
@@ -34,6 +48,7 @@ interface LearningPattern {
 export class TrainingSystem {
   private feedback: TrainingFeedback[] = [];
   private customExamples: CustomExample[] = [];
+  private customRoleProfiles: CustomRoleProfile[] = [];
   private learningPatterns: LearningPattern[] = [];
 
   // Add feedback for a colleague response
@@ -64,6 +79,38 @@ export class TrainingSystem {
     return customExample;
   }
 
+  // Create or update custom role profile
+  updateRoleProfile(profile: Omit<CustomRoleProfile, 'id' | 'createdAt' | 'updatedAt'>) {
+    const existingIndex = this.customRoleProfiles.findIndex(p => p.agentRole === profile.agentRole);
+    
+    if (existingIndex >= 0) {
+      // Update existing profile
+      this.customRoleProfiles[existingIndex] = {
+        ...this.customRoleProfiles[existingIndex],
+        ...profile,
+        updatedAt: new Date().toISOString()
+      };
+      console.log(`Role profile updated for ${profile.agentRole}`);
+      return this.customRoleProfiles[existingIndex];
+    } else {
+      // Create new profile
+      const newProfile: CustomRoleProfile = {
+        ...profile,
+        id: `profile-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      this.customRoleProfiles.push(newProfile);
+      console.log(`Role profile created for ${profile.agentRole}`);
+      return newProfile;
+    }
+  }
+
+  // Get custom role profile for an agent
+  getCustomRoleProfile(agentRole: string): CustomRoleProfile | null {
+    return this.customRoleProfiles.find(p => p.agentRole === agentRole) || null;
+  }
+
   // Get training data for a specific agent role
   getTrainingData(agentRole: string) {
     const roleFeedback = this.feedback.filter(f => f.agentRole === agentRole);
@@ -79,43 +126,98 @@ export class TrainingSystem {
     };
   }
 
-  // Generate enhanced prompt based on learning
+  // Generate comprehensive enhanced prompt based on all training methods
   generateEnhancedPrompt(agentRole: string, userMessage: string, basePrompt: string): string {
     const trainingData = this.getTrainingData(agentRole);
+    const customProfile = this.getCustomRoleProfile(agentRole);
     
-    if (trainingData.examples.length === 0 && trainingData.goodResponses.length === 0) {
-      return basePrompt;
-    }
-
     let enhancedPrompt = basePrompt;
 
-    // Add custom examples if available
+    // Method 1: Custom Role Profile Override
+    if (customProfile) {
+      enhancedPrompt += "\n\n=== CUSTOM ROLE PROFILE ===";
+      
+      if (customProfile.personality) {
+        enhancedPrompt += `\nPersonality Override: ${customProfile.personality}`;
+      }
+      
+      if (customProfile.expertMindset) {
+        enhancedPrompt += `\nExpert Mindset: ${customProfile.expertMindset}`;
+      }
+      
+      if (customProfile.communicationStyle) {
+        enhancedPrompt += `\nCommunication Style: ${customProfile.communicationStyle}`;
+      }
+      
+      if (customProfile.customPrompt) {
+        enhancedPrompt += `\nCustom Instructions: ${customProfile.customPrompt}`;
+      }
+      
+      if (customProfile.companyTerminology && customProfile.companyTerminology.length > 0) {
+        enhancedPrompt += `\nCompany Terminology: Use these terms naturally: ${customProfile.companyTerminology.join(', ')}`;
+      }
+      
+      if (customProfile.tone) {
+        enhancedPrompt += `\nPreferred Tone: ${customProfile.tone}`;
+      }
+      
+      if (customProfile.responseLength) {
+        enhancedPrompt += `\nResponse Length: ${customProfile.responseLength}`;
+      }
+    }
+
+    // Method 2: Custom Training Examples
     if (trainingData.examples.length > 0) {
-      enhancedPrompt += "\n\nCUSTOM TRAINING EXAMPLES:";
-      trainingData.examples.slice(-3).forEach(example => {
-        enhancedPrompt += `\nUser: "${example.userInput}"\nYou: "${example.idealResponse}"`;
+      enhancedPrompt += "\n\n=== CUSTOM TRAINING EXAMPLES ===";
+      enhancedPrompt += "\nFollow these exact conversation patterns:";
+      trainingData.examples.slice(-5).forEach((example, index) => {
+        enhancedPrompt += `\n\nExample ${index + 1}:`;
+        enhancedPrompt += `\nUser: "${example.userInput}"`;
+        enhancedPrompt += `\nIdeal Response: "${example.idealResponse}"`;
       });
     }
 
-    // Add successful response patterns
+    // Method 3: Feedback-Based Learning Patterns
     if (trainingData.goodResponses.length > 0) {
-      enhancedPrompt += "\n\nSUCCESSFUL RESPONSE PATTERNS (follow these styles):";
-      trainingData.goodResponses.slice(-3).forEach(response => {
-        enhancedPrompt += `\nUser: "${response.userMessage}"\nGood Response: "${response.agentResponse}"`;
+      enhancedPrompt += "\n\n=== SUCCESSFUL RESPONSE PATTERNS ===";
+      enhancedPrompt += "\nThese responses received positive feedback - emulate this style:";
+      trainingData.goodResponses.slice(-3).forEach((response, index) => {
+        enhancedPrompt += `\n\nGood Example ${index + 1}:`;
+        enhancedPrompt += `\nUser: "${response.userMessage}"`;
+        enhancedPrompt += `\nWell-Received Response: "${response.agentResponse}"`;
+        if (response.feedback) {
+          enhancedPrompt += `\nUser Feedback: "${response.feedback}"`;
+        }
       });
     }
 
-    // Add learning patterns
+    // Add learned behavioral patterns
     if (trainingData.patterns.length > 0) {
       const pattern = trainingData.patterns[0];
-      enhancedPrompt += `\n\nLEARNED PREFERENCES:
-- Response Style: ${pattern.preferredResponseStyle}
-- Tone: ${pattern.tone}
-- Length: ${pattern.responseLength}
-- Focus Keywords: ${pattern.keywords.join(', ')}`;
+      enhancedPrompt += "\n\n=== LEARNED PREFERENCES ===";
+      enhancedPrompt += `\n- Preferred Response Style: ${pattern.preferredResponseStyle}`;
+      enhancedPrompt += `\n- Communication Tone: ${pattern.tone}`;
+      enhancedPrompt += `\n- Response Length: ${pattern.responseLength}`;
+      enhancedPrompt += `\n- Key Focus Areas: ${pattern.keywords.join(', ')}`;
+      enhancedPrompt += `\n- Learning Confidence: ${Math.round(pattern.confidence * 100)}%`;
     }
 
-    enhancedPrompt += "\n\nRespond following the patterns above while maintaining your core personality.";
+    // Add responses to avoid (from negative feedback)
+    if (trainingData.badResponses.length > 0) {
+      enhancedPrompt += "\n\n=== AVOID THESE PATTERNS ===";
+      enhancedPrompt += "\nThese responses received negative feedback - avoid similar approaches:";
+      trainingData.badResponses.slice(-2).forEach((response, index) => {
+        enhancedPrompt += `\n\nAvoid Pattern ${index + 1}:`;
+        enhancedPrompt += `\nUser: "${response.userMessage}"`;
+        enhancedPrompt += `\nPoor Response: "${response.agentResponse}"`;
+        if (response.feedback) {
+          enhancedPrompt += `\nWhy it failed: "${response.feedback}"`;
+        }
+      });
+    }
+
+    enhancedPrompt += "\n\n=== FINAL INSTRUCTION ===";
+    enhancedPrompt += "\nApply ALL the above training while maintaining your core role identity. Prioritize: 1) Custom role profile, 2) Training examples, 3) Learned patterns from feedback.";
     
     return enhancedPrompt;
   }
@@ -181,7 +283,7 @@ export class TrainingSystem {
     return 'long';
   }
 
-  // Get training statistics
+  // Get comprehensive training statistics
   getTrainingStats() {
     const totalFeedback = this.feedback.length;
     const goodFeedback = this.feedback.filter(f => f.rating === 'good' || f.rating === 'excellent').length;
@@ -194,14 +296,42 @@ export class TrainingSystem {
       }, {} as Record<string, number>)
     );
 
+    const customProfileStats = Object.entries(
+      this.customRoleProfiles.reduce((acc, p) => {
+        acc[p.agentRole] = (acc[p.agentRole] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
+    );
+
     return {
+      // Method 1: Feedback Learning
       totalFeedback,
       goodFeedback,
       badFeedback,
       successRate: totalFeedback > 0 ? Math.round((goodFeedback / totalFeedback) * 100) : 0,
       roleStats,
+      
+      // Method 2: Custom Examples
       customExamples: this.customExamples.length,
-      learningPatterns: this.learningPatterns.length
+      examplesByRole: Object.entries(
+        this.customExamples.reduce((acc, e) => {
+          acc[e.agentRole] = (acc[e.agentRole] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      ),
+      
+      // Method 3: Role Profile Customization
+      customProfiles: this.customRoleProfiles.length,
+      profilesByRole: customProfileStats,
+      
+      // Combined Intelligence
+      learningPatterns: this.learningPatterns.length,
+      totalTrainingMethods: 3,
+      activeTrainingTypes: [
+        this.feedback.length > 0 ? 'Feedback Learning' : null,
+        this.customExamples.length > 0 ? 'Custom Examples' : null,
+        this.customRoleProfiles.length > 0 ? 'Role Profiles' : null
+      ].filter(Boolean)
     };
   }
 }
