@@ -127,11 +127,11 @@ export function MessageBubble({
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">
                   {message.content}
                 </div>
-                
-                {/* Timestamp - always visible for now */}
-                <div className={`text-xs mt-2 ${isUser ? 'text-purple-200' : 'text-gray-400'}`}>
-                  {formatRelativeTime(message.timestamp)}
-                </div>
+              </div>
+
+              {/* Timestamp - moved outside bubble */}
+              <div className={`text-xs mt-1 px-1 ${isUser ? 'text-right text-gray-400' : 'text-left text-gray-500'}`}>
+                {formatRelativeTime(message.timestamp)}
               </div>
 
               {/* A1.1 & A1.4: Reaction buttons for agent messages */}
