@@ -8,7 +8,7 @@ Hatchin is a no-code AI creation workspace that enables users to design custom A
 
 Preferred communication style: Simple, everyday language.
 Always ask for permission before implementing any changes - this is a system requirement.
-Chat header design preference: No emojis in main conversation titles (project/team/agent names). Show "ACTIVE HATCHES:" with participant names and green circular icons with person symbols, matching the screenshot style provided.
+Chat header design preference: No emojis in main conversation titles (project/team/agent names). Use people icon for teams and person icon for agents in participant sections - keep main titles clean with text-only.
 
 ## Current Project Phase
 

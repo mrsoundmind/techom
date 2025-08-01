@@ -295,20 +295,38 @@ export function CenterPanel({
         </div>
         
         <div className="flex items-center gap-6 mt-3">
-          <span className="hatchin-text-muted text-[12px] font-medium uppercase tracking-wide">ACTIVE HATCHES:</span>
-          <div className="flex items-center gap-4">
-            {getCurrentChatParticipants().map(agent => (
-              <div key={agent.id} className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <span className="hatchin-text-muted text-[12px] font-medium">{contextDisplay.subtitle}</span>
+          {currentChatContext?.mode === 'project' && (
+            <div className="flex items-center gap-4">
+              {activeProjectTeams.map(team => {
+                const teamAgentCount = activeProjectAgents.filter(a => a.teamId === team.id).length;
+                return (
+                  <span key={team.id} className="hatchin-text text-[12px] flex items-center gap-1">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    {team.name} ({teamAgentCount})
+                  </span>
+                );
+              })}
+            </div>
+          )}
+          {currentChatContext?.mode === 'team' && (
+            <div className="flex items-center gap-4">
+              {contextDisplay.participants.map(agent => (
+                <span key={agent.id} className="hatchin-text text-[12px] flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                     <circle cx="12" cy="7" r="4"/>
                   </svg>
-                </div>
-                <span className="hatchin-text text-[12px] font-medium">{agent.name}</span>
-              </div>
-            ))}
-          </div>
+                  {agent.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       {/* Dynamic Welcome Content */}
