@@ -5,11 +5,9 @@ import type { Project } from "@shared/schema";
 
 interface RightSidebarProps {
   activeProject: Project | undefined;
-  isVisible?: boolean;
-  onClose?: () => void;
 }
 
-export function RightSidebar({ activeProject, isVisible = true, onClose }: RightSidebarProps) {
+export function RightSidebar({ activeProject }: RightSidebarProps) {
   const [coreDirection, setCoreDirection] = useState({
     whatBuilding: '',
     whyMatters: '',
@@ -35,18 +33,11 @@ export function RightSidebar({ activeProject, isVisible = true, onClose }: Right
     console.log(`Saving ${section} for project ${activeProject.id}`);
   };
 
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
       <div className="flex items-center justify-between mt-[5px] mb-[5px]">
         <h2 className="font-semibold hatchin-text text-[16px]">🧠 Project Overview</h2>
-        <button 
-          className="hatchin-text-muted hover:text-hatchin-text"
-          onClick={onClose}
-        >
+        <button className="hatchin-text-muted hover:text-hatchin-text">
           <X className="w-4 h-4" />
         </button>
       </div>
