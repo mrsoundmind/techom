@@ -708,39 +708,128 @@ export function CenterPanel({
           )}
         </div>
       </div>
-      {/* Dynamic Welcome Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-        <div className="max-w-lg">
-          
-          
-          <div className="text-[36px] mt-[0px] mb-[0px]">{contextDisplay.welcomeIcon}</div>
-          
-          <h2 className="font-semibold hatchin-text mt-[2px] mb-[2px] text-[16px]">{contextDisplay.welcomeTitle}</h2>
-          <p className="hatchin-text-muted text-[14px] mt-[0px] mb-[0px]">
-            {contextDisplay.welcomeSubtitle}
-          </p>
-          
-          <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
-            <button 
-              onClick={() => handleActionClick('generateRoadmap')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Give me a product roadmap
-            </button>
-            <button 
-              onClick={() => handleActionClick('setGoals')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Set team goals
-            </button>
-            <button 
-              onClick={() => handleActionClick('summarizeTasks')}
-              className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Summarize each team's task
-            </button>
+      {/* Message Display Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {messages.length === 0 ? (
+          /* Welcome Screen - Show when no messages */
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div className="max-w-lg">
+              <div className="text-[36px] mt-[0px] mb-[0px]">{contextDisplay.welcomeIcon}</div>
+              <h2 className="font-semibold hatchin-text mt-[2px] mb-[2px] text-[16px]">{contextDisplay.welcomeTitle}</h2>
+              <p className="hatchin-text-muted text-[14px] mt-[0px] mb-[0px]">
+                {contextDisplay.welcomeSubtitle}
+              </p>
+              
+              <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
+                <button 
+                  onClick={() => handleActionClick('generateRoadmap')}
+                  className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Give me a product roadmap
+                </button>
+                <button 
+                  onClick={() => handleActionClick('setGoals')}
+                  className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Set team goals
+                </button>
+                <button 
+                  onClick={() => handleActionClick('summarizeTasks')}
+                  className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Summarize each team's task
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Message List - Show when messages exist */
+          <>
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {isLoadingMessages && (
+                <div className="flex items-center justify-center py-4">
+                  <div className="hatchin-text-muted text-sm">Loading conversation...</div>
+                </div>
+              )}
+              
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.messageType === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {/* Message Bubble */}
+                  <div className={`max-w-[70%] ${
+                    message.messageType === 'user' 
+                      ? 'hatchin-bg-blue text-white' 
+                      : 'hatchin-bg-card hatchin-text'
+                  } rounded-2xl px-4 py-3 shadow-sm`}>
+                    
+                    {/* Message Content */}
+                    <div className="text-sm leading-relaxed">
+                      {message.content}
+                    </div>
+                    
+                    {/* Message Metadata */}
+                    <div className={`flex items-center gap-2 mt-2 text-xs ${
+                      message.messageType === 'user' 
+                        ? 'text-white/70' 
+                        : 'hatchin-text-muted'
+                    }`}>
+                      {/* Sender */}
+                      <span className="font-medium">{message.senderName}</span>
+                      
+                      {/* Timestamp */}
+                      <span>•</span>
+                      <span>
+                        {new Date(message.timestamp).toLocaleTimeString([], { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </span>
+                      
+                      {/* Message Status (for user messages) */}
+                      {message.messageType === 'user' && (
+                        <>
+                          <span>•</span>
+                          <span className={`${
+                            message.status === 'sent' || message.status === 'delivered' 
+                              ? 'text-white/90' 
+                              : message.status === 'failed' 
+                              ? 'text-red-300' 
+                              : 'text-white/50'
+                          }`}>
+                            {message.status === 'sending' && 'Sending...'}
+                            {message.status === 'sent' && 'Sent'}
+                            {message.status === 'delivered' && 'Delivered'}
+                            {message.status === 'failed' && 'Failed'}
+                          </span>
+                        </>
+                      )}
+                      
+                      {/* Message Scope (for user messages) */}
+                      {message.messageType === 'user' && message.metadata?.routing?.scope && (
+                        <>
+                          <span>•</span>
+                          <span className="text-white/70 text-xs">
+                            {message.metadata.routing.scope}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Auto-scroll helper */}
+            <div ref={(el) => {
+              if (el && messages.length > 0) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }} />
+          </>
+        )}
       </div>
       {/* Chat Input */}
       <div className="p-6 hatchin-border border-t">
