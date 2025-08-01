@@ -1,5 +1,5 @@
 import { Send } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Project, Team, Agent } from "@shared/schema";
 import { useWebSocket, getWebSocketUrl, getConnectionStatusConfig } from '@/lib/websocket';
 
@@ -141,11 +141,22 @@ export function CenterPanel({
 
   // === SUBTASK 3.1.3: Real-time Message Receiving ===
   
+  // Track recently sent message IDs to prevent echo
+  const [recentlySentIds, setRecentlySentIds] = useState<Set<string>>(new Set());
+
   // Handle incoming WebSocket messages
   const handleIncomingMessage = (message: any) => {
     if (message.type === 'new_message') {
+      const messageId = message.message.id;
+      
+      // Skip if this is an echo of our own message (temp IDs or recently sent)
+      if (messageId && (messageId.startsWith('temp-') || recentlySentIds.has(messageId))) {
+        console.log('Ignoring echo message:', messageId);
+        return;
+      }
+
       const newMessage = {
-        id: message.message.id || `msg-${Date.now()}`,
+        id: messageId || `msg-${Date.now()}`,
         content: message.message.content,
         senderId: message.message.agentId || message.message.userId,
         senderName: message.message.senderName || 'Colleague',
@@ -716,6 +727,21 @@ export function CenterPanel({
           }
         };
 
+        // Track this message ID to prevent echo
+        setRecentlySentIds(prev => {
+          const newSet = new Set(prev);
+          newSet.add(tempMessageId);
+          // Clean up old IDs after 30 seconds
+          setTimeout(() => {
+            setRecentlySentIds(current => {
+              const updated = new Set(current);
+              updated.delete(tempMessageId);
+              return updated;
+            });
+          }, 30000);
+          return newSet;
+        });
+
         // Send with confirmation and retry logic
         sendMessageWithConfirmation(messageData, tempMessageId);
         
@@ -732,8 +758,6 @@ export function CenterPanel({
             simulateColleagueResponse(messageContent, contextId);
           }
         }, 500);
-        
-        input.value = '';
       } else {
         console.warn('Cannot send message - invalid context or permissions');
       }
