@@ -11,6 +11,7 @@ export default function Home() {
   const [activeProjectId, setActiveProjectId] = useState<string>("saas-startup");
   const [activeTeamId, setActiveTeamId] = useState<string | null>(null);
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
+  const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(false);
   // All projects should always be expanded, and teams should be expanded by default
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
@@ -379,8 +380,10 @@ export default function Home() {
           activeAgentId={activeAgentId}
         />
         
-        <RightSidebar
-          activeProject={activeProject}
+        <RightSidebar 
+          activeProject={activeProject} 
+          isVisible={isRightSidebarVisible}
+          onClose={() => setIsRightSidebarVisible(false)}
         />
       </div>
       
