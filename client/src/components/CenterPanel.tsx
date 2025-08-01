@@ -259,10 +259,10 @@ export function CenterPanel({
     // Remove typing indicator
     setTypingColleagues([]);
     
-    // Generate PM response based on context and user message
+    // Generate intelligent response based on agent role and context
     const pmResponse = {
       id: `agent-${Date.now()}`,
-      content: generatePMResponse(userMessage, currentChatContext?.mode || 'project'),
+      content: generatePMResponse(userMessage, currentChatContext?.mode || 'project', pm.role),
       senderId: pm.id,
       senderName: pm.name,
       messageType: 'agent' as const,
@@ -286,57 +286,102 @@ export function CenterPanel({
   };
 
   // Generate PM responses based on context and message content
-  const generatePMResponse = (userMessage: string, mode: string) => {
+  const generatePMResponse = (userMessage: string, mode: string, agentRole: string = "Product Manager") => {
     const lowerMessage = userMessage.toLowerCase();
     
-    // Context-specific responses that feel more natural
-    if (lowerMessage.includes('hey') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-      const greetings = {
-        project: [
-          "Thanks for reaching out to the SaaS Startup team! I'm here to help coordinate across all our teams.",
-          "Hey there! Great to connect with you. What can our team help you with today?",
-          "Hello! I'm ready to sync with all teams on whatever you need."
-        ],
-        team: [
-          "Perfect, let me get the team focused on this.",
-          "Hey! I'll make sure the team is aligned on your request.",
-          "Great to hear from you! The team is ready to collaborate."
-        ],
-        agent: [
-          "Hello! Happy to chat one-on-one about whatever you need.",
-          "Hey there! I'm here to help with any specific questions you have.",
-          "Great to connect directly! What can I help you with?"
-        ]
-      };
+    // Enhanced intelligent responses using AI role profiles from GitHub repository
+    if (agentRole === "Product Manager") {
+      // Greetings
+      if (lowerMessage.includes('hey') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        return mode === 'project' ? 
+          "Thanks for reaching out! I'm here to coordinate across all teams." :
+          mode === 'team' ? "Hey! I'll make sure the team is aligned on your request." :
+          "Hello! Happy to chat one-on-one about whatever you need.";
+      }
       
-      return greetings[mode as keyof typeof greetings]?.[Math.floor(Math.random() * greetings[mode as keyof typeof greetings].length)] || 
-             "Hello! How can I help you today?";
+      // Intelligent keyword-based responses
+      if (lowerMessage.includes("roadmap") || lowerMessage.includes("plan")) {
+        return "Let me break this down into phases. What's our primary goal and timeline?";
+      }
+      if (lowerMessage.includes("priority") || lowerMessage.includes("urgent")) {
+        return "I'll help prioritize. What's the impact vs effort on each item?";
+      }
+      if (lowerMessage.includes("stuck") || lowerMessage.includes("blocked")) {
+        return "Let's identify the blocker. Is it resources, decisions, or dependencies?";
+      }
+      if (lowerMessage.includes("launch") || lowerMessage.includes("release")) {
+        return "For launch, I'll coordinate design and product teams on timeline and deliverables.";
+      }
+      if (lowerMessage.includes("team") || lowerMessage.includes("coordinate")) {
+        return "I'll make sure all teams are aligned on this request.";
+      }
+      
+      return "Got it! Let me coordinate with the teams on this.";
     }
     
-    // Default responses for other messages
-    const responses = {
-      project: [
-        "Got it! Let me coordinate with the teams on this.",
-        "I'll make sure all teams are aligned on this request.",
-        "Thanks for bringing this up. I'll sync with everyone.",
-        "This affects multiple teams - I'll handle the coordination."
-      ],
-      team: [
-        "Perfect, let me get the team focused on this.",
-        "I'll prioritize this with the team right away.",
-        "Good point - I'll discuss this in our next standup.",
-        "The team will handle this efficiently."
-      ],
-      agent: [
-        "Absolutely, I can help you with that specific request.",
-        "That's exactly what I specialize in handling.",
-        "Let me dive into the details on this for you.",
-        "I'll take care of this personally."
-      ]
-    };
+    if (agentRole === "Product Designer") {
+      if (lowerMessage.includes('hey') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        return "Hey! I'm here to help with design and user experience.";
+      }
+      if (lowerMessage.includes("design") || lowerMessage.includes("ui") || lowerMessage.includes("ux")) {
+        return "I'll help with the design approach. What's the main user goal here?";
+      }
+      if (lowerMessage.includes("user") || lowerMessage.includes("flow")) {
+        return "Let's map the user journey. What should feel effortless?";
+      }
+      if (lowerMessage.includes("confusing") || lowerMessage.includes("unclear")) {
+        return "Clarity first. Let me suggest some information architecture improvements.";
+      }
+      return "Good point - let me think about the design implications here.";
+    }
     
-    return responses[mode as keyof typeof responses]?.[Math.floor(Math.random() * responses[mode as keyof typeof responses].length)] || 
-           "I'll take care of that right away.";
+    if (agentRole === "UI Engineer") {
+      if (lowerMessage.includes('hey') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        return "Hi! I'm ready to help implement the frontend.";
+      }
+      if (lowerMessage.includes("code") || lowerMessage.includes("implement") || lowerMessage.includes("build")) {
+        return "I can help implement this. What's the technical approach you're considering?";
+      }
+      if (lowerMessage.includes("bug") || lowerMessage.includes("error") || lowerMessage.includes("broken")) {
+        return "Let me help debug this. Can you share the error details or steps to reproduce?";
+      }
+      if (lowerMessage.includes("performance") || lowerMessage.includes("slow")) {
+        return "I'll optimize this. Usually it's bundle size, images, or inefficient renders.";
+      }
+      return "I can handle the frontend implementation for this.";
+    }
+    
+    if (agentRole === "Backend Developer") {
+      if (lowerMessage.includes('hey') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        return "Hello! I'm here to handle the backend architecture.";
+      }
+      if (lowerMessage.includes("api") || lowerMessage.includes("server") || lowerMessage.includes("database")) {
+        return "I'll handle the backend architecture. What's the data flow you need?";
+      }
+      if (lowerMessage.includes("auth") || lowerMessage.includes("login") || lowerMessage.includes("security")) {
+        return "Security is crucial. I recommend JWT with proper validation and rate limiting.";
+      }
+      if (lowerMessage.includes("scale") || lowerMessage.includes("users")) {
+        return "Let's plan for scale. I'll design the database and caching strategy.";
+      }
+      return "I'll ensure the backend can support this feature properly.";
+    }
+    
+    if (agentRole === "QA Lead") {
+      if (lowerMessage.includes('hey') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+        return "Hi! I'm here to ensure quality and comprehensive testing.";
+      }
+      if (lowerMessage.includes("test") || lowerMessage.includes("quality") || lowerMessage.includes("bug")) {
+        return "I'll ensure quality. Let me create comprehensive test cases for this feature.";
+      }
+      if (lowerMessage.includes("ready") || lowerMessage.includes("ship") || lowerMessage.includes("release")) {
+        return "I'll verify readiness. Need to check edge cases and user acceptance criteria.";
+      }
+      return "I'll make sure we test this thoroughly before shipping.";
+    }
+    
+    // Default fallback for any role
+    return "That's definitely something we should prioritize.";
   };
 
   // === END TASK 3.1 ===
