@@ -62,6 +62,14 @@ export function LeftSidebar({
   const [showProjectName, setShowProjectName] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<StarterPack | null>(null);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+
+  // Debug: Monitor modal state changes
+  useEffect(() => {
+    if (showStarterPacks) {
+      console.log('🚨 StarterPacksModal is now open - this is the popup issue!');
+      console.trace('Stack trace for StarterPacksModal opening');
+    }
+  }, [showStarterPacks]);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -135,11 +143,13 @@ export function LeftSidebar({
   };
 
   const handleUseStarterPack = () => {
+    console.log('handleUseStarterPack called - opening StarterPacksModal');
     setShowQuickStart(false);
     setShowStarterPacks(true);
   };
 
   const handleTemplateSelect = (pack: StarterPack) => {
+    console.log('handleTemplateSelect called - closing StarterPacksModal');
     setSelectedTemplate(pack);
     setShowStarterPacks(false);
     setShowProjectName(true);
@@ -171,6 +181,7 @@ export function LeftSidebar({
   };
 
   const handleCloseModals = () => {
+    console.log('handleCloseModals called - closing all modals');
     setShowQuickStart(false);
     setShowStarterPacks(false);
     setShowProjectName(false);
