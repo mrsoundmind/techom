@@ -113,9 +113,6 @@ export function MessageBubble({
                     {message.senderName.charAt(0)}
                   </div>
                   <span className="text-sm font-medium text-gray-300">{message.senderName}</span>
-                  {message.metadata?.agentRole && (
-                    <span className="text-xs text-gray-500">• {message.metadata.agentRole}</span>
-                  )}
                 </div>
               )}
 
