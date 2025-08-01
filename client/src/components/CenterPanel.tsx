@@ -1,6 +1,7 @@
 import { Send } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Project, Team, Agent } from "@shared/schema";
+import { useWebSocket, getWebSocketUrl, getConnectionStatusConfig } from '@/lib/websocket';
 
 type ChatMode = 'project' | 'team' | 'agent';
 
@@ -31,6 +32,38 @@ export function CenterPanel({
   // Chat mode state management
   const [chatMode, setChatMode] = useState<ChatMode>('project');
   const [currentChatContext, setCurrentChatContext] = useState<ChatContext | null>(null);
+
+  // === SUBTASK 3.1.1: Connect WebSocket to Chat UI ===
+  
+  // WebSocket connection for real-time messaging
+  const webSocketUrl = getWebSocketUrl();
+  const { connectionStatus, sendMessage: sendWebSocketMessage, lastMessage } = useWebSocket(webSocketUrl, {
+    onMessage: (message) => {
+      console.log('Received WebSocket message:', message);
+      // Handle incoming messages here
+    },
+    onConnect: () => {
+      console.log('Chat connected to real-time messaging');
+      if (currentChatContext) {
+        // Join the current conversation room when connected
+        sendWebSocketMessage({
+          type: 'join_conversation',
+          conversationId: currentChatContext.conversationId
+        });
+      }
+    },
+    onDisconnect: () => {
+      console.log('Chat disconnected from real-time messaging');
+    },
+    onError: (error) => {
+      console.error('Chat messaging error:', error);
+    }
+  });
+
+  // Connection status configuration for UI display
+  const connectionConfig = getConnectionStatusConfig(connectionStatus);
+
+  // === END SUBTASK 3.1.1 ===
   
   // useEffect to listen to activeProjectId, activeTeamId, activeAgentId changes
   useEffect(() => {
@@ -355,37 +388,40 @@ export function CenterPanel({
       const messageContext = validateMessageContext();
       const recipients = getMessageRecipients();
       
-      if (messageContext.canSendMessage) {
-        // Enhanced message with full context and routing
-        console.log('Message sent with full context:', {
-          message: input.value,
-          conversationId: currentChatContext?.conversationId,
-          mode: currentChatContext?.mode,
-          routing: {
-            type: recipients.type,
-            scope: recipients.scope,
-            participantCount: recipients.recipients.length,
-            recipients: recipients.recipients.map((p: any) => p.name)
-          },
-          memory: {
-            projectMemory: chatMemoryContext?.sharedContext,
-            memoryScope: chatMemoryContext?.memoryAccess?.scope,
-            canWrite: chatMemoryContext?.memoryAccess?.canWrite
-          },
-          timestamp: new Date().toISOString()
-        });
+      if (messageContext.canSendMessage && connectionStatus === 'connected') {
+        // Send message through WebSocket for real-time delivery
+        const messageData = {
+          type: 'send_message',
+          conversationId: currentChatContext?.conversationId || '',
+          message: {
+            conversationId: currentChatContext?.conversationId || '',
+            userId: 'user', // Will be replaced with actual user ID
+            content: input.value,
+            messageType: 'user' as const,
+            metadata: {
+              routing: {
+                type: recipients.type,
+                scope: recipients.scope,
+                participantCount: recipients.recipients.length,
+                recipients: recipients.recipients.map((p: any) => p.name)
+              },
+              memory: {
+                projectMemory: chatMemoryContext?.sharedContext,
+                memoryScope: chatMemoryContext?.memoryAccess?.scope,
+                canWrite: chatMemoryContext?.memoryAccess?.canWrite
+              },
+              timestamp: new Date().toISOString()
+            }
+          }
+        };
+
+        // Send through WebSocket
+        sendWebSocketMessage(messageData);
         
-        // Future: Save message to storage with proper routing
-        // await saveMessage({
-        //   content: input.value,
-        //   conversationId: recipients.conversationId,
-        //   senderId: 'user',
-        //   recipients: recipients.recipients.map(p => p.id),
-        //   messageType: recipients.type,
-        //   projectMemoryId: chatMemoryContext?.projectId
-        // });
-        
+        console.log('Message sent via WebSocket:', messageData);
         input.value = '';
+      } else if (connectionStatus !== 'connected') {
+        console.warn('Cannot send message - not connected to real-time messaging');
       } else {
         console.warn('Cannot send message - invalid context or permissions');
       }
@@ -416,7 +452,16 @@ export function CenterPanel({
             <h1 className="font-semibold hatchin-text text-lg">
               {contextDisplay.title}
             </h1>
+            
+            {/* Connection Status Indicator */}
+            <div className="flex items-center gap-1.5">
+              <div className={`w-2 h-2 rounded-full ${connectionConfig.bgColor}`}></div>
+              <span className={`text-xs font-medium ${connectionConfig.color}`}>
+                {connectionConfig.text}
+              </span>
+            </div>
           </div>
+          
           <button className="hatchin-bg-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/>
