@@ -1,6 +1,7 @@
 import { OpenAI } from 'openai';
 import { roleProfiles } from './roleProfiles.js';
 import { trainingSystem } from './trainingSystem.js';
+import { executeColleagueLogic } from './colleagueLogic.js';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -31,6 +32,9 @@ export async function generateIntelligentResponse(
   context: ChatContext
 ): Promise<ColleagueResponse> {
   try {
+    // Execute custom logic for this colleague type
+    const logicResult = executeColleagueLogic(agentRole, userMessage);
+    
     // Get role profile for the responding colleague
     const roleProfile = roleProfiles[agentRole] || roleProfiles['Product Manager'];
     
@@ -69,7 +73,12 @@ export async function generateIntelligentResponse(
       frequency_penalty: 0.1
     });
 
-    const responseContent = completion.choices[0]?.message?.content || '';
+    let responseContent = completion.choices[0]?.message?.content || '';
+    
+    // Enhance response with custom logic results if available
+    if (logicResult.shouldExecute && logicResult.enhancedResponse) {
+      responseContent = `${logicResult.enhancedResponse}\n\n${responseContent}`;
+    }
     
     // Calculate confidence based on response quality
     const confidence = calculateConfidence(responseContent, userMessage, roleProfile);
@@ -77,7 +86,7 @@ export async function generateIntelligentResponse(
     return {
       content: responseContent,
       confidence,
-      reasoning: `Generated using ${agentRole} expertise and conversation context`
+      reasoning: `Generated using ${agentRole} expertise and conversation context${logicResult.shouldExecute ? ' with custom logic' : ''}`
     };
 
   } catch (error) {
