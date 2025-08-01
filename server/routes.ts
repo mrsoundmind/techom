@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertProjectSchema, insertTeamSchema, insertAgentSchema, insertMessageSchema, insertConversationSchema } from "@shared/schema";
 import { z } from "zod";
+import { generateIntelligentResponse } from "./ai/openaiService.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Projects
@@ -279,6 +280,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               });
             }
+
+            // Generate AI colleague response if this is a user message
+            if (savedMessage.messageType === 'user' && savedMessage.content) {
+              await handleColleagueResponse(savedMessage, data.conversationId);
+            }
             break;
 
           case 'start_typing':
@@ -332,6 +338,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (connection.readyState === WebSocket.OPEN) {
           connection.send(message);
         }
+      });
+    }
+  }
+
+  // AI colleague response handler
+  async function handleColleagueResponse(userMessage: any, conversationId: string) {
+    try {
+      // Parse conversation context from conversationId
+      const contextMatch = conversationId.match(/^(project|team|agent)-(.+?)(?:-(.+))?$/);
+      if (!contextMatch) return;
+
+      const [, mode, projectId, contextId] = contextMatch;
+      
+      // Get project details
+      const project = await storage.getProject(projectId);
+      if (!project) return;
+
+      // Determine responding agent and context
+      let respondingAgent;
+      let teamName;
+      
+      if (mode === 'project') {
+        // Project chat: Product Manager typically responds first
+        const agents = await storage.getAgentsByProject(projectId);
+        respondingAgent = agents.find(a => a.role.toLowerCase().includes('manager')) || agents[0];
+      } else if (mode === 'team') {
+        // Team chat: First agent in team responds
+        const agents = await storage.getAgentsByTeam(contextId);
+        respondingAgent = agents[0];
+        const team = await storage.getTeam(contextId);
+        teamName = team?.name;
+      } else if (mode === 'agent') {
+        // Agent chat: Specific agent responds
+        respondingAgent = await storage.getAgent(contextId);
+      }
+
+      if (!respondingAgent) return;
+
+      // Show typing indicator
+      broadcastToConversation(conversationId, {
+        type: 'typing_started',
+        agentId: respondingAgent.id,
+        agentName: respondingAgent.name,
+        estimatedDuration: 3000
+      });
+
+      // Get recent conversation history for context
+      const recentMessages = await storage.getMessagesByConversation(conversationId);
+      const conversationHistory = recentMessages.slice(-5).map(msg => ({
+        role: msg.messageType === 'user' ? 'user' as const : 'assistant' as const,
+        content: msg.content,
+        timestamp: msg.createdAt?.toISOString() || new Date().toISOString()
+      }));
+
+      // Generate intelligent response using OpenAI
+      const response = await generateIntelligentResponse(
+        userMessage.content,
+        respondingAgent.role,
+        {
+          mode: mode as 'project' | 'team' | 'agent',
+          projectName: project.name,
+          teamName,
+          agentRole: respondingAgent.role,
+          conversationHistory
+        }
+      );
+
+      // Stop typing indicator
+      broadcastToConversation(conversationId, {
+        type: 'typing_stopped',
+        agentId: respondingAgent.id
+      });
+
+      // Create and save agent response
+      const agentMessage = await storage.createMessage({
+        conversationId,
+        userId: null,
+        agentId: respondingAgent.id,
+        content: response.content,
+        messageType: 'agent',
+        metadata: {
+          confidence: response.confidence,
+          reasoning: response.reasoning,
+          role: respondingAgent.role
+        }
+      });
+
+      // Broadcast agent response
+      broadcastToConversation(conversationId, {
+        type: 'new_message',
+        message: {
+          ...agentMessage,
+          senderName: respondingAgent.name
+        },
+        conversationId
+      });
+
+      console.log(`AI Response from ${respondingAgent.name} (${respondingAgent.role}): ${response.content}`);
+
+    } catch (error) {
+      console.error('Failed to generate colleague response:', error);
+      
+      // Stop typing indicator on error
+      broadcastToConversation(conversationId, {
+        type: 'typing_stopped',
+        agentId: 'unknown'
       });
     }
   }
