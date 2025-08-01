@@ -334,7 +334,7 @@ export function CenterPanel({
         <div className="max-w-lg">
           
           
-          <div className="text-[50px] mt-[2px] mb-[2px]">{contextDisplay.welcomeIcon}</div>
+          <div className="text-[36px] mt-[0px] mb-[0px]">{contextDisplay.welcomeIcon}</div>
           
           <h2 className="font-semibold hatchin-text mt-[2px] mb-[2px] text-[16px]">{contextDisplay.welcomeTitle}</h2>
           <p className="hatchin-text-muted text-[14px] mt-[7px] mb-[7px]">
