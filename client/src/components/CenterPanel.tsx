@@ -149,9 +149,15 @@ export function CenterPanel({
     if (message.type === 'new_message') {
       const messageId = message.message.id;
       
-      // Skip if this is an echo of our own message (temp IDs or recently sent)
-      if (messageId && (messageId.startsWith('temp-') || recentlySentIds.has(messageId))) {
-        console.log('Ignoring echo message:', messageId);
+      // Skip if this is an echo of our own message
+      if (messageId && messageId.startsWith('temp-')) {
+        console.log('Ignoring temp message echo:', messageId);
+        return;
+      }
+      
+      // Skip if user sent this message (we already have it locally)
+      if (message.message.userId === 'user') {
+        console.log('Ignoring user message echo:', messageId);
         return;
       }
 
@@ -727,20 +733,7 @@ export function CenterPanel({
           }
         };
 
-        // Track this message ID to prevent echo
-        setRecentlySentIds(prev => {
-          const newSet = new Set(prev);
-          newSet.add(tempMessageId);
-          // Clean up old IDs after 30 seconds
-          setTimeout(() => {
-            setRecentlySentIds(current => {
-              const updated = new Set(current);
-              updated.delete(tempMessageId);
-              return updated;
-            });
-          }, 30000);
-          return newSet;
-        });
+        // No need to track sent IDs anymore - we filter by userId instead
 
         // Send with confirmation and retry logic
         sendMessageWithConfirmation(messageData, tempMessageId);
