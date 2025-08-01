@@ -12,9 +12,9 @@ Chat header design preference: No emojis in main conversation titles (project/te
 
 ## Current Project Phase
 
-**Active Feature**: Chat System Integration
-**Approach**: Systematic task-by-task implementation with user approval
-**Task Manager**: See CHAT_INTEGRATION_TASKMANAGER.md for detailed breakdown
+**Active Feature**: AI Training System 
+**Approach**: Developer-controlled pre-trained colleagues with simple user feedback
+**Philosophy**: Users get intelligent pre-trained teammates, developers control the training
 
 ## System Architecture
 

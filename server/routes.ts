@@ -6,8 +6,12 @@ import { insertProjectSchema, insertTeamSchema, insertAgentSchema, insertMessage
 import { z } from "zod";
 import { generateIntelligentResponse } from "./ai/openaiService.js";
 import { trainingSystem } from "./ai/trainingSystem.js";
+import { initializePreTrainedColleagues, devTrainingTools } from "./ai/devTrainingTools.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize pre-trained AI colleagues on server start
+  initializePreTrainedColleagues();
+  
   // Projects
   app.get("/api/projects", async (req, res) => {
     try {
@@ -188,10 +192,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Training API Endpoints
+  // Simple feedback endpoint (for user thumbs up/down)
   app.post("/api/training/feedback", async (req, res) => {
     try {
-      const { messageId, conversationId, userMessage, agentResponse, agentRole, rating, feedback } = req.body;
+      const { messageId, conversationId, userMessage, agentResponse, agentRole, rating } = req.body;
       
       const trainingFeedback = trainingSystem.addFeedback({
         messageId,
@@ -199,67 +203,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userMessage,
         agentResponse,
         agentRole,
-        rating,
-        feedback
+        rating
       });
       
-      res.json({ success: true, feedback: trainingFeedback });
+      res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: "Failed to record training feedback" });
+      res.status(500).json({ error: "Failed to record feedback" });
     }
   });
 
-  app.post("/api/training/example", async (req, res) => {
+  // Developer training endpoints (protected - only for internal use)
+  app.post("/api/dev/training/personality", async (req, res) => {
     try {
-      const { agentRole, userInput, idealResponse, category } = req.body;
-      
-      const customExample = trainingSystem.addCustomExample({
-        agentRole,
-        userInput,
-        idealResponse,
-        category
-      });
-      
-      res.json({ success: true, example: customExample });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to add custom example" });
-    }
-  });
-
-  app.get("/api/training/stats", async (req, res) => {
-    try {
-      const stats = trainingSystem.getTrainingStats();
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to get training stats" });
-    }
-  });
-
-  app.get("/api/training/data/:agentRole", async (req, res) => {
-    try {
-      const trainingData = trainingSystem.getTrainingData(req.params.agentRole);
-      res.json(trainingData);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to get training data" });
-    }
-  });
-
-  // Role Profile Customization API
-  app.post("/api/training/role-profile", async (req, res) => {
-    try {
-      const profile = trainingSystem.updateRoleProfile(req.body);
+      const { role, personality } = req.body;
+      const profile = devTrainingTools.updatePersonality(role, personality);
       res.json({ success: true, profile });
     } catch (error) {
-      res.status(500).json({ error: "Failed to update role profile" });
+      res.status(500).json({ error: "Failed to update personality" });
     }
   });
 
-  app.get("/api/training/role-profile/:agentRole", async (req, res) => {
+  app.post("/api/dev/training/example", async (req, res) => {
     try {
-      const profile = trainingSystem.getCustomRoleProfile(req.params.agentRole);
-      res.json(profile);
+      const { role, userInput, idealResponse, category } = req.body;
+      const example = devTrainingTools.addExample(role, userInput, idealResponse, category);
+      res.json({ success: true, example });
     } catch (error) {
-      res.status(500).json({ error: "Failed to get role profile" });
+      res.status(500).json({ error: "Failed to add example" });
+    }
+  });
+
+  app.get("/api/dev/training/stats", async (req, res) => {
+    try {
+      const stats = devTrainingTools.getStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get stats" });
     }
   });
 
