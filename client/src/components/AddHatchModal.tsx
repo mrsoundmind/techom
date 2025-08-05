@@ -359,14 +359,17 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
     if (!activeProject) return;
 
     // Check if agent with this role already exists
-    const existingAgent = existingAgents.find(existing => existing.role === agent.role);
-    if (existingAgent) return; // Skip if already exists
+    const existingAgent = existingAgents.find(existing => existing.role === agent.role && existing.projectId === activeProject.id);
+    if (existingAgent) {
+      console.log(`Agent with role "${agent.role}" already exists in this project`);
+      return; // Skip if already exists
+    }
 
     const agentData: Omit<Agent, 'id'> = {
       name: agent.role, // Use role as default name
       role: agent.role,
       color: agent.color,
-      teamId: '', // Will be set by the parent component
+      teamId: null, // Individual agent - not part of any team
       projectId: activeProject.id,
       personality: {
         traits: [],
@@ -377,6 +380,7 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
       isSpecialAgent: false
     };
 
+    console.log('Creating individual agent:', agentData);
     onAddAgent(agentData);
     onClose();
   };
@@ -430,7 +434,11 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
                 
                 <button
                   onClick={() => setActiveTab('individual')}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 text-[#A6A7AB] hover:text-[#F1F1F3] hover:bg-[#2A2D33] mt-[13px] mb-[13px]"
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 mt-[13px] mb-[13px] ${
+                    activeTab === 'individual'
+                      ? 'bg-[#6C82FF] text-white'
+                      : 'text-[#A6A7AB] hover:text-[#F1F1F3] hover:bg-[#2A2D33]'
+                  }`}
                 >
                   <User size={20} />
                   <div className="flex-1">
@@ -576,7 +584,14 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
                       
                       {/* CTA Button - Fixed at bottom */}
                       <div className="mt-auto pt-2">
-                        <button className="w-full px-3 py-2 rounded-lg transition-all duration-200 text-xs font-medium bg-[#43444B] hover:bg-[#6C82FF] text-[#F1F1F3] hover:text-white">
+                        <button 
+                          className="w-full px-3 py-2 rounded-lg transition-all duration-200 text-xs font-medium bg-[#43444B] hover:bg-[#6C82FF] text-[#F1F1F3] hover:text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddIndividualAgent(agent);
+                          }}
+                          data-testid={`button-add-individual-agent-${agent.role.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
                           Add Agent
                         </button>
                       </div>
