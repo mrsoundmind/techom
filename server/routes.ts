@@ -441,7 +441,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   async function handleStreamingColleagueResponse(userMessage: any, conversationId: string, ws: WebSocket) {
     console.log('🎯 Starting streaming handler for:', conversationId);
     try {
-      // Parse conversation ID: project-saas-startup -> mode=project, projectId=saas-startup
+      // Parse conversation ID formats:
+      // project-saas-startup -> mode=project, projectId=saas-startup
+      // team-saas-startup-design-team -> mode=team, projectId=saas-startup, teamId=design-team
+      // agent-saas-startup-product-manager -> mode=agent, projectId=saas-startup, agentId=product-manager
+      
       const parts = conversationId.split('-');
       if (parts.length < 2) {
         console.log('❌ Invalid conversation ID format:', conversationId);
@@ -449,8 +453,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const mode = parts[0] as 'project' | 'team' | 'agent';
-      const projectId = parts.slice(1).join('-'); // Rejoin in case project ID has hyphens
-      console.log('🔍 Parsed conversation:', { mode, projectId });
+      let projectId: string;
+      let contextId: string | undefined;
+      
+      if (mode === 'project') {
+        projectId = parts.slice(1).join('-');
+      } else if (mode === 'team') {
+        // team-saas-startup-design-team: projectId=saas-startup, teamId=design-team  
+        projectId = parts[1];
+        contextId = parts.slice(2).join('-');
+      } else if (mode === 'agent') {
+        // agent-saas-startup-product-manager: projectId=saas-startup, agentId=product-manager
+        projectId = parts[1]; 
+        contextId = parts.slice(2).join('-');
+      } else {
+        projectId = parts.slice(1).join('-');
+      }
+      
+      console.log('🔍 Parsed conversation:', { mode, projectId, contextId });
       const project = await storage.getProject(projectId);
       if (!project) {
         console.log('❌ Project not found:', projectId);
@@ -463,12 +483,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (mode === 'project') {
         const agents = await storage.getAgentsByProject(projectId);
         respondingAgent = agents.find(a => a.role.toLowerCase().includes('manager')) || agents[0];
-      } else if (mode === 'team') {
-        // For team mode, contextId would be the team ID (not implemented in this simple version)
-        const agents = await storage.getAgentsByProject(projectId);
-        respondingAgent = agents[0];
-      } else if (mode === 'agent') {
-        // For agent mode, contextId would be the agent ID (not implemented in this simple version)
+      } else if (mode === 'team' && contextId) {
+        // For team mode: get agents from the specific team
+        const agents = await storage.getAgentsByTeam(contextId);
+        respondingAgent = agents[0]; // First agent in team responds
+        const team = await storage.getTeam(contextId);
+        teamName = team?.name;
+      } else if (mode === 'agent' && contextId) {
+        // For agent mode: get the specific agent by ID
+        respondingAgent = await storage.getAgent(contextId);
+      } else {
+        // Fallback to project agents
         const agents = await storage.getAgentsByProject(projectId);
         respondingAgent = agents[0];
       }
@@ -497,14 +522,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         agentName: respondingAgent.name
       }));
 
+      // Load conversation history for context
+      const recentMessages = await storage.getMessagesByConversation(conversationId);
+      const conversationHistory = recentMessages.slice(-10).map(msg => ({
+        role: msg.messageType === 'user' ? 'user' as const : 'assistant' as const,
+        content: msg.content,
+        timestamp: msg.createdAt?.toISOString() || new Date().toISOString(),
+        senderId: msg.userId || msg.agentId || 'unknown',
+        messageType: msg.messageType === 'system' ? 'agent' as const : msg.messageType as 'user' | 'agent'
+      }));
+
       // Create chat context for AI
       const chatContext = {
         mode: mode as 'project' | 'team' | 'agent',
         projectName: project.name,
         teamName,
         agentRole: respondingAgent.role,
-        conversationHistory: [], // In production, load actual history
-        userId: 'user'
+        conversationHistory,
+        userId: userMessage.userId || 'user'
       };
 
       // Create AbortController for cancellation
@@ -565,6 +600,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // B3: Extract and store conversation memory
           await extractAndStoreMemory(userMessage, savedResponse, conversationId, projectId);
+          
+          // Extract user name if mentioned
+          await extractUserName(userMessage.content, conversationId);
 
           // Notify streaming completed
           ws.send(JSON.stringify({
@@ -642,6 +680,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🧠 Memory extraction completed for conversation:', conversationId);
     } catch (error) {
       console.error('❌ Error extracting memory:', error);
+    }
+  }
+
+  // Extract user name from messages
+  async function extractUserName(content: string, conversationId: string) {
+    try {
+      const lowerContent = content.toLowerCase();
+      
+      // Look for "my name is [name]" patterns
+      const namePatterns = [
+        /my name is ([a-zA-Z]+)/i,
+        /i am ([a-zA-Z]+)/i,
+        /call me ([a-zA-Z]+)/i,
+        /i'm ([a-zA-Z]+)/i
+      ];
+      
+      for (const pattern of namePatterns) {
+        const match = content.match(pattern);
+        if (match && match[1]) {
+          const userName = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+          await storage.addConversationMemory(
+            conversationId,
+            'context',
+            `User's name is ${userName}`,
+            10 // Very high importance
+          );
+          console.log(`👤 User name extracted and stored: ${userName}`);
+          break;
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error extracting user name:', error);
     }
   }
 

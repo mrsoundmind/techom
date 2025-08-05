@@ -76,6 +76,8 @@ ${roleProfile.primaryGoals ? `Goals: ${roleProfile.primaryGoals}` : ''}
 
 ${sharedMemory ? `\n--- SHARED PROJECT MEMORY ---\n${sharedMemory}\n--- END MEMORY ---\n` : ''}
 
+Be conversational, helpful, and stay in character. Remember user names and context from previous messages. Respond naturally as a human colleague would, not as a formal AI assistant.
+
 Respond as this specific role with appropriate expertise and personality. Keep responses concise and actionable.`;
 
     // Create streaming completion
