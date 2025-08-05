@@ -323,26 +323,68 @@ function calculateConfidence(response: string, userMessage: string, roleProfile:
 function generateFallbackResponse(userMessage: string, agentRole: string, mode: string): string {
   const lowerMessage = userMessage.toLowerCase();
   
-  // Role-specific fallbacks
+  // Role-specific fallbacks with more comprehensive responses
   if (agentRole === "Product Manager") {
-    if (lowerMessage.includes("roadmap") || lowerMessage.includes("plan")) {
-      return "Let me break this down into phases. What's our primary goal and timeline?";
+    if (lowerMessage.includes("roadmap") || lowerMessage.includes("milestone") || lowerMessage.includes("timeline")) {
+      return "I'd recommend breaking this into 3 phases: MVP (3 months), Growth Features (6 months), and Scale (12 months). Let's start with defining your core value proposition and key user flows. What's your target launch date?";
+    }
+    if (lowerMessage.includes("goals") || lowerMessage.includes("smart")) {
+      return "For SMART goals, I suggest: 1) User Acquisition: 1000 active users in 6 months, 2) Product-Market Fit: NPS score >50, 3) Revenue: $10K MRR by month 12. Each team should have specific KPIs aligned with these objectives.";
+    }
+    if (lowerMessage.includes("tasks") || lowerMessage.includes("responsibilities") || lowerMessage.includes("summarize")) {
+      return "Here's the team breakdown: Design Team should focus on user research and wireframes, Development Team on core architecture and MVP features, Marketing Team on go-to-market strategy. What's your current biggest bottleneck?";
     }
     if (lowerMessage.includes("priority") || lowerMessage.includes("urgent")) {
-      return "I'll help prioritize. What's the impact vs effort on each item?";
+      return "I'll help prioritize using impact vs effort matrix. What's the most critical user problem we're solving right now?";
     }
-    return "Got it! Let me coordinate with the teams on this.";
+    return "As Product Manager, I'll coordinate with all teams on this. What's our primary objective and timeline?";
   }
   
   if (agentRole === "Product Designer") {
-    if (lowerMessage.includes("design") || lowerMessage.includes("ui")) {
-      return "I'll help with the design approach. What's the main user goal here?";
+    if (lowerMessage.includes("roadmap")) {
+      return "From a design perspective, our roadmap should prioritize user experience milestones: user research (month 1), wireframes & prototypes (month 2), usability testing (month 3). What's our target user persona?";
     }
-    return "Good point - let me think about the design implications here.";
+    if (lowerMessage.includes("goals")) {
+      return "Design goals should focus on usability: 90% task completion rate, <3 clicks to core features, 4.5+ app store rating. We need user research to validate our assumptions.";
+    }
+    if (lowerMessage.includes("design") || lowerMessage.includes("ui") || lowerMessage.includes("ux")) {
+      return "I'll focus on user-centered design. Let's start with understanding user pain points and mapping their journey. What's the primary use case we're solving?";
+    }
+    return "From a design perspective, I'll ensure this creates great user experience. What's the main user goal here?";
+  }
+  
+  if (agentRole === "UI Engineer") {
+    if (lowerMessage.includes("roadmap")) {
+      return "Technical roadmap priorities: component library setup (week 1), responsive design system (week 2-3), core UI implementation (month 2). What framework are we using?";
+    }
+    if (lowerMessage.includes("goals")) {
+      return "Frontend goals: 95% mobile responsiveness, <2s load times, accessibility AA compliance. I'll implement a scalable component architecture.";
+    }
+    return "I'll handle the frontend implementation. What's the technical scope and timeline?";
+  }
+  
+  if (agentRole === "Backend Developer") {
+    if (lowerMessage.includes("roadmap")) {
+      return "Backend roadmap: database schema design (week 1), API architecture (week 2), authentication system (week 3), deployment pipeline (week 4). What's our expected user scale?";
+    }
+    if (lowerMessage.includes("goals")) {
+      return "Backend goals: 99.9% uptime, <200ms API response times, secure authentication, scalable to 10K users. I'll design for growth from day one.";
+    }
+    return "I'll architect the backend systems. What's our data model and scale requirements?";
+  }
+  
+  if (agentRole === "QA Lead") {
+    if (lowerMessage.includes("roadmap")) {
+      return "QA roadmap: test strategy document (week 1), automated test setup (week 2), manual testing protocols (week 3), performance testing (week 4). What's our quality standard?";
+    }
+    if (lowerMessage.includes("goals")) {
+      return "QA goals: <1% bug escape rate, 90% test automation coverage, <24hr bug fix cycle. I'll ensure we ship quality features consistently.";
+    }
+    return "I'll ensure quality throughout development. What's our testing scope and acceptance criteria?";
   }
   
   // Generic fallback
-  return "That's definitely something we should prioritize.";
+  return "That's an excellent point. Let me help you tackle this systematically. What's the priority and timeline?";
 }
 
 export { ChatContext, ColleagueResponse };
