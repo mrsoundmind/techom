@@ -995,9 +995,60 @@ export function CenterPanel({
     }
     
     if (message) {
-      // Send the message through the normal chat flow
-      await handleSendMessage(message, undefined);  // No reply context for starter messages
-      console.log(`Sent ${action} prompt:`, message);
+      try {
+        // Send message through chat submit flow directly
+        const messageContext = validateMessageContext();
+        
+        if (messageContext.canSendMessage && currentChatContext) {
+          const tempMessageId = `temp-${Date.now()}`;
+          const timestamp = new Date().toISOString();
+          
+          // Create user message
+          const userMessage = {
+            id: tempMessageId,
+            content: message,
+            senderId: 'user',
+            senderName: 'You',
+            messageType: 'user' as const,
+            timestamp,
+            conversationId: currentChatContext.conversationId,
+            status: 'sending' as const,
+            parentMessageId: undefined,
+            threadRootId: undefined,
+            threadDepth: 0,
+            metadata: {}
+          };
+          
+          // Add message to conversation immediately
+          addMessageToConversation(currentChatContext.conversationId, userMessage);
+          
+          // Send via WebSocket with metadata
+          const wsMessage = {
+            type: 'send_message_streaming',
+            conversationId: currentChatContext.conversationId,
+            message: {
+              ...userMessage,
+              userId: 'user',
+              metadata: {
+                routing: {
+                  mode: currentChatContext.mode,
+                  projectId: activeProject?.id,
+                  teamId: activeTeamId,
+                  agentId: activeAgentId
+                },
+                memory: getSharedProjectMemory()
+              }
+            }
+          };
+          
+          await sendMessageWithConfirmation(wsMessage, tempMessageId);
+          console.log(`Sent ${action} prompt:`, message);
+        } else {
+          console.error('Cannot send message: validation failed');
+        }
+      } catch (error) {
+        console.error('Error sending action message:', error);
+      }
     }
   };
 
