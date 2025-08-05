@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertProjectSchema, insertTeamSchema, insertAgentSchema, insertMessageSchema, insertConversationSchema } from "@shared/schema";
 import { z } from "zod";
-import { generateIntelligentResponse, generateStreamingResponse } from "./ai/localLLMService.js";
+import { generateIntelligentResponse, generateStreamingResponse } from "./ai/openaiService.js";
 import { personalityEngine } from "./ai/personalityEvolution.js";
 import { trainingSystem } from "./ai/trainingSystem.js";
 import { initializePreTrainedColleagues, devTrainingTools } from "./ai/devTrainingTools.js";
@@ -370,9 +370,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Store active connections by conversation ID
   const activeConnections = new Map<string, Set<WebSocket>>();
-  
-  // Track active responses to prevent duplicates  
-  const activeResponses = new Set<string>();
 
   wss.on('connection', (ws: WebSocket, req) => {
     console.log('New WebSocket connection established');
@@ -415,26 +412,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Start streaming AI response
             console.log('🚀 Starting streaming response...');
-            const responseKey = `${data.conversationId}-${savedUserMessage.id}`;
-            
-            // Prevent duplicate responses
-            if (!activeResponses.has(responseKey)) {
-              activeResponses.add(responseKey);
-              try {
-                await handleStreamingColleagueResponse(savedUserMessage, data.conversationId, ws);
-              } catch (error) {
-                console.error('❌ Streaming response error:', error);
-                ws.send(JSON.stringify({
-                  type: 'streaming_error',
-                  messageId,
-                  error: 'Failed to generate response'
-                }));
-              } finally {
-                // Clean up response tracking
-                activeResponses.delete(responseKey);
-              }
-            } else {
-              console.log('⚠️ Duplicate response prevented for:', responseKey);
+            try {
+              await handleStreamingColleagueResponse(savedUserMessage, data.conversationId, ws);
+            } catch (error) {
+              console.error('❌ Streaming response error:', error);
+              ws.send(JSON.stringify({
+                type: 'streaming_error',
+                messageId,
+                error: 'Failed to generate response'
+              }));
             }
             break;
 

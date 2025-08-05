@@ -393,37 +393,30 @@ export function CenterPanel({
   useEffect(() => {
     if (apiMessages && currentChatContext && Array.isArray(apiMessages)) {
       console.log(`📥 Loaded ${apiMessages.length} messages from API for ${currentChatContext.conversationId}`);
+      // Transform API messages to match our format
+      const transformedMessages = apiMessages.map((msg: any) => ({
+        id: msg.id,
+        content: msg.content,
+        senderId: msg.agentId || msg.userId || 'unknown',
+        senderName: msg.agentId ? (() => {
+          const agent = activeProjectAgents.find(a => a.id === msg.agentId);
+          return agent ? agent.name : msg.agentId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        })() : 'You',
+        messageType: msg.messageType,
+        timestamp: msg.createdAt,
+        conversationId: msg.conversationId,
+        status: 'delivered' as const,
+        parentMessageId: msg.parentMessageId,
+        threadRootId: msg.threadRootId,
+        threadDepth: msg.threadDepth || 0,
+        metadata: msg.metadata || {}
+      }));
       
-      // Only replace if we don't already have local messages for this conversation
-      const existingMessages = allMessages[currentChatContext.conversationId];
-      if (!existingMessages || existingMessages.length === 0) {
-        // Transform API messages to match our format
-        const transformedMessages = apiMessages.map((msg: any) => ({
-          id: msg.id,
-          content: msg.content,
-          senderId: msg.agentId || msg.userId || 'unknown',
-          senderName: msg.agentId ? (() => {
-            const agent = activeProjectAgents.find(a => a.id === msg.agentId);
-            return agent ? agent.name : msg.agentId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-          })() : 'You',
-          messageType: msg.messageType,
-          timestamp: msg.createdAt,
-          conversationId: msg.conversationId,
-          status: 'delivered' as const,
-          parentMessageId: msg.parentMessageId,
-          threadRootId: msg.threadRootId,
-          threadDepth: msg.threadDepth || 0,
-          metadata: msg.metadata || {}
-        }));
-        
-        // Only set messages if we have API messages and no local messages
-        if (transformedMessages.length > 0) {
-          setAllMessages(prev => ({
-            ...prev,
-            [currentChatContext.conversationId]: transformedMessages
-          }));
-        }
-      }
+      // Replace messages for this conversation
+      setAllMessages(prev => ({
+        ...prev,
+        [currentChatContext.conversationId]: transformedMessages
+      }));
     }
   }, [apiMessages, currentChatContext]);
 
@@ -1047,49 +1040,6 @@ export function CenterPanel({
     setReplyingTo(null);
   };
 
-  // Helper function to send starter messages
-  const sendStarterMessage = (content: string) => {
-    if (!currentChatContext) return;
-    
-    const messageContext = validateMessageContext();
-    if (messageContext.canSendMessage) {
-      const tempMessageId = `temp-${Date.now()}`;
-      const timestamp = new Date().toISOString();
-      
-      const userMessage = {
-        id: tempMessageId,
-        content,
-        senderId: 'user',
-        senderName: 'You',
-        messageType: 'user' as const,
-        timestamp,
-        conversationId: currentChatContext.conversationId,
-        status: 'sending' as const,
-        parentMessageId: undefined,
-        threadRootId: undefined,
-        threadDepth: 0,
-        metadata: {}
-      };
-      
-      addMessageToConversation(currentChatContext.conversationId, userMessage);
-      
-      const wsMessage = {
-        type: 'send_message_streaming',
-        conversationId: currentChatContext.conversationId,
-        message: {
-          ...userMessage,
-          userId: 'user'
-        }
-      };
-      
-      if (connectionStatus === 'connected') {
-        sendWebSocketMessage(wsMessage);
-      } else {
-        queueMessage(wsMessage);
-      }
-    }
-  };
-
   const handleActionClick = async (action: string) => {
     if (!currentChatContext) return;
     
@@ -1393,25 +1343,25 @@ export function CenterPanel({
               
               <div className="flex flex-wrap gap-3 justify-center pt-[11px] pb-[11px]">
                 <button 
-                  onClick={() => sendStarterMessage('Give me a product roadmap')}
-                  className="hatchin-bg-card hatchin-text px-4 py-2 rounded-lg text-sm font-medium border-2 border-dashed border-hatchin-text-muted hover:border-hatchin-accent hover:bg-hatchin-accent/10 transition-colors cursor-pointer"
-                  data-testid="button-starter-roadmap"
+                  onClick={() => handleActionClick('generateRoadmap')}
+                  className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
-                  Give me a product roadmap
+                  {currentChatContext?.mode === 'project' ? 'Give me a product roadmap' :
+                   currentChatContext?.mode === 'team' ? 'Create our team roadmap' : 'What should our roadmap priorities be?'}
                 </button>
                 <button 
-                  onClick={() => sendStarterMessage('Set team goals')}
-                  className="hatchin-bg-card hatchin-text px-4 py-2 rounded-lg text-sm font-medium border-2 border-dashed border-hatchin-text-muted hover:border-hatchin-accent hover:bg-hatchin-accent/10 transition-colors cursor-pointer"
-                  data-testid="button-starter-goals"
+                  onClick={() => handleActionClick('setGoals')}
+                  className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
-                  Set team goals
+                  {currentChatContext?.mode === 'project' ? 'Set team goals' :
+                   currentChatContext?.mode === 'team' ? 'Define our team goals' : 'What goals should we prioritize?'}
                 </button>
                 <button 
-                  onClick={() => sendStarterMessage('Summarize each team\'s tasks')}
-                  className="hatchin-bg-card hatchin-text px-4 py-2 rounded-lg text-sm font-medium border-2 border-dashed border-hatchin-text-muted hover:border-hatchin-accent hover:bg-hatchin-accent/10 transition-colors cursor-pointer"
-                  data-testid="button-starter-tasks"
+                  onClick={() => handleActionClick('summarizeTasks')}
+                  className="hatchin-bg-card hover:bg-hatchin-border hatchin-text px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
-                  Summarize each team's tasks
+                  {currentChatContext?.mode === 'project' ? 'Summarize each team\'s tasks' :
+                   currentChatContext?.mode === 'team' ? 'What should our team focus on?' : 'What are my next steps?'}
                 </button>
               </div>
             </div>
