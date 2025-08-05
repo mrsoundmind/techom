@@ -304,6 +304,9 @@ export function CenterPanel({
   // C1.3: Thread navigation state
   const currentMessages = getCurrentMessages();
   
+  // TEST: Log message structure for debugging
+  console.log('📊 Current messages for thread analysis:', currentMessages.length);
+  
   const threadNavigation = useThreadNavigation(currentMessages.map(msg => ({
     ...msg,
     threadDepth: msg.threadDepth || 0,

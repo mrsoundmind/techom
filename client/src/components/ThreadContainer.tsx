@@ -64,6 +64,9 @@ export function ThreadContainer({
   ]).size;
   
   const hasReplies = totalReplies > 0;
+  
+  // TEST: Log badge visibility conditions
+  console.log(`🎯 Thread ${rootMessage.id}: hasReplies=${hasReplies}, unreadCount=${unreadCount}, hasUnreadReplies=${hasUnreadReplies}`);
 
 
   

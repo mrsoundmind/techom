@@ -105,6 +105,13 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
         thread.unreadCount = thread.replies.filter(msg => msg.senderId !== 'user').length;
         thread.hasUnreadReplies = thread.unreadCount > 0;
         
+        // TEST: Force show unread badges for any threads with replies
+        if (thread.replies.length > 0) {
+          thread.unreadCount = Math.max(thread.unreadCount, 2); // Show 2 unread for testing
+          thread.hasUnreadReplies = true;
+          console.log(`🔴 TEST: Thread ${threadId} has ${thread.unreadCount} unread messages`);
+        }
+        
 
       } else {
         // Find messages after the last read message
