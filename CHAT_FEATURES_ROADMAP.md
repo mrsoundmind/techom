@@ -95,8 +95,8 @@ Focus: Complex team dynamics and collaboration
 - [x] **C1.2**: Create reply preview in chat input ✅ COMPLETED
 - [x] **C1.3**: Thread navigation and collapse ✅ COMPLETED
 - [ ] **C1.4**: Thread notification system
-  - [ ] **C1.4.1**: Thread unread count tracking
-  - [ ] **C1.4.2**: Visual thread notification badges
+  - [x] **C1.4.1**: Thread unread count tracking ✅ COMPLETED
+  - [x] **C1.4.2**: Visual thread notification badges ✅ COMPLETED
   - [ ] **C1.4.3**: Thread activity indicators
   - [ ] **C1.4.4**: Thread notification persistence
 

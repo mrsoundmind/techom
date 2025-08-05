@@ -104,6 +104,8 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
         // No read state means everything is unread (except user's own messages)
         thread.unreadCount = thread.replies.filter(msg => msg.senderId !== 'user').length;
         thread.hasUnreadReplies = thread.unreadCount > 0;
+        
+
       } else {
         // Find messages after the last read message
         const lastReadIndex = thread.allMessages.findIndex(msg => msg.id === readState.lastReadMessageId);

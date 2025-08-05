@@ -65,8 +65,7 @@ export function ThreadContainer({
   
   const hasReplies = totalReplies > 0;
 
-  // C1.4.1: Log unread count for debugging
-  console.log(`📧 Thread ${rootMessage.id}: unread=${unreadCount}, hasUnread=${hasUnreadReplies}`);
+
   
   return (
     <div 
@@ -105,7 +104,7 @@ export function ThreadContainer({
                   variant="ghost"
                   size="sm"
                   onClick={() => onToggleCollapse(rootMessage.id)}
-                  className="h-6 px-2 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-600/50 text-xs text-gray-300 hover:text-white"
+                  className="h-6 px-2 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-600/50 text-xs text-gray-300 hover:text-white relative"
                   data-testid={`thread-toggle-${rootMessage.id}`}
                 >
                   {isCollapsed ? (
@@ -113,6 +112,39 @@ export function ThreadContainer({
                       <ChevronRight className="w-3 h-3 mr-1" />
                       <MessageSquare className="w-3 h-3 mr-1" />
                       {totalReplies} {totalReplies === 1 ? 'reply' : 'replies'}
+                      
+                      {/* C1.4.2: Unread count badge when collapsed */}
+                      {hasUnreadReplies && unreadCount > 0 && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ 
+                            scale: 1, 
+                            opacity: 1,
+                            // Subtle pulse animation for attention
+                            boxShadow: [
+                              "0 0 0 0 rgba(59, 130, 246, 0.4)",
+                              "0 0 0 4px rgba(59, 130, 246, 0)",
+                              "0 0 0 0 rgba(59, 130, 246, 0)"
+                            ]
+                          }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ 
+                            duration: 0.2, 
+                            ease: "easeOut",
+                            boxShadow: {
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }
+                          }}
+                          className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 ml-1.5
+                                   bg-gradient-to-r from-blue-500 to-blue-600 text-white text-[10px] font-medium rounded-full
+                                   shadow-lg border border-blue-400/30 backdrop-blur-sm"
+                          data-testid={`badge-unread-${rootMessage.id}`}
+                        >
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </motion.div>
+                      )}
                     </>
                   ) : (
                     <>
@@ -128,6 +160,22 @@ export function ThreadContainer({
                     <Users className="w-3 h-3" />
                     {uniqueParticipants}
                   </div>
+                )}
+                
+                {/* C1.4.2: Mark as read button when there are unread messages */}
+                {hasUnreadReplies && unreadCount > 0 && !isCollapsed && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      // Mark this thread as read
+                      console.log(`📖 Marking thread ${rootMessage.id} as read`);
+                    }}
+                    className="h-6 px-2 bg-blue-800/50 hover:bg-blue-700/60 border border-blue-600/40 text-xs text-blue-300 hover:text-blue-200"
+                    data-testid={`button-mark-read-${rootMessage.id}`}
+                  >
+                    Mark read ({unreadCount})
+                  </Button>
                 )}
               </motion.div>
             )}
@@ -159,9 +207,43 @@ export function ThreadContainer({
           className="ml-8 mt-2 p-3 bg-gray-800/30 border border-gray-600/30 rounded-lg"
           data-testid={`thread-preview-${rootMessage.id}`}
         >
-          <div className="text-xs text-gray-400 mb-1">
-            Thread collapsed • {totalReplies} {totalReplies === 1 ? 'reply' : 'replies'} 
-            {uniqueParticipants > 1 && ` • ${uniqueParticipants} participants`}
+          <div className="text-xs text-gray-400 mb-1 flex items-center gap-2">
+            <span>
+              Thread collapsed • {totalReplies} {totalReplies === 1 ? 'reply' : 'replies'} 
+              {uniqueParticipants > 1 && ` • ${uniqueParticipants} participants`}
+            </span>
+            
+            {/* C1.4.2: Unread indicator in collapsed preview */}
+            {hasUnreadReplies && unreadCount > 0 && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ 
+                  scale: 1, 
+                  opacity: 1,
+                  // Gentle glow effect
+                  boxShadow: [
+                    "0 0 0 0 rgba(59, 130, 246, 0.3)",
+                    "0 0 6px 2px rgba(59, 130, 246, 0.1)",
+                    "0 0 0 0 rgba(59, 130, 246, 0.3)"
+                  ]
+                }}
+                transition={{ 
+                  duration: 0.2, 
+                  ease: "easeOut",
+                  boxShadow: {
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }
+                }}
+                className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1
+                         bg-gradient-to-r from-blue-500 to-blue-600 text-white text-[10px] font-medium rounded-full
+                         shadow-lg border border-blue-400/30 backdrop-blur-sm"
+                data-testid={`badge-unread-preview-${rootMessage.id}`}
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </motion.div>
+            )}
           </div>
           {replies.length > 0 && (
             <div className="text-sm text-gray-300 truncate">
