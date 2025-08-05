@@ -1018,8 +1018,11 @@ export function CenterPanel({
         
         sendMessageWithConfirmation(streamingMessageData, tempMessageId);
         
-        // Clear input immediately to prevent double-send
+        // Clear input and reply state immediately after sending
         input.value = '';
+        if (replyingTo) {
+          clearReply();
+        }
         
         // Store the message content and context for response
         const messageContent = messageData.message.content;
