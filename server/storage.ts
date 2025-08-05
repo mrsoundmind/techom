@@ -612,12 +612,21 @@ export class MemStorage implements IStorage {
       agentId: message.agentId || null,
       content: message.content,
       messageType: message.messageType as "user" | "agent" | "system",
+      // C1.3: Thread navigation support
+      parentMessageId: message.parentMessageId || null,
+      threadRootId: message.threadRootId || null,
+      threadDepth: message.threadDepth || 0,
       metadata: (message.metadata || {}) as {
         isStreaming?: boolean;
         typingDuration?: number;
         responseTime?: number;
         personality?: string;
         mentions?: string[];
+        replyTo?: {
+          id: string;
+          content: string;
+          senderName: string;
+        };
       },
       createdAt: new Date(),
       updatedAt: new Date(),

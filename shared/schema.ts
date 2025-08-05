@@ -82,12 +82,21 @@ export const messages = pgTable("messages", {
   agentId: varchar("agent_id").references(() => agents.id), // null for user messages
   content: text("content").notNull(),
   messageType: text("message_type").notNull().$type<"user" | "agent" | "system">(),
+  // C1.3: Thread navigation support
+  parentMessageId: varchar("parent_message_id"), // for threading - self-reference
+  threadRootId: varchar("thread_root_id"), // root message of thread - self-reference
+  threadDepth: integer("thread_depth").notNull().default(0), // 0 = root, 1 = first reply, etc.
   metadata: jsonb("metadata").$type<{
     isStreaming?: boolean;
     typingDuration?: number;
     responseTime?: number;
     personality?: string;
     mentions?: string[];
+    replyTo?: {
+      id: string;
+      content: string;
+      senderName: string;
+    };
   }>().default({}),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

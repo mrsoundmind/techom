@@ -21,6 +21,12 @@ interface MessageBubbleProps {
     status?: 'sending' | 'sent' | 'delivered' | 'failed' | 'streaming';
     metadata?: {
       agentRole?: string;
+      isStreaming?: boolean;
+      replyTo?: {
+        id: string;
+        content: string;
+        senderName: string;
+      };
     };
     replyTo?: {
       id: string;
