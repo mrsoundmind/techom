@@ -238,14 +238,15 @@ export function CenterPanel({
         return agent ? agent.name : agentId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
       };
       
-      setStreamingAgent(message.agentName ? getActualAgentName(message.agentName) : 'AI Colleague');
+      // Use agentName directly from backend or fallback to processed agent name
+      setStreamingAgent(message.agentName || getActualAgentName(message.agentId || 'ai-agent'));
 
       // Create placeholder message for streaming
       const streamingMessage = {
         id: message.messageId,
         content: '',
-        senderId: message.agentId,
-        senderName: getActualAgentName(message.agentId),
+        senderId: message.agentId || 'ai-agent',
+        senderName: message.agentName || getActualAgentName(message.agentId || 'ai-agent'),
         messageType: 'agent' as const,
         timestamp: new Date().toISOString(),
         conversationId: currentChatContext?.conversationId || '',
@@ -254,9 +255,11 @@ export function CenterPanel({
         // C1.3: Thread support for streaming messages
         parentMessageId: message.parentMessageId || undefined,
         threadRootId: message.threadRootId || undefined,
-        threadDepth: message.threadDepth || 0
+        threadDepth: message.threadDepth || 0,
+        metadata: {}
       };
       
+      console.log('Creating streaming placeholder message:', message.messageId, 'for agent:', message.agentName);
       addMessageToConversation(currentChatContext?.conversationId || '', streamingMessage);
     }
     else if (message.type === 'streaming_chunk') {
@@ -312,6 +315,9 @@ export function CenterPanel({
           const messages = prev[conversationId] || [];
           
           // Find the existing streaming message to update
+          console.log('Looking for streaming message with ID:', message.messageId);
+          console.log('Current messages:', messages.map(m => ({id: m.id, isStreaming: m.isStreaming})));
+          
           const messageIndex = messages.findIndex(msg => 
             msg.id === message.messageId && msg.isStreaming
           );
