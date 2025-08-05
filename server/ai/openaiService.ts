@@ -30,6 +30,84 @@ interface ColleagueResponse {
   confidence: number;
 }
 
+// B1.1: Add streaming response generation
+export async function* generateStreamingResponse(
+  userMessage: string,
+  agentRole: string,
+  context: ChatContext,
+  abortSignal?: AbortSignal
+): AsyncGenerator<string, void, unknown> {
+  try {
+    // B2.1: Analyze user behavior from conversation history
+    let userBehaviorProfile: UserBehaviorProfile | null = null;
+    let messageAnalysis: MessageAnalysis | null = null;
+    
+    if (context.userId && context.conversationHistory.length > 0) {
+      const messagesForAnalysis = context.conversationHistory.map(msg => ({
+        content: msg.content,
+        messageType: (msg.role === 'user' ? 'user' : 'agent') as 'user' | 'agent',
+        timestamp: msg.timestamp,
+        senderId: msg.senderId || (msg.role === 'user' ? context.userId! : agentRole)
+      }));
+      
+      messagesForAnalysis.push({
+        content: userMessage,
+        messageType: 'user',
+        timestamp: new Date().toISOString(),
+        senderId: context.userId
+      });
+      
+      userBehaviorProfile = UserBehaviorAnalyzer.analyzeUserBehavior(messagesForAnalysis, context.userId);
+      messageAnalysis = UserBehaviorAnalyzer.analyzeMessage(userMessage, new Date().toISOString());
+    }
+
+    const logicResult = executeColleagueLogic(agentRole, userMessage);
+    const roleProfile = roleProfiles[agentRole] || roleProfiles['Product Manager'];
+    
+    // Create system prompt based on role and context
+    const systemPrompt = `You are ${agentRole} in a ${context.mode} conversation. Project: ${context.projectName}${context.teamName ? `, Team: ${context.teamName}` : ''}.
+
+Role Context: ${roleProfile.expertise}
+Communication Style: ${roleProfile.communicationStyle}
+Personality: ${roleProfile.personality}
+
+${roleProfile.primaryGoals ? `Goals: ${roleProfile.primaryGoals}` : ''}
+
+Respond as this specific role with appropriate expertise and personality. Keep responses concise and actionable.`;
+
+    // Create streaming completion
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage }
+      ],
+      stream: true,
+      temperature: 0.7,
+      max_tokens: userBehaviorProfile?.communicationStyle === 'anxious' ? 150 : 500,
+    }, { signal: abortSignal });
+
+    // Stream the response word by word
+    for await (const chunk of completion) {
+      if (abortSignal?.aborted) {
+        break;
+      }
+      
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
+    }
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.log('Streaming response cancelled by user');
+      return;
+    }
+    console.error('Error generating streaming response:', error);
+    throw error;
+  }
+}
+
 export async function generateIntelligentResponse(
   userMessage: string,
   agentRole: string,

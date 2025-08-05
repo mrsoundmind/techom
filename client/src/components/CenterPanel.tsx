@@ -52,6 +52,11 @@ export function CenterPanel({
   const [messageQueue, setMessageQueue] = useState<Array<any>>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [typingColleagues, setTypingColleagues] = useState<string[]>([]);
+  
+  // B1: Streaming state management
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [streamingContent, setStreamingContent] = useState('');
 
   // === SUBTASK 3.1.1: Connect WebSocket to Chat UI ===
   
@@ -191,6 +196,54 @@ export function CenterPanel({
       if (conversationId) {
         updateMessageInConversation(conversationId, message.messageId, { status: 'delivered' });
       }
+    }
+    // B1.2: Handle streaming messages
+    else if (message.type === 'streaming_started') {
+      setIsStreaming(true);
+      setStreamingMessageId(message.messageId);
+      setStreamingContent('');
+      
+      // Create placeholder message for streaming
+      const streamingMessage = {
+        id: message.messageId,
+        content: '',
+        senderId: message.agentId,
+        senderName: message.agentName,
+        messageType: 'agent' as const,
+        timestamp: new Date().toISOString(),
+        conversationId: currentChatContext?.conversationId || '',
+        status: 'streaming' as const,
+        isStreaming: true
+      };
+      
+      addMessageToConversation(currentChatContext?.conversationId || '', streamingMessage);
+    }
+    else if (message.type === 'streaming_chunk') {
+      if (message.messageId === streamingMessageId) {
+        setStreamingContent(message.accumulatedContent);
+        
+        // Update the streaming message content
+        setAllMessages(prev => {
+          const conversationId = currentChatContext?.conversationId || '';
+          const messages = prev[conversationId] || [];
+          const updatedMessages = messages.map(msg => 
+            msg.id === message.messageId 
+              ? { ...msg, content: message.accumulatedContent }
+              : msg
+          );
+          return { ...prev, [conversationId]: updatedMessages };
+        });
+      }
+    }
+    else if (message.type === 'streaming_completed') {
+      setIsStreaming(false);
+      setStreamingMessageId(null);
+      setStreamingContent('');
+    }
+    else if (message.type === 'streaming_cancelled') {
+      setIsStreaming(false);
+      setStreamingMessageId(null);
+      setStreamingContent('');
     }
   };
 
@@ -834,7 +887,13 @@ export function CenterPanel({
         // No need to track sent IDs anymore - we filter by userId instead
 
         // Send with confirmation and retry logic
-        sendMessageWithConfirmation(messageData, tempMessageId);
+        // B1.1: Send streaming message instead of regular message
+        const streamingMessageData = {
+          ...messageData,
+          type: 'send_message_streaming'
+        };
+        
+        sendMessageWithConfirmation(streamingMessageData, tempMessageId);
         
         // Clear input immediately to prevent double-send
         input.value = '';
@@ -1050,15 +1109,38 @@ export function CenterPanel({
           <input 
             name="message"
             type="text" 
-            placeholder={contextDisplay.placeholder}
-            className="w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent"
+            placeholder={isStreaming ? "AI is responding..." : contextDisplay.placeholder}
+            disabled={isStreaming}
+            className={`w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent ${
+              isStreaming ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           />
-          <button 
-            type="submit"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-blue hover:text-opacity-80 transition-colors"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+          {/* B1.3: Show stop button during streaming, send button otherwise */}
+          {isStreaming ? (
+            <button 
+              type="button"
+              onClick={() => {
+                if (streamingMessageId) {
+                  sendWebSocketMessage({
+                    type: 'cancel_streaming',
+                    messageId: streamingMessageId
+                  });
+                }
+              }}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500 hover:text-red-400 transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="6" y="6" width="12" height="12" />
+              </svg>
+            </button>
+          ) : (
+            <button 
+              type="submit"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 hatchin-blue hover:text-opacity-80 transition-colors"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          )}
         </form>
       </div>
     </main>

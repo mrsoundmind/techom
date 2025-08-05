@@ -14,6 +14,8 @@ interface MessageBubbleProps {
     senderName: string;
     messageType: 'user' | 'agent';
     timestamp: string;
+    isStreaming?: boolean;
+    status?: 'sending' | 'sent' | 'delivered' | 'failed' | 'streaming';
     metadata?: {
       agentRole?: string;
     };
@@ -158,6 +160,12 @@ export function MessageBubble({
               >
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">
                   {message.content}
+                  {/* B1.2: Streaming indicator for AI messages */}
+                  {message.isStreaming && (
+                    <span className="inline-flex items-center ml-2">
+                      <span className="animate-pulse text-green-400">|</span>
+                    </span>
+                  )}
                 </div>
               </div>
 

@@ -4,7 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertProjectSchema, insertTeamSchema, insertAgentSchema, insertMessageSchema, insertConversationSchema } from "@shared/schema";
 import { z } from "zod";
-import { generateIntelligentResponse } from "./ai/openaiService.js";
+import { generateIntelligentResponse, generateStreamingResponse } from "./ai/openaiService.js";
 import { trainingSystem } from "./ai/trainingSystem.js";
 import { initializePreTrainedColleagues, devTrainingTools } from "./ai/devTrainingTools.js";
 
@@ -315,6 +315,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }));
             break;
 
+          case 'send_message_streaming':
+            // B1.1: Handle streaming message requests
+            const messageId = `msg-${Date.now()}`;
+            const streamingData = data.message;
+            
+            // Save initial user message 
+            const userMessageData = insertMessageSchema.parse(streamingData);
+            const savedUserMessage = await storage.createMessage(userMessageData);
+            
+            // Broadcast user message immediately
+            broadcastToConversation(data.conversationId, {
+              type: 'new_message',
+              message: savedUserMessage,
+              conversationId: data.conversationId
+            });
+
+            // Start streaming AI response
+            try {
+              await handleStreamingColleagueResponse(savedUserMessage, data.conversationId, ws);
+            } catch (error) {
+              console.error('Streaming response error:', error);
+              ws.send(JSON.stringify({
+                type: 'streaming_error',
+                messageId,
+                error: 'Failed to generate response'
+              }));
+            }
+            break;
+
+          case 'cancel_streaming':
+            // B1.3: Handle streaming cancellation
+            // AbortController will be handled in the streaming function
+            ws.send(JSON.stringify({
+              type: 'streaming_cancelled',
+              messageId: data.messageId
+            }));
+            break;
+
           case 'send_message':
             const messageData = insertMessageSchema.parse(data.message);
             const savedMessage = await storage.createMessage(messageData);
@@ -393,6 +431,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
           connection.send(message);
         }
       });
+    }
+  }
+
+  // B1.1 & B1.2: Streaming AI colleague response handler
+  async function handleStreamingColleagueResponse(userMessage: any, conversationId: string, ws: WebSocket) {
+    try {
+      const contextMatch = conversationId.match(/^(project|team|agent)-(.+?)(?:-(.+))?$/);
+      if (!contextMatch) return;
+
+      const [, mode, projectId, contextId] = contextMatch;
+      const project = await storage.getProject(projectId);
+      if (!project) return;
+
+      let respondingAgent;
+      let teamName;
+      
+      if (mode === 'project') {
+        const agents = await storage.getAgentsByProject(projectId);
+        respondingAgent = agents.find(a => a.role.toLowerCase().includes('manager')) || agents[0];
+      } else if (mode === 'team') {
+        const agents = await storage.getAgentsByTeam(contextId);
+        respondingAgent = agents[0];
+        const team = await storage.getTeam(contextId);
+        teamName = team?.name;
+      } else if (mode === 'agent') {
+        respondingAgent = await storage.getAgent(contextId);
+      }
+
+      if (!respondingAgent) return;
+
+      // Create streaming response message shell
+      const responseMessageId = `response-${Date.now()}`;
+      let accumulatedContent = '';
+
+      // Notify streaming started
+      ws.send(JSON.stringify({
+        type: 'streaming_started',
+        messageId: responseMessageId,
+        agentId: respondingAgent.id,
+        agentName: respondingAgent.name
+      }));
+
+      // Create chat context for AI
+      const chatContext = {
+        mode: mode as 'project' | 'team' | 'agent',
+        projectName: project.name,
+        teamName,
+        agentRole: respondingAgent.role,
+        conversationHistory: [], // In production, load actual history
+        userId: 'user'
+      };
+
+      // Create AbortController for cancellation
+      const abortController = new AbortController();
+      
+      // Handle cancellation messages
+      const cancelHandler = (message: Buffer) => {
+        const data = JSON.parse(message.toString());
+        if (data.type === 'cancel_streaming' && data.messageId === responseMessageId) {
+          abortController.abort();
+        }
+      };
+      ws.on('message', cancelHandler);
+
+      try {
+        // Generate streaming response
+        const streamGenerator = generateStreamingResponse(
+          userMessage.content,
+          respondingAgent.role,
+          chatContext,
+          abortController.signal
+        );
+
+        for await (const chunk of streamGenerator) {
+          if (abortController.signal.aborted) break;
+          
+          accumulatedContent += chunk;
+          
+          // Send chunk to client
+          ws.send(JSON.stringify({
+            type: 'streaming_chunk',
+            messageId: responseMessageId,
+            chunk,
+            accumulatedContent
+          }));
+        }
+
+        if (!abortController.signal.aborted) {
+          // Save complete response to storage
+          const responseMessage = {
+            id: responseMessageId,
+            conversationId,
+            userId: 'agent',
+            senderId: respondingAgent.id,
+            senderName: respondingAgent.name,
+            content: accumulatedContent,
+            messageType: 'agent' as const,
+            timestamp: new Date().toISOString(),
+          };
+
+          const savedResponse = await storage.createMessage(responseMessage);
+
+          // Notify streaming completed
+          ws.send(JSON.stringify({
+            type: 'streaming_completed',
+            messageId: responseMessageId,
+            message: savedResponse
+          }));
+
+          // Broadcast final message to other clients
+          broadcastToConversation(conversationId, {
+            type: 'new_message',
+            message: savedResponse,
+            conversationId
+          });
+        }
+      } finally {
+        ws.off('message', cancelHandler);
+      }
+
+    } catch (error) {
+      console.error('Streaming response error:', error);
+      ws.send(JSON.stringify({
+        type: 'streaming_error',
+        error: 'Failed to generate streaming response'
+      }));
     }
   }
 
