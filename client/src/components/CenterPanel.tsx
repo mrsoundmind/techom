@@ -1107,6 +1107,9 @@ export function CenterPanel({
           // Add message to conversation immediately
           addMessageToConversation(currentChatContext.conversationId, userMessage);
           
+          // Set streaming state immediately to show typing indicator
+          setIsStreaming(true);
+          
           // Send via WebSocket with metadata
           const wsMessage = {
             type: 'send_message_streaming',
@@ -1126,7 +1129,7 @@ export function CenterPanel({
             }
           };
           
-          await sendMessageWithConfirmation(wsMessage, tempMessageId);
+          sendWebSocketMessage(wsMessage);
           console.log(`Sent ${action} prompt:`, message);
         } else {
           console.error('Cannot send message: validation failed');
