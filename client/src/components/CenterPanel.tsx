@@ -282,10 +282,6 @@ export function CenterPanel({
     }
     else if (message.type === 'streaming_completed') {
       console.log('✅ Streaming completed');
-      setIsStreaming(false);
-      setStreamingMessageId(null);
-      setStreamingContent('');
-      setStreamingAgent(null);
       
       // Add the completed message to conversation
       if (message.message) {
@@ -340,6 +336,12 @@ export function CenterPanel({
             return prev;
           }
         });
+        
+        // CRITICAL: Only clear streaming state AFTER message is updated
+        setIsStreaming(false);
+        setStreamingMessageId(null);
+        setStreamingContent('');
+        setStreamingAgent(null);
         
         console.log('Updated streaming message with final content:', message.message.conversationId);
       }
