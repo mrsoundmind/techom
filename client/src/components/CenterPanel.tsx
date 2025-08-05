@@ -187,11 +187,17 @@ export function CenterPanel({
         return;
       }
 
+      // Get the actual agent name instead of defaulting to 'Colleague'
+      const getActualAgentName = (agentId: string) => {
+        const agent = activeProjectAgents.find(a => a.id === agentId);
+        return agent ? agent.name : agentId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      };
+
       const newMessage = {
         id: messageId || `msg-${Date.now()}`,
         content: message.message.content,
         senderId: message.message.agentId || message.message.userId,
-        senderName: message.message.senderName || 'Colleague',
+        senderName: message.message.agentId ? getActualAgentName(message.message.agentId) : (message.message.senderName || 'You'),
         messageType: message.message.messageType,
         timestamp: message.message.timestamp || new Date().toISOString(),
         conversationId: message.message.conversationId,
@@ -225,12 +231,18 @@ export function CenterPanel({
       setStreamingMessageId(message.messageId);
       setStreamingContent('');
       
+      // Get actual agent name for streaming
+      const getActualAgentName = (agentId: string) => {
+        const agent = activeProjectAgents.find(a => a.id === agentId);
+        return agent ? agent.name : agentId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      };
+
       // Create placeholder message for streaming
       const streamingMessage = {
         id: message.messageId,
         content: '',
         senderId: message.agentId,
-        senderName: message.agentName,
+        senderName: getActualAgentName(message.agentId),
         messageType: 'agent' as const,
         timestamp: new Date().toISOString(),
         conversationId: currentChatContext?.conversationId || '',
@@ -316,7 +328,10 @@ export function CenterPanel({
         id: msg.id,
         content: msg.content,
         senderId: msg.agentId || msg.userId || 'unknown',
-        senderName: msg.agentId ? getAgentDisplayName(msg.agentId) : 'You',
+        senderName: msg.agentId ? (() => {
+          const agent = activeProjectAgents.find(a => a.id === msg.agentId);
+          return agent ? agent.name : msg.agentId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        })() : 'You',
         messageType: msg.messageType,
         timestamp: msg.createdAt,
         conversationId: msg.conversationId,
@@ -1289,6 +1304,27 @@ export function CenterPanel({
               {isLoadingMessages && (
                 <div className="flex items-center justify-center py-4">
                   <div className="hatchin-text-muted text-sm">Loading conversation...</div>
+                </div>
+              )}
+              
+              {/* Typing Indicator for AI Response */}
+              {isStreaming && (
+                <div className="flex items-start gap-3 px-0 py-2">
+                  <div className="w-8 h-8 rounded-full bg-hatchin-bg-card flex-shrink-0 flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: 'hsl(215, 20%, 65%)' }} />
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="text-xs hatchin-text-muted mb-1">
+                      AI colleague is responding...
+                    </div>
+                    <div className="flex items-center gap-1 bg-hatchin-bg-card rounded-2xl px-4 py-3">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-hatchin-text-muted rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 bg-hatchin-text-muted rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 bg-hatchin-text-muted rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
               

@@ -12,10 +12,16 @@ Chat header design preference: No emojis in main conversation titles (project/te
 
 ## Current Project Phase
 
-**Active Feature**: C1.4 Thread Notification System (BOOKMARKED - badges implemented but data loading needs debugging)
-**Recent Achievement**: Fixed API message loading, created threaded test data, implemented notification badge components
-**Next Priority**: B1 Response Streaming - real-time AI message streaming for natural conversation flow
+**Active Feature**: Core Message System Fixes - Completed placeholder buttons, agent attribution, and typing indicators
+**Recent Achievement**: Fixed critical messaging issues - proper agent names (not "Colleague"), functional starter buttons, typing indicators
+**Next Priority**: B1 Response Streaming optimization - improve AI response speed and agent routing based on expertise
 **Philosophy**: AI agents with shared memory and adaptive personalities create personalized, context-aware collaboration experiences
+
+## Recent Critical Fixes (Aug 5, 2025)
+- **Agent Attribution**: Fixed "Colleague" issue - messages now show actual agent names (Product Designer, etc.)
+- **Functional Starter Buttons**: Placeholder buttons now send real context-aware prompts and trigger AI responses
+- **Typing Indicators**: Added visual feedback when AI colleagues are responding with animated dots
+- **Improved Message Loading**: Enhanced API message transformation to use proper agent names from project data
 
 ## System Architecture
 
