@@ -331,7 +331,7 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
         if (existingAgent) continue; // Skip if already exists
 
         const agentData: Omit<Agent, 'id'> = {
-          name: templateAgent.name,
+          name: templateAgent.role, // Use role as default name
           role: templateAgent.role,
           color: templateAgent.color,
           teamId: newTeam.id, // Assign to the newly created team
@@ -340,7 +340,7 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
             traits: [],
             communicationStyle: 'professional',
             expertise: [],
-            welcomeMessage: `Hi! I'm ${templateAgent.name}, your ${templateAgent.role}. Ready to help ${template.name}!`
+            welcomeMessage: `Hi! I'm your ${templateAgent.role}. Ready to help ${template.name}!`
           },
           isSpecialAgent: false
         };
@@ -363,7 +363,7 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
     if (existingAgent) return; // Skip if already exists
 
     const agentData: Omit<Agent, 'id'> = {
-      name: agent.name,
+      name: agent.role, // Use role as default name
       role: agent.role,
       color: agent.color,
       teamId: '', // Will be set by the parent component
@@ -372,7 +372,7 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
         traits: [],
         communicationStyle: 'professional',
         expertise: agent.expertise,
-        welcomeMessage: `Hi! I'm ${agent.name}, your ${agent.role}. ${agent.description}`
+        welcomeMessage: `Hi! I'm your ${agent.role}. ${agent.description}`
       },
       isSpecialAgent: false
     };

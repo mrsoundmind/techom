@@ -361,6 +361,56 @@ export default function Home() {
     }
   };
 
+  // Delete handlers
+  const handleDeleteTeam = async (teamId: string) => {
+    try {
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        console.log('Team deleted successfully');
+        
+        // Clear active selections if the deleted team was active
+        if (activeTeamId === teamId) {
+          setActiveTeamId(null);
+          setActiveAgentId(null);
+        }
+        
+        // Refresh data
+        await Promise.all([refetchTeams(), refetchAgents()]);
+      } else {
+        console.error('Failed to delete team');
+      }
+    } catch (error) {
+      console.error('Error deleting team:', error);
+    }
+  };
+
+  const handleDeleteAgent = async (agentId: string) => {
+    try {
+      const response = await fetch(`/api/agents/${agentId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        console.log('Agent deleted successfully');
+        
+        // Clear active selection if the deleted agent was active
+        if (activeAgentId === agentId) {
+          setActiveAgentId(null);
+        }
+        
+        // Refresh agents data
+        await refetchAgents();
+      } else {
+        console.error('Failed to delete agent');
+      }
+    } catch (error) {
+      console.error('Error deleting agent:', error);
+    }
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
@@ -398,6 +448,8 @@ export default function Home() {
           onCreateProject={handleCreateProject}
           onCreateProjectFromTemplate={handleCreateProjectFromTemplate}
           onCreateIdeaProject={handleCreateIdeaProject}
+          onDeleteTeam={handleDeleteTeam}
+          onDeleteAgent={handleDeleteAgent}
         />
         
         <CenterPanel

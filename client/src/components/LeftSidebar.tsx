@@ -34,6 +34,8 @@ interface LeftSidebarProps {
   onCreateProject?: (name: string, description?: string) => void;
   onCreateProjectFromTemplate?: (pack: StarterPack, name: string, description?: string) => void;
   onCreateIdeaProject?: (name: string, description?: string) => void;
+  onDeleteTeam?: (teamId: string) => void;
+  onDeleteAgent?: (agentId: string) => void;
 }
 
 export function LeftSidebar({
@@ -53,6 +55,8 @@ export function LeftSidebar({
   onCreateProject,
   onCreateProjectFromTemplate,
   onCreateIdeaProject,
+  onDeleteTeam,
+  onDeleteAgent,
 }: LeftSidebarProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -269,6 +273,8 @@ export function LeftSidebar({
             onSelectAgent={onSelectAgent}
             onToggleProjectExpanded={onToggleProjectExpanded}
             onToggleTeamExpanded={onToggleTeamExpanded}
+            onDeleteTeam={onDeleteTeam}
+            onDeleteAgent={onDeleteAgent}
             searchQuery={searchQuery}
           />
         ) : searchQuery ? (

@@ -107,6 +107,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/teams/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteTeam(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Team not found" });
+      }
+      res.status(200).json({ message: "Team deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete team" });
+    }
+  });
+
   // Agents
   app.get("/api/agents", async (req, res) => {
     try {
@@ -145,6 +157,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid agent data", details: error.errors });
       }
       res.status(500).json({ error: "Failed to create agent" });
+    }
+  });
+
+  app.delete("/api/agents/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteAgent(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Agent not found" });
+      }
+      res.status(200).json({ message: "Agent deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete agent" });
     }
   });
 
