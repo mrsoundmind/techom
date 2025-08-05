@@ -359,12 +359,8 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
   const handleAddIndividualAgent = async (agent: IndividualAgent) => {
     if (!activeProject) return;
 
-    // Check if agent with this role already exists
-    const existingAgent = existingAgents.find(existing => existing.role === agent.role && existing.projectId === activeProject.id);
-    if (existingAgent) {
-      console.log(`Agent with role "${agent.role}" already exists in this project`);
-      return; // Skip if already exists
-    }
+    // Allow duplicate roles - just create the agent
+    console.log(`Creating agent with role "${agent.role}" for project ${activeProject.id}`);
 
     try {
       let targetTeamId = activeTeamId;
