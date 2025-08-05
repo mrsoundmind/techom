@@ -32,6 +32,7 @@ interface AddHatchModalProps {
   onAddAgent: (agent: Omit<Agent, 'id'>) => void;
   activeProject: Project | null;
   existingAgents: Agent[];
+  activeTeamId?: string | null;
 }
 
 const TEAM_TEMPLATES: TeamTemplate[] = [
@@ -263,7 +264,7 @@ const getColorClasses = (color: string) => {
   return colorMap[color] || 'bg-gray-500';
 };
 
-export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, existingAgents }: AddHatchModalProps) {
+export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, existingAgents, activeTeamId }: AddHatchModalProps) {
   const [activeTab, setActiveTab] = useState<'teams' | 'individual'>('teams');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -366,42 +367,47 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
     }
 
     try {
-      // First, check if there's an "Individual Agents" team, or create one
-      let individualTeam;
-      const teamsResponse = await fetch(`/api/projects/${activeProject.id}/teams`);
-      const teams = await teamsResponse.json();
+      let targetTeamId = activeTeamId;
       
-      // Look for existing Individual Agents team
-      individualTeam = teams.find((team: any) => team.name === 'Individual Agents');
-      
-      // If no Individual Agents team exists, create one
-      if (!individualTeam) {
-        const teamResponse = await fetch('/api/teams', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: 'Individual Agents',
-            emoji: '👤',
-            projectId: activeProject.id,
-          }),
-        });
+      // If no team is selected, create or find Individual Agents team
+      if (!targetTeamId) {
+        const teamsResponse = await fetch(`/api/projects/${activeProject.id}/teams`);
+        const teams = await teamsResponse.json();
+        
+        // Look for existing Individual Agents team
+        let individualTeam = teams.find((team: any) => team.name === 'Individual Agents');
+        
+        // If no Individual Agents team exists, create one
+        if (!individualTeam) {
+          const teamResponse = await fetch('/api/teams', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: 'Individual Agents',
+              emoji: '👤',
+              projectId: activeProject.id,
+            }),
+          });
 
-        if (!teamResponse.ok) {
-          console.error('Failed to create Individual Agents team');
-          return;
+          if (!teamResponse.ok) {
+            console.error('Failed to create Individual Agents team');
+            return;
+          }
+
+          individualTeam = await teamResponse.json();
+          console.log('Created Individual Agents team:', individualTeam);
         }
-
-        individualTeam = await teamResponse.json();
-        console.log('Created Individual Agents team:', individualTeam);
+        
+        targetTeamId = individualTeam.id;
       }
 
       const agentData: Omit<Agent, 'id'> = {
         name: agent.role, // Use role as default name
         role: agent.role,
         color: agent.color,
-        teamId: individualTeam.id, // Assign to Individual Agents team
+        teamId: targetTeamId!, // Assign to selected team or Individual Agents team
         projectId: activeProject.id,
         personality: {
           traits: [],
@@ -414,12 +420,6 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
 
       console.log('Creating individual agent:', agentData);
       onAddAgent(agentData);
-      
-      // Force a refresh to ensure the sidebar updates immediately
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
       onClose();
     } catch (error) {
       console.error('Error creating individual agent:', error);

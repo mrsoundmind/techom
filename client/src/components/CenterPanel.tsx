@@ -1661,6 +1661,7 @@ export function CenterPanel({
         onAddAgent={onAddAgent}
         activeProject={activeProject || null}
         existingAgents={activeProjectAgents}
+        activeTeamId={activeTeamId}
       />
     </main>
   );
