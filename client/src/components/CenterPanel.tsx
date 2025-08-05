@@ -1605,6 +1605,7 @@ export function CenterPanel({
             type="text" 
             placeholder={isStreaming ? "AI is responding..." : contextDisplay.placeholder}
             disabled={isStreaming}
+            autoComplete="off"
             className={`w-full hatchin-bg-card hatchin-border border rounded-lg px-4 py-3 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent ${
               isStreaming ? 'opacity-50 cursor-not-allowed' : ''
             }`}
