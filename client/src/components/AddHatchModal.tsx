@@ -369,22 +369,16 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
     try {
       let targetTeamId = activeTeamId;
       
-      console.log('Active team ID:', activeTeamId);
-      
       // If no team is selected, create or find Individual Agents team
       if (!targetTeamId) {
-        console.log('No team selected, looking for Individual Agents team...');
         const teamsResponse = await fetch(`/api/projects/${activeProject.id}/teams`);
         const teams = await teamsResponse.json();
-        console.log('Current teams:', teams);
         
         // Look for existing Individual Agents team
         let individualTeam = teams.find((team: any) => team.name === 'Individual Agents');
-        console.log('Found Individual Agents team:', individualTeam);
         
         // If no Individual Agents team exists, create one
         if (!individualTeam) {
-          console.log('Creating new Individual Agents team...');
           const teamResponse = await fetch('/api/teams', {
             method: 'POST',
             headers: {
@@ -398,18 +392,16 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
           });
 
           if (!teamResponse.ok) {
-            console.error('Failed to create Individual Agents team', await teamResponse.text());
+            console.error('Failed to create Individual Agents team');
             return;
           }
 
           individualTeam = await teamResponse.json();
-          console.log('Successfully created Individual Agents team:', individualTeam);
+          console.log('Created Individual Agents team:', individualTeam);
         }
         
         targetTeamId = individualTeam.id;
       }
-      
-      console.log('Final target team ID:', targetTeamId);
 
       const agentData: Omit<Agent, 'id'> = {
         name: agent.role, // Use role as default name
