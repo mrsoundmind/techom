@@ -1,9 +1,9 @@
+/* C4.1: Syntax highlighting for code blocks */
+@import 'highlight.js/styles/github-dark.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* C4.1: Syntax highlighting for code blocks */
-@import 'highlight.js/styles/github-dark.css';
 
 :root {
   --background: hsl(0, 0%, 100%);

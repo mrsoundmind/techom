@@ -297,6 +297,22 @@ export function MessageBubble({
                       </TooltipContent>
                     </Tooltip>
 
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 hover:bg-blue-500/20 text-gray-400 hover:text-blue-400"
+                          onClick={handleCopyMessage}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy message</p>
+                      </TooltipContent>
+                    </Tooltip>
+
                   </motion.div>
                 )}
               </AnimatePresence>
