@@ -392,7 +392,7 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
                 >
                   <Users size={20} />
                   <div className="flex-1">
-                    <div className="font-medium">Teams Template</div>
+                    <div className="text-[14px] font-bold">Teams Template</div>
                     <div className="text-xs opacity-75">Pre-built teams</div>
                   </div>
                   <div className="text-xs bg-black/20 px-2 py-1 rounded-full">
