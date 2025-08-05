@@ -155,6 +155,8 @@ export function CenterPanel({
 
   // Handle incoming WebSocket messages
   const handleIncomingMessage = (message: any) => {
+    console.log('🔔 Received WebSocket message:', message.type, message);
+    
     if (message.type === 'new_message') {
       const messageId = message.message.id;
       
@@ -199,6 +201,7 @@ export function CenterPanel({
     }
     // B1.2: Handle streaming messages
     else if (message.type === 'streaming_started') {
+      console.log('🟢 Streaming started:', message.messageId, message.agentName);
       setIsStreaming(true);
       setStreamingMessageId(message.messageId);
       setStreamingContent('');
@@ -219,6 +222,7 @@ export function CenterPanel({
       addMessageToConversation(currentChatContext?.conversationId || '', streamingMessage);
     }
     else if (message.type === 'streaming_chunk') {
+      console.log('📦 Streaming chunk:', message.chunk);
       if (message.messageId === streamingMessageId) {
         setStreamingContent(message.accumulatedContent);
         
@@ -236,11 +240,13 @@ export function CenterPanel({
       }
     }
     else if (message.type === 'streaming_completed') {
+      console.log('✅ Streaming completed');
       setIsStreaming(false);
       setStreamingMessageId(null);
       setStreamingContent('');
     }
     else if (message.type === 'streaming_cancelled') {
+      console.log('🛑 Streaming cancelled');
       setIsStreaming(false);
       setStreamingMessageId(null);
       setStreamingContent('');
@@ -1057,6 +1063,8 @@ export function CenterPanel({
                       senderName: message.senderName,
                       messageType: message.messageType,
                       timestamp: message.timestamp,
+                      isStreaming: message.isStreaming,
+                      status: message.status,
                       metadata: {
                         agentRole: message.metadata?.role
                       }

@@ -316,6 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case 'send_message_streaming':
+            console.log('🔄 Processing streaming message:', data);
             // B1.1: Handle streaming message requests
             const messageId = `msg-${Date.now()}`;
             const streamingData = data.message;
@@ -323,6 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Save initial user message 
             const userMessageData = insertMessageSchema.parse(streamingData);
             const savedUserMessage = await storage.createMessage(userMessageData);
+            console.log('💾 User message saved:', savedUserMessage.id);
             
             // Broadcast user message immediately
             broadcastToConversation(data.conversationId, {
@@ -332,10 +334,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
 
             // Start streaming AI response
+            console.log('🚀 Starting streaming response...');
             try {
               await handleStreamingColleagueResponse(savedUserMessage, data.conversationId, ws);
             } catch (error) {
-              console.error('Streaming response error:', error);
+              console.error('❌ Streaming response error:', error);
               ws.send(JSON.stringify({
                 type: 'streaming_error',
                 messageId,
@@ -436,13 +439,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // B1.1 & B1.2: Streaming AI colleague response handler
   async function handleStreamingColleagueResponse(userMessage: any, conversationId: string, ws: WebSocket) {
+    console.log('🎯 Starting streaming handler for:', conversationId);
     try {
       const contextMatch = conversationId.match(/^(project|team|agent)-(.+?)(?:-(.+))?$/);
-      if (!contextMatch) return;
+      if (!contextMatch) {
+        console.log('❌ Invalid conversation ID format:', conversationId);
+        return;
+      }
 
       const [, mode, projectId, contextId] = contextMatch;
       const project = await storage.getProject(projectId);
-      if (!project) return;
+      if (!project) {
+        console.log('❌ Project not found:', projectId);
+        return;
+      }
 
       let respondingAgent;
       let teamName;
@@ -459,13 +469,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         respondingAgent = await storage.getAgent(contextId);
       }
 
-      if (!respondingAgent) return;
+      if (!respondingAgent) {
+        console.log('❌ No responding agent found for mode:', mode);
+        return;
+      }
+
+      console.log('🤖 Responding agent:', respondingAgent.name, respondingAgent.role);
 
       // Create streaming response message shell
       const responseMessageId = `response-${Date.now()}`;
       let accumulatedContent = '';
 
       // Notify streaming started
+      console.log('📡 Sending streaming_started event');
       ws.send(JSON.stringify({
         type: 'streaming_started',
         messageId: responseMessageId,
@@ -490,6 +506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cancelHandler = (message: Buffer) => {
         const data = JSON.parse(message.toString());
         if (data.type === 'cancel_streaming' && data.messageId === responseMessageId) {
+          console.log('🛑 Streaming cancelled by user');
           abortController.abort();
         }
       };
@@ -497,6 +514,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Generate streaming response
+        console.log('🔄 Generating streaming response...');
         const streamGenerator = generateStreamingResponse(
           userMessage.content,
           respondingAgent.role,
@@ -505,9 +523,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         for await (const chunk of streamGenerator) {
-          if (abortController.signal.aborted) break;
+          if (abortController.signal.aborted) {
+            console.log('🛑 Stream aborted');
+            break;
+          }
           
           accumulatedContent += chunk;
+          console.log('📤 Sending chunk:', chunk.substring(0, 20) + '...');
           
           // Send chunk to client
           ws.send(JSON.stringify({
@@ -523,15 +545,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const responseMessage = {
             id: responseMessageId,
             conversationId,
-            userId: 'agent',
-            senderId: respondingAgent.id,
+            agentId: respondingAgent.id,
             senderName: respondingAgent.name,
             content: accumulatedContent,
             messageType: 'agent' as const,
-            timestamp: new Date().toISOString(),
           };
 
           const savedResponse = await storage.createMessage(responseMessage);
+          console.log('💾 Saved streaming response:', savedResponse.id);
 
           // Notify streaming completed
           ws.send(JSON.stringify({
@@ -552,7 +573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
     } catch (error) {
-      console.error('Streaming response error:', error);
+      console.error('❌ Streaming response error:', error);
       ws.send(JSON.stringify({
         type: 'streaming_error',
         error: 'Failed to generate streaming response'
