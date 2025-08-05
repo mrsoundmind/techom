@@ -130,7 +130,7 @@ const TEAM_TEMPLATES: TeamTemplate[] = [
 
 const INDIVIDUAL_AGENTS: IndividualAgent[] = [
   {
-    name: 'Alex',
+    name: 'Product Manager',
     role: 'Product Manager',
     color: 'blue',
     initials: 'PM',
@@ -138,7 +138,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Product Strategy', 'User Research', 'Roadmap Planning']
   },
   {
-    name: 'Sarah',
+    name: 'Product Designer',
     role: 'Product Designer',
     color: 'green',
     initials: 'PD',
@@ -146,7 +146,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['UI/UX Design', 'Prototyping', 'User Testing']
   },
   {
-    name: 'Mike',
+    name: 'UI Engineer',
     role: 'UI Engineer',
     color: 'purple',
     initials: 'UE',
@@ -154,7 +154,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['React', 'TypeScript', 'Frontend Architecture']
   },
   {
-    name: 'David',
+    name: 'Backend Developer',
     role: 'Backend Developer',
     color: 'red',
     initials: 'BD',
@@ -162,7 +162,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Node.js', 'Databases', 'API Design']
   },
   {
-    name: 'Emma',
+    name: 'Growth Expert',
     role: 'Growth Expert',
     color: 'orange',
     initials: 'GE',
@@ -170,7 +170,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Growth Hacking', 'Analytics', 'User Acquisition']
   },
   {
-    name: 'Jake',
+    name: 'Copywriter',
     role: 'Copywriter',
     color: 'pink',
     initials: 'CW',
@@ -178,7 +178,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Copywriting', 'Brand Voice', 'Conversion Optimization']
   },
   {
-    name: 'Lisa',
+    name: 'Content Creator',
     role: 'Content Creator',
     color: 'yellow',
     initials: 'CC',
@@ -186,7 +186,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Content Strategy', 'Video Production', 'Social Media']
   },
   {
-    name: 'Tom',
+    name: 'Brand Strategist',
     role: 'Brand Strategist',
     color: 'indigo',
     initials: 'BS',
@@ -194,7 +194,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Brand Strategy', 'Market Positioning', 'Brand Identity']
   },
   {
-    name: 'Amy',
+    name: 'Customer Success',
     role: 'Customer Success',
     color: 'emerald',
     initials: 'CS',
@@ -202,7 +202,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Customer Onboarding', 'Retention', 'Support Strategy']
   },
   {
-    name: 'Nina',
+    name: 'PR Specialist',
     role: 'PR Specialist',
     color: 'cyan',
     initials: 'PR',
@@ -210,7 +210,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Media Relations', 'Press Releases', 'Crisis Communication']
   },
   {
-    name: 'Ryan',
+    name: 'Data Analyst',
     role: 'Data Analyst',
     color: 'teal',
     initials: 'DA',
@@ -218,7 +218,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Data Analysis', 'Business Intelligence', 'Reporting']
   },
   {
-    name: 'Sophie',
+    name: 'Sales Expert',
     role: 'Sales Expert',
     color: 'rose',
     initials: 'SE',
@@ -226,7 +226,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['Sales Strategy', 'Lead Generation', 'Conversion Optimization']
   },
   {
-    name: 'Carlos',
+    name: 'DevOps Engineer',
     role: 'DevOps Engineer',
     color: 'slate',
     initials: 'DO',
@@ -234,7 +234,7 @@ const INDIVIDUAL_AGENTS: IndividualAgent[] = [
     expertise: ['CI/CD', 'Cloud Infrastructure', 'Monitoring']
   },
   {
-    name: 'Zoe',
+    name: 'QA Lead',
     role: 'QA Lead',
     color: 'amber',
     initials: 'QA',
@@ -414,6 +414,12 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
 
       console.log('Creating individual agent:', agentData);
       onAddAgent(agentData);
+      
+      // Force a refresh to ensure the sidebar updates immediately
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
       onClose();
     } catch (error) {
       console.error('Error creating individual agent:', error);

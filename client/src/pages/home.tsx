@@ -336,6 +336,7 @@ export default function Home() {
   // Agent creation handler
   const handleCreateAgent = async (agentData: Omit<Agent, 'id'>) => {
     try {
+      console.log('Creating agent with data:', agentData);
       const response = await fetch('/api/agents', {
         method: 'POST',
         headers: {
@@ -347,14 +348,27 @@ export default function Home() {
       if (response.ok) {
         const newAgent = await response.json();
         console.log('Agent created successfully:', newAgent);
+        console.log('Current agents before refresh:', agents);
         
         // Refresh both agents and teams data (in case agent was added to a new team)
         await Promise.all([refetchAgents(), refetchTeams()]);
         
-        // Optionally set the new agent as active
+        console.log('Agents data refreshed');
+        
+        // Set the new agent as active and ensure its team is expanded
         setActiveAgentId(newAgent.id);
+        if (newAgent.teamId) {
+          setExpandedTeams(prev => {
+            const newSet = new Set(prev);
+            newSet.add(newAgent.teamId);
+            return newSet;
+          });
+        }
+        
+        console.log('Agent created and UI updated:', newAgent);
       } else {
-        console.error('Failed to create agent');
+        const errorText = await response.text();
+        console.error('Failed to create agent:', response.status, errorText);
       }
     } catch (error) {
       console.error('Error creating agent:', error);
