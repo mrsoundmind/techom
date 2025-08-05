@@ -26,10 +26,17 @@ interface ThreadStructure {
   allMessages: ThreadMessage[];
   totalReplies: number;
   participants: string[];
+  // C1.4.1: Thread unread tracking
+  unreadCount: number;
+  lastReadMessageId?: string;
+  hasUnreadReplies: boolean;
+  lastActivityTimestamp: string;
 }
 
 export function useThreadNavigation(messages: ThreadMessage[]) {
   const [collapsedThreads, setCollapsedThreads] = useState<Set<string>>(new Set());
+  // C1.4.1: Thread read state tracking
+  const [threadReadState, setThreadReadState] = useState<Map<string, { lastReadMessageId: string; readAt: string }>>(new Map());
   
   // C1.3: Build thread structure from flat message list
   const threadStructure = useMemo(() => {
@@ -50,7 +57,12 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
           replies: [],
           allMessages: [message],
           totalReplies: 0,
-          participants: [message.senderName]
+          participants: [message.senderName],
+          // C1.4.1: Initialize unread tracking
+          unreadCount: 0,
+          lastReadMessageId: undefined,
+          hasUnreadReplies: false,
+          lastActivityTimestamp: message.timestamp
         });
       }
     }
@@ -66,6 +78,10 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
           if (!thread.participants.includes(message.senderName)) {
             thread.participants.push(message.senderName);
           }
+          // C1.4.1: Update last activity timestamp
+          if (new Date(message.timestamp) > new Date(thread.lastActivityTimestamp)) {
+            thread.lastActivityTimestamp = message.timestamp;
+          }
         } else {
           // Thread root not found, treat as orphaned
           orphanedMessages.push(message);
@@ -80,8 +96,33 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
       );
     });
     
+    // C1.4.1: Calculate unread counts for each thread
+    threads.forEach((thread, threadId) => {
+      const readState = threadReadState.get(threadId);
+      
+      if (!readState) {
+        // No read state means everything is unread (except user's own messages)
+        thread.unreadCount = thread.replies.filter(msg => msg.senderId !== 'user').length;
+        thread.hasUnreadReplies = thread.unreadCount > 0;
+      } else {
+        // Find messages after the last read message
+        const lastReadIndex = thread.allMessages.findIndex(msg => msg.id === readState.lastReadMessageId);
+        if (lastReadIndex !== -1) {
+          const unreadMessages = thread.allMessages.slice(lastReadIndex + 1)
+            .filter(msg => msg.senderId !== 'user'); // Don't count user's own messages as unread
+          thread.unreadCount = unreadMessages.length;
+          thread.hasUnreadReplies = thread.unreadCount > 0;
+          thread.lastReadMessageId = readState.lastReadMessageId;
+        } else {
+          // Last read message not found, treat all as unread
+          thread.unreadCount = thread.replies.filter(msg => msg.senderId !== 'user').length;
+          thread.hasUnreadReplies = thread.unreadCount > 0;
+        }
+      }
+    });
+
     return { threads, orphanedMessages };
-  }, [messages]);
+  }, [messages, threadReadState]);
   
   // Toggle thread collapse state
   const toggleThreadCollapse = (threadId: string) => {
@@ -185,10 +226,71 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
     setCollapsedThreads(new Set());
   };
   
+  // C1.4.1: Thread read state management functions
+  const markThreadAsRead = (threadId: string, messageId?: string) => {
+    const thread = threadStructure.threads.get(threadId);
+    if (!thread) return;
+
+    // Use the provided messageId or the last message in the thread
+    const targetMessageId = messageId || thread.allMessages[thread.allMessages.length - 1]?.id;
+    if (!targetMessageId) return;
+
+    setThreadReadState(prev => {
+      const newState = new Map(prev);
+      newState.set(threadId, {
+        lastReadMessageId: targetMessageId,
+        readAt: new Date().toISOString()
+      });
+      return newState;
+    });
+  };
+
+  const markAllThreadsAsRead = () => {
+    const newState = new Map<string, { lastReadMessageId: string; readAt: string }>();
+    threadStructure.threads.forEach((thread, threadId) => {
+      const lastMessage = thread.allMessages[thread.allMessages.length - 1];
+      if (lastMessage) {
+        newState.set(threadId, {
+          lastReadMessageId: lastMessage.id,
+          readAt: new Date().toISOString()
+        });
+      }
+    });
+    setThreadReadState(newState);
+  };
+
+  const getThreadUnreadCount = (threadId: string): number => {
+    const thread = threadStructure.threads.get(threadId);
+    return thread?.unreadCount || 0;
+  };
+
+  const getTotalUnreadCount = (): number => {
+    let total = 0;
+    threadStructure.threads.forEach(thread => {
+      total += thread.unreadCount;
+    });
+    return total;
+  };
+
+  // C1.4.1: Enhanced toggle function with read marking
+  const toggleThreadCollapseWithReadState = (threadId: string) => {
+    setCollapsedThreads(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(threadId)) {
+        newSet.delete(threadId);
+        // When expanding thread, mark it as read
+        markThreadAsRead(threadId);
+      } else {
+        newSet.add(threadId);
+      }
+      return newSet;
+    });
+  };
+
   return {
     threadStructure,
     collapsedThreads,
-    toggleThreadCollapse,
+    toggleThreadCollapse: toggleThreadCollapseWithReadState,
     isThreadCollapsed,
     getVisibleMessages,
     getThreadStats,
@@ -197,5 +299,11 @@ export function useThreadNavigation(messages: ThreadMessage[]) {
     getPreviousThreadMessage,
     collapseAllThreads,
     expandAllThreads,
+    // C1.4.1: Thread notification functions
+    markThreadAsRead,
+    markAllThreadsAsRead,
+    getThreadUnreadCount,
+    getTotalUnreadCount,
+    threadReadState: threadReadState
   };
 }

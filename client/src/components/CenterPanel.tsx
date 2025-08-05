@@ -311,6 +311,18 @@ export function CenterPanel({
     threadRootId: msg.threadRootId || undefined
   })));
 
+  // C1.4.1: Log unread count information for testing
+  console.log('🔔 Thread Unread Stats:', {
+    totalUnread: threadNavigation.getTotalUnreadCount(),
+    threadsWithUnread: Array.from(threadNavigation.threadStructure.threads.entries())
+      .filter(([_, thread]) => thread.unreadCount > 0)
+      .map(([threadId, thread]) => ({
+        threadId,
+        unreadCount: thread.unreadCount,
+        hasUnreadReplies: thread.hasUnreadReplies
+      }))
+  });
+
   // Add message to specific conversation
   const addMessageToConversation = (conversationId: string, message: any) => {
     setAllMessages(prev => ({
@@ -1184,6 +1196,10 @@ export function CenterPanel({
                             mode: currentChatContext?.mode || 'project',
                             color: chatContextColor
                           }}
+                          // C1.4.1: Pass unread count information
+                          unreadCount={thread.unreadCount}
+                          hasUnreadReplies={thread.hasUnreadReplies}
+                          lastActivityTimestamp={thread.lastActivityTimestamp}
                         >
                           {/* Root message */}
                           <MessageBubble

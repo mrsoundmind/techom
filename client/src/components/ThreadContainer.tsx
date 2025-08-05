@@ -37,6 +37,10 @@ interface ThreadContainerProps {
     color: string;
   };
   children: React.ReactNode; // MessageBubble components
+  // C1.4.1: Thread notification properties
+  unreadCount?: number;
+  hasUnreadReplies?: boolean;
+  lastActivityTimestamp?: string;
 }
 
 export function ThreadContainer({
@@ -45,7 +49,11 @@ export function ThreadContainer({
   isCollapsed,
   onToggleCollapse,
   children,
-  chatContext
+  chatContext,
+  // C1.4.1: Thread notification properties
+  unreadCount = 0,
+  hasUnreadReplies = false,
+  lastActivityTimestamp
 }: ThreadContainerProps) {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -56,6 +64,9 @@ export function ThreadContainer({
   ]).size;
   
   const hasReplies = totalReplies > 0;
+
+  // C1.4.1: Log unread count for debugging
+  console.log(`📧 Thread ${rootMessage.id}: unread=${unreadCount}, hasUnread=${hasUnreadReplies}`);
   
   return (
     <div 
