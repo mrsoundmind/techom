@@ -47,6 +47,12 @@ export interface IStorage {
   // Message reaction methods for AI training
   addMessageReaction(reaction: InsertMessageReaction): Promise<MessageReaction>;
   getMessageReactions(messageId: string): Promise<MessageReaction[]>;
+  
+  // B3: Cross-Agent Memory methods
+  addConversationMemory(conversationId: string, memoryType: 'context' | 'summary' | 'key_points' | 'decisions', content: string, importance?: number): Promise<void>;
+  getConversationMemory(conversationId: string): Promise<any[]>;
+  getProjectMemory(projectId: string): Promise<any[]>;
+  getSharedMemoryForAgent(agentId: string, projectId: string): Promise<string>;
 }
 
 export class MemStorage implements IStorage {
@@ -58,6 +64,7 @@ export class MemStorage implements IStorage {
   private messages: Map<string, Message>;
   private messageReactions: Map<string, MessageReaction>;
   private typingIndicators: Map<string, TypingIndicator>;
+  private conversationMemories: Map<string, any[]>; // B3: Cross-agent memory storage
 
   constructor() {
     this.users = new Map();
@@ -68,6 +75,7 @@ export class MemStorage implements IStorage {
     this.messages = new Map();
     this.messageReactions = new Map();
     this.typingIndicators = new Map();
+    this.conversationMemories = new Map(); // B3: Initialize memory storage
     
     // Initialize with sample data matching the prototype
     this.initializeSampleData();
@@ -236,6 +244,28 @@ export class MemStorage implements IStorage {
     otherProjects.forEach(project => {
       this.projects.set(project.id, project);
     });
+    
+    // B3: Initialize sample memory for testing cross-agent memory
+    this.conversationMemories.set("project-saas-startup", [
+      {
+        id: "memory-1",
+        conversationId: "project-saas-startup",
+        memoryType: "key_points",
+        content: "Project is building next-generation SaaS platform focused on AI collaboration",
+        importance: 9,
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000)
+      },
+      {
+        id: "memory-2", 
+        conversationId: "project-saas-startup",
+        memoryType: "decisions",
+        content: "Team decided to prioritize user experience and real-time collaboration features",
+        importance: 8,
+        createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+        updatedAt: new Date(Date.now() - 12 * 60 * 60 * 1000)
+      }
+    ]);
   }
 
   // User methods
@@ -638,6 +668,87 @@ export class MemStorage implements IStorage {
       }
     }
     return reactions;
+  }
+
+  // B3: Cross-Agent Memory Implementation
+  async addConversationMemory(conversationId: string, memoryType: 'context' | 'summary' | 'key_points' | 'decisions', content: string, importance: number = 5): Promise<void> {
+    const memory = {
+      id: randomUUID(),
+      conversationId,
+      memoryType,
+      content,
+      importance,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    if (!this.conversationMemories.has(conversationId)) {
+      this.conversationMemories.set(conversationId, []);
+    }
+    
+    this.conversationMemories.get(conversationId)!.push(memory);
+  }
+
+  async getConversationMemory(conversationId: string): Promise<any[]> {
+    return this.conversationMemories.get(conversationId) || [];
+  }
+
+  async getProjectMemory(projectId: string): Promise<any[]> {
+    const projectMemories: any[] = [];
+    
+    // Get all conversations for this project
+    for (const conversation of this.conversations.values()) {
+      if (conversation.projectId === projectId) {
+        const conversationMemory = await this.getConversationMemory(conversation.id);
+        projectMemories.push(...conversationMemory);
+      }
+    }
+    
+    // Sort by importance (high to low) and recency
+    return projectMemories.sort((a, b) => {
+      if (a.importance !== b.importance) {
+        return b.importance - a.importance;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }
+
+  async getSharedMemoryForAgent(agentId: string, projectId: string): Promise<string> {
+    const projectMemories = await this.getProjectMemory(projectId);
+    const agent = await this.getAgent(agentId);
+    
+    if (!agent || projectMemories.length === 0) {
+      return "";
+    }
+
+    // Create context summary for the agent
+    const contextParts: string[] = [];
+    
+    // Add high-priority memories first
+    const highPriorityMemories = projectMemories.filter(m => m.importance >= 7);
+    if (highPriorityMemories.length > 0) {
+      contextParts.push("Key project context:");
+      highPriorityMemories.slice(0, 5).forEach(memory => {
+        contextParts.push(`• ${memory.content}`);
+      });
+    }
+    
+    // Add recent decisions
+    const decisions = projectMemories.filter(m => m.memoryType === 'decisions');
+    if (decisions.length > 0) {
+      contextParts.push("\nRecent decisions:");
+      decisions.slice(0, 3).forEach(decision => {
+        contextParts.push(`• ${decision.content}`);
+      });
+    }
+    
+    // Add context for the agent's role
+    contextParts.push(`\nYour role: ${agent.role}`);
+    if (agent.personality?.expertise) {
+      contextParts.push(`Your expertise: ${agent.personality.expertise.join(', ')}`);
+    }
+    
+    return contextParts.join('\n');
   }
 }
 

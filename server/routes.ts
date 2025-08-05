@@ -479,6 +479,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log('🤖 Responding agent:', respondingAgent.name, respondingAgent.role);
+      
+      // B3: Get shared memory for the agent
+      const sharedMemory = await storage.getSharedMemoryForAgent(respondingAgent.id, projectId);
+      console.log('🧠 Loading shared memory for agent:', sharedMemory ? 'Found context' : 'No prior context');
 
       // Create streaming response message shell
       const responseMessageId = `response-${Date.now()}`;
@@ -523,6 +527,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userMessage.content,
           respondingAgent.role,
           chatContext,
+          sharedMemory,
           abortController.signal
         );
 
@@ -557,6 +562,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const savedResponse = await storage.createMessage(responseMessage);
           console.log('💾 Saved streaming response:', savedResponse.id);
+          
+          // B3: Extract and store conversation memory
+          await extractAndStoreMemory(userMessage, savedResponse, conversationId, projectId);
 
           // Notify streaming completed
           ws.send(JSON.stringify({
@@ -582,6 +590,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: 'streaming_error',
         error: 'Failed to generate streaming response'
       }));
+    }
+  }
+
+  // B3: Extract and store conversation memory from user messages
+  async function extractAndStoreMemory(userMessage: any, agentResponse: any, conversationId: string, projectId: string) {
+    try {
+      const userContent = userMessage.content.toLowerCase();
+      
+      // Extract key decisions and important context
+      if (userContent.includes('decide') || userContent.includes('decision') || userContent.includes('choose')) {
+        await storage.addConversationMemory(
+          conversationId,
+          'decisions',
+          `User decision: ${userMessage.content}`,
+          8
+        );
+      }
+      
+      // Extract project requirements or specifications
+      if (userContent.includes('requirement') || userContent.includes('spec') || userContent.includes('need')) {
+        await storage.addConversationMemory(
+          conversationId,
+          'key_points',
+          `Project requirement: ${userMessage.content}`,
+          7
+        );
+      }
+      
+      // Extract goals and objectives
+      if (userContent.includes('goal') || userContent.includes('objective') || userContent.includes('target')) {
+        await storage.addConversationMemory(
+          conversationId,
+          'key_points',
+          `Project goal: ${userMessage.content}`,
+          9
+        );
+      }
+      
+      // Extract important agent insights from responses
+      const agentContent = agentResponse.content.toLowerCase();
+      if (agentContent.includes('recommend') || agentContent.includes('suggest') || agentContent.includes('propose')) {
+        await storage.addConversationMemory(
+          conversationId,
+          'context',
+          `Agent recommendation: ${agentResponse.content.substring(0, 200)}...`,
+          6
+        );
+      }
+      
+      console.log('🧠 Memory extraction completed for conversation:', conversationId);
+    } catch (error) {
+      console.error('❌ Error extracting memory:', error);
     }
   }
 

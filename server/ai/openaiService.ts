@@ -35,6 +35,7 @@ export async function* generateStreamingResponse(
   userMessage: string,
   agentRole: string,
   context: ChatContext,
+  sharedMemory?: string,
   abortSignal?: AbortSignal
 ): AsyncGenerator<string, void, unknown> {
   try {
@@ -72,6 +73,8 @@ Communication Style: ${roleProfile.communicationStyle}
 Personality: ${roleProfile.personality}
 
 ${roleProfile.primaryGoals ? `Goals: ${roleProfile.primaryGoals}` : ''}
+
+${sharedMemory ? `\n--- SHARED PROJECT MEMORY ---\n${sharedMemory}\n--- END MEMORY ---\n` : ''}
 
 Respond as this specific role with appropriate expertise and personality. Keep responses concise and actionable.`;
 
