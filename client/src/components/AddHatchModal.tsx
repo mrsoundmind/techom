@@ -440,85 +440,126 @@ export function AddHatchModal({ isOpen, onClose, onAddAgent, activeProject, exis
             {/* Content Grid */}
             <div className="flex-1 p-6 overflow-y-auto">
               {activeTab === 'teams' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div 
+                  className="grid gap-6 grid-cols-3"
+                  style={{ 
+                    gridTemplateColumns: 'repeat(3, 1fr)'
+                  }}
+                >
                   {filteredTeamTemplates.map((template) => (
                     <motion.div
                       key={template.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-[#2A2D33] border border-[#43444B] rounded-2xl p-6 hover:border-[#6C82FF]/30 transition-all duration-200 group cursor-pointer"
+                      className="bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50"
+                      style={{ 
+                        minHeight: '280px'
+                      }}
                       onClick={() => handleUseTemplate(template)}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      layout={false}
+                      initial={false}
                     >
-                      <div className="flex items-start justify-between mb-4">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl bg-[#37383B] flex items-center justify-center text-2xl">
+                          <div className="w-10 h-10 rounded-lg bg-[#6C82FF]/20 flex items-center justify-center text-xl">
                             {template.icon}
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-[#F1F1F3]">{template.name}</h3>
+                              <h3 className="text-[#F1F1F3] text-sm font-semibold">{template.name}</h3>
                               {template.suggested && (
-                                <span className="bg-[#6C82FF] text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                                <motion.div 
+                                  initial={{ scale: 0 }} 
+                                  animate={{ scale: 1 }} 
+                                  className="text-[#6C82FF]"
+                                >
                                   <Sparkles size={10} />
-                                  Suggested
-                                </span>
+                                </motion.div>
                               )}
                             </div>
-                            <p className="text-[#A6A7AB] text-sm mt-1">{template.description}</p>
+                            <p className="text-[#A6A7AB] text-xs leading-tight mt-1">
+                              {template.description}
+                            </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 text-[#A6A7AB] text-sm">
-                          <Users size={14} />
-                          {template.agents.length}
+                        <div className="ml-1 text-[#A6A7AB] flex items-center gap-1">
+                          <Users size={10} />
+                          <span className="text-xs">{template.agents.length}</span>
                         </div>
                       </div>
 
-                      <div className="space-y-3 mb-6">
-                        {template.agents.map((agent, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full ${getColorClasses(agent.color)} flex items-center justify-center text-white text-xs font-medium`}>
-                              {agent.initials}
+                      {/* Team Members */}
+                      <div className="mt-3 mb-3 flex-1">
+                        <div className="space-y-2">
+                          {template.agents.map((agent, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-[#23262B] rounded px-2 py-1">
+                              <div className={`w-5 h-5 rounded-full ${getColorClasses(agent.color)} flex items-center justify-center text-white text-xs font-medium`}>
+                                {agent.initials}
+                              </div>
+                              <span className="text-xs text-[#F1F1F3]">{agent.role}</span>
                             </div>
-                            <span className="text-[#F1F1F3] text-sm">{agent.role}</span>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
 
-                      <button className="w-full bg-[#6C82FF] text-white py-3 px-4 rounded-xl text-sm font-medium hover:bg-[#5A6FE8] transition-colors">
-                        Use Template
-                      </button>
+                      {/* CTA Button */}
+                      <div className="mt-auto pt-2">
+                        <button className="w-full bg-[#43444B] hover:bg-[#6C82FF] text-[#F1F1F3] hover:text-white px-3 py-2 rounded-lg transition-all duration-200 text-xs font-medium">
+                          Use Template
+                        </button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div 
+                  className="grid gap-6 grid-cols-3"
+                  style={{ 
+                    gridTemplateColumns: 'repeat(3, 1fr)'
+                  }}
+                >
                   {filteredIndividualAgents.map((agent, index) => (
                     <motion.div
                       key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className="bg-[#2A2D33] border border-[#43444B] rounded-2xl p-5 hover:border-[#6C82FF]/30 transition-all duration-200 group cursor-pointer"
+                      className="bg-[#37383B] rounded-xl p-4 border-2 transition-all duration-200 cursor-pointer flex flex-col border-[#43444B] hover:border-[#6C82FF]/50"
+                      style={{ 
+                        minHeight: '200px'
+                      }}
                       onClick={() => handleAddIndividualAgent(agent)}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      layout={false}
+                      initial={false}
                     >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className={`w-12 h-12 rounded-full ${getColorClasses(agent.color)} flex items-center justify-center text-white text-sm font-medium flex-shrink-0`}>
-                          {agent.initials}
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-[#F1F1F3] text-sm">{agent.name}</h3>
-                          <p className="text-[#A6A7AB] text-xs">{agent.role}</p>
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-lg ${getColorClasses(agent.color)}/20 flex items-center justify-center text-lg`}>
+                            {agent.initials}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-[#F1F1F3] text-sm font-semibold mb-1">{agent.name}</h3>
+                            <p className="text-[#A6A7AB] text-xs leading-tight">
+                              {agent.role}
+                            </p>
+                          </div>
                         </div>
                       </div>
+                      
+                      {/* Description */}
+                      <div className="mt-2 mb-3 flex-1">
+                        <p className="text-[#A6A7AB] text-xs leading-relaxed">
+                          {agent.description}
+                        </p>
+                      </div>
 
-                      <p className="text-[#A6A7AB] text-xs mb-4 leading-relaxed line-clamp-3">
-                        {agent.description}
-                      </p>
-
-                      <button className="w-full bg-[#6C82FF] text-white py-2.5 px-3 rounded-xl text-xs font-medium hover:bg-[#5A6FE8] transition-colors">
-                        Add Agent
-                      </button>
+                      {/* CTA Button */}
+                      <div className="mt-auto pt-2">
+                        <button className="w-full bg-[#43444B] hover:bg-[#6C82FF] text-[#F1F1F3] hover:text-white px-3 py-2 rounded-lg transition-all duration-200 text-xs font-medium">
+                          Add Agent
+                        </button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
