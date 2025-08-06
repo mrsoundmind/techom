@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import * as React from "react";
-import { X, Save } from "lucide-react";
+import { X, Save, ChevronDown, ChevronRight } from "lucide-react";
 import { ProgressTimeline } from "@/components/ProgressTimeline";
 import type { Project, Team, Agent } from "@shared/schema";
 
@@ -19,6 +19,21 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
   });
   const [executionRules, setExecutionRules] = useState(activeProject?.executionRules || '');
   const [teamCulture, setTeamCulture] = useState(activeProject?.teamCulture || '');
+
+  // Collapsible sections state
+  const [expandedSections, setExpandedSections] = useState({
+    coreDirection: true,
+    targetAudience: false,
+    executionRules: false,
+    brandCulture: false,
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Update state when activeProject changes
   React.useEffect(() => {
@@ -68,30 +83,66 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
   if (activeView === 'agent') {
     return (
       <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
-        <div className="flex items-center justify-between mt-[5px] mb-[5px]">
-          <h2 className="font-semibold hatchin-text text-[16px]">👤 Agent Profile</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center">
+              <span className="text-white text-sm">👤</span>
+            </div>
+            <h2 className="font-semibold hatchin-text text-[16px]">Agent Profile</h2>
+          </div>
           <button className="hatchin-text-muted hover:text-hatchin-text">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="hatchin-text-muted text-[12px] mt-[5px] mb-[5px]">
+        <p className="hatchin-text-muted text-[12px] mb-6">
           Performance and capabilities of {activeAgent?.name}
         </p>
         
-        {/* Agent Info */}
-        <div className="mt-[18px] mb-[18px]">
-          <div className="hatchin-bg-card rounded-lg p-4 mb-4">
-            <div className="mb-2">
-              <span className="text-sm font-medium hatchin-text">Role: </span>
-              <span className="hatchin-text-muted text-sm">{activeAgent?.role}</span>
+        {/* Agent Overview Card */}
+        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+          <h3 className="text-sm font-medium hatchin-text mb-4">Agent Overview</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Name</span>
+              <span className="text-sm hatchin-text">{activeAgent?.name}</span>
             </div>
-            <div className="mb-2">
-              <span className="text-sm font-medium hatchin-text">Team: </span>
-              <span className="hatchin-text-muted text-sm">{activeAgent?.teamId || 'Individual Agent'}</span>
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Role</span>
+              <span className="text-sm hatchin-text">{activeAgent?.role}</span>
             </div>
-            <div className="text-xs hatchin-text-muted">
-              Agent performance metrics and conversation analytics will appear here.
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Team</span>
+              <span className="text-sm hatchin-text">{activeAgent?.teamId || 'Individual Agent'}</span>
             </div>
+          </div>
+        </div>
+
+        {/* Performance Metrics Card */}
+        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+          <h3 className="text-sm font-medium hatchin-text mb-4">Performance Metrics</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Response Time</span>
+              <span className="text-sm hatchin-text">~2.3s avg</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Messages</span>
+              <span className="text-sm hatchin-text">127 total</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Accuracy</span>
+              <span className="text-sm text-green-400">94%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Capabilities Card */}
+        <div className="hatchin-bg-card rounded-xl p-4">
+          <h3 className="text-sm font-medium hatchin-text mb-4">Capabilities</h3>
+          <div className="text-xs hatchin-text-muted leading-relaxed">
+            Agent specializes in {activeAgent?.role.toLowerCase()} tasks with expertise in project collaboration, 
+            technical analysis, and strategic planning. Performance analytics and conversation insights 
+            will be enhanced as the agent gains more experience.
           </div>
         </div>
       </aside>
@@ -102,43 +153,88 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
   if (activeView === 'team') {
     return (
       <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
-        <div className="flex items-center justify-between mt-[5px] mb-[5px]">
-          <h2 className="font-semibold hatchin-text text-[16px]">👥 Team Dashboard</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <span className="text-white text-sm">👥</span>
+            </div>
+            <h2 className="font-semibold hatchin-text text-[16px]">Team Dashboard</h2>
+          </div>
           <button className="hatchin-text-muted hover:text-hatchin-text">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="hatchin-text-muted text-[12px] mt-[5px] mb-[5px]">
+        <p className="hatchin-text-muted text-[12px] mb-6">
           Performance and collaboration metrics for {activeTeam?.name}
         </p>
         
-        {/* Team Info */}
-        <div className="mt-[18px] mb-[18px]">
-          <div className="hatchin-bg-card rounded-lg p-4 mb-4">
-            <div className="mb-2">
-              <span className="text-sm font-medium hatchin-text">Team: </span>
-              <span className="hatchin-text-muted text-sm">{activeTeam?.name}</span>
+        {/* Team Overview Card */}
+        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+          <h3 className="text-sm font-medium hatchin-text mb-4">Team Overview</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Team Name</span>
+              <span className="text-sm hatchin-text">{activeTeam?.name}</span>
             </div>
-            <div className="text-xs hatchin-text-muted">
-              Team collaboration metrics, performance analytics, and member insights will appear here.
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Members</span>
+              <span className="text-sm hatchin-text">3 agents</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Status</span>
+              <span className="text-sm text-green-400">Active</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Collaboration Metrics Card */}
+        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+          <h3 className="text-sm font-medium hatchin-text mb-4">Collaboration Metrics</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Messages</span>
+              <span className="text-sm hatchin-text">45 today</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Avg Response</span>
+              <span className="text-sm hatchin-text">~1.8s</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm hatchin-text-muted">Sync Rate</span>
+              <span className="text-sm text-green-400">92%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Team Insights Card */}
+        <div className="hatchin-bg-card rounded-xl p-4">
+          <h3 className="text-sm font-medium hatchin-text mb-4">Team Insights</h3>
+          <div className="text-xs hatchin-text-muted leading-relaxed">
+            {activeTeam?.name} is performing well with strong collaboration patterns. 
+            Team members are actively engaged and response times are optimal. 
+            Advanced analytics and performance insights will be available as more data is collected.
           </div>
         </div>
       </aside>
     );
   }
 
-  // Project Overview View (existing content)
+  // Project Overview View (redesigned to match screenshot)
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
-      <div className="flex items-center justify-between mt-[5px] mb-[5px]">
-        <h2 className="font-semibold hatchin-text text-[16px]">📖 Project Bible</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+            <span className="text-white text-sm">🧠</span>
+          </div>
+          <h2 className="font-semibold hatchin-text text-[16px]">Project Overview</h2>
+        </div>
         <button className="hatchin-text-muted hover:text-hatchin-text">
           <X className="w-4 h-4" />
         </button>
       </div>
-      <p className="hatchin-text-muted text-[12px] mt-[5px] mb-[5px]">
-        Single source of truth for all AI agents and team members.
+      <p className="hatchin-text-muted text-[12px] mb-6">
+        A shared brain for your team to stay aligned.
       </p>
       {/* Project Progress */}
       <div className="mt-[18px] mb-[18px]">
@@ -169,124 +265,139 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
           </div>
         </div>
       </div>
-      {/* Core Direction - Most Important Section */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-medium hatchin-text">🎯 Core Direction</h3>
-            <p className="text-xs hatchin-text-muted">Foundation that guides all decisions</p>
+      {/* Core Direction - Collapsible Card */}
+      <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+        <div 
+          className="flex items-center justify-between cursor-pointer"
+          onClick={() => toggleSection('coreDirection')}
+        >
+          <div className="flex items-center gap-2">
+            {expandedSections.coreDirection ? 
+              <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+              <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+            }
+            <h3 className="text-sm font-medium hatchin-text">Core Direction</h3>
           </div>
           <button 
-            onClick={() => handleSave('core-direction')}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors flex items-center gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSave('core-direction');
+            }}
+            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors"
           >
-            <Save className="w-3 h-3" />
             Save
           </button>
         </div>
         
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2 hatchin-text">
-              What are you building?
-            </label>
+        {expandedSections.coreDirection && (
+          <div className="mt-4 space-y-6">
+            <div>
+              <h4 className="text-sm font-medium hatchin-text mb-3">What are you building?</h4>
+              <textarea 
+                value={coreDirection.whatBuilding}
+                onChange={(e) => setCoreDirection(prev => ({ ...prev, whatBuilding: e.target.value }))}
+                className="w-full bg-transparent hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none text-sm"
+                rows={3}
+                placeholder="Describe the project in one clear sentence."
+              />
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-medium hatchin-text mb-3">Why does this matter?</h4>
+              <textarea 
+                value={coreDirection.whyMatters}
+                onChange={(e) => setCoreDirection(prev => ({ ...prev, whyMatters: e.target.value }))}
+                className="w-full bg-transparent hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none text-sm"
+                rows={3}
+                placeholder="What's the core purpose or motivation?"
+              />
+            </div>
+
+            <div>
+              <h4 className="text-sm font-medium hatchin-text mb-3">Who is this for?</h4>
+              <textarea 
+                value={coreDirection.whoFor}
+                onChange={(e) => setCoreDirection(prev => ({ ...prev, whoFor: e.target.value }))}
+                className="w-full bg-transparent hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none text-sm"
+                rows={3}
+                placeholder="Who's the target audience, customer, or beneficiary?"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Execution Ground Rules - Collapsible Card */}
+      <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+        <div 
+          className="flex items-center justify-between cursor-pointer"
+          onClick={() => toggleSection('executionRules')}
+        >
+          <div className="flex items-center gap-2">
+            {expandedSections.executionRules ? 
+              <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+              <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+            }
+            <h3 className="text-sm font-medium hatchin-text">Execution Ground Rules</h3>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSave('execution-rules');
+            }}
+            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors"
+          >
+            Save
+          </button>
+        </div>
+        
+        {expandedSections.executionRules && (
+          <div className="mt-4">
             <textarea 
-              value={coreDirection.whatBuilding}
-              onChange={(e) => setCoreDirection(prev => ({ ...prev, whatBuilding: e.target.value }))}
-              className="w-full hatchin-bg-card hatchin-border border rounded-lg px-3 py-2 text-sm hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent" 
-              rows={3}
-              placeholder="Describe the project in one clear sentence"
+              value={executionRules}
+              onChange={(e) => setExecutionRules(e.target.value)}
+              className="w-full bg-transparent hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none text-sm"
+              rows={4}
+              placeholder="Define team principles, constraints, standards, deadlines, budget limits, and quality requirements that everyone must follow."
             />
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2 hatchin-text">
-              Why does this matter?
-            </label>
+        )}
+      </div>
+
+      {/* Brand Guidelines & Team Culture - Collapsible Card */}
+      <div className="hatchin-bg-card rounded-xl p-4">
+        <div 
+          className="flex items-center justify-between cursor-pointer"
+          onClick={() => toggleSection('brandCulture')}
+        >
+          <div className="flex items-center gap-2">
+            {expandedSections.brandCulture ? 
+              <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+              <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+            }
+            <h3 className="text-sm font-medium hatchin-text">Brand Guidelines & Culture</h3>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSave('team-culture');
+            }}
+            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors"
+          >
+            Save
+          </button>
+        </div>
+        
+        {expandedSections.brandCulture && (
+          <div className="mt-4">
             <textarea 
-              value={coreDirection.whyMatters}
-              onChange={(e) => setCoreDirection(prev => ({ ...prev, whyMatters: e.target.value }))}
-              className="w-full hatchin-bg-card hatchin-border border rounded-lg px-3 py-2 text-sm hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent" 
-              rows={3}
-              placeholder="What's the core purpose or motivation?"
+              value={teamCulture}
+              onChange={(e) => setTeamCulture(e.target.value)}
+              className="w-full bg-transparent hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none text-sm"
+              rows={4}
+              placeholder="Define brand voice, communication style, design preferences, cultural values, and how the team should interact with users and each other."
             />
           </div>
-          
-
-        </div>
-      </div>
-      {/* Target Audience & Market */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-medium hatchin-text">🎯 Target Audience</h3>
-            <p className="text-xs hatchin-text-muted">Who we're building for and why they matter</p>
-          </div>
-          <button 
-            onClick={() => handleSave('target-audience')}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors flex items-center gap-1"
-          >
-            <Save className="w-3 h-3" />
-            Save
-          </button>
-        </div>
-        
-        <textarea 
-          value={coreDirection.whoFor}
-          onChange={(e) => setCoreDirection(prev => ({ ...prev, whoFor: e.target.value }))}
-          className="w-full hatchin-bg-card hatchin-border border rounded-lg px-3 py-2 text-sm hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent" 
-          rows={4}
-          placeholder="Describe your target users: demographics, pain points, goals, behavior patterns, and what success looks like for them."
-        />
-      </div>
-
-      {/* Execution Ground Rules */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-medium hatchin-text">⚡ Execution Ground Rules</h3>
-            <p className="text-xs hatchin-text-muted">Non-negotiable principles for the team</p>
-          </div>
-          <button 
-            onClick={() => handleSave('execution-rules')}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors flex items-center gap-1"
-          >
-            <Save className="w-3 h-3" />
-            Save
-          </button>
-        </div>
-        
-        <textarea 
-          value={executionRules}
-          onChange={(e) => setExecutionRules(e.target.value)}
-          className="w-full hatchin-bg-card hatchin-border border rounded-lg px-3 py-2 text-sm hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent" 
-          rows={4}
-          placeholder="Define team principles, constraints, standards, deadlines, budget limits, and quality requirements that everyone must follow."
-        />
-      </div>
-      {/* Brand Guidelines & Team Culture */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-medium hatchin-text">🎨 Brand Guidelines & Culture</h3>
-            <p className="text-xs hatchin-text-muted">Voice, style, and team communication preferences</p>
-          </div>
-          <button 
-            onClick={() => handleSave('team-culture')}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors flex items-center gap-1"
-          >
-            <Save className="w-3 h-3" />
-            Save
-          </button>
-        </div>
-        
-        <textarea 
-          value={teamCulture}
-          onChange={(e) => setTeamCulture(e.target.value)}
-          className="w-full hatchin-bg-card hatchin-border border rounded-lg px-3 py-2 text-sm hatchin-text placeholder-hatchin-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent" 
-          rows={4}
-          placeholder="Define brand voice, communication style, design preferences, cultural values, and how the team should interact with users and each other."
-        />
+        )}
       </div>
     </aside>
   );
