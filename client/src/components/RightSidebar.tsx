@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import * as React from "react";
-import { X, Save, ChevronDown, ChevronRight } from "lucide-react";
+import { X, Save, ChevronDown, ChevronRight, Check } from "lucide-react";
 import { ProgressTimeline } from "@/components/ProgressTimeline";
+import { useToast } from "@/hooks/use-toast";
 import type { Project, Team, Agent } from "@shared/schema";
 
 interface RightSidebarProps {
@@ -11,6 +12,8 @@ interface RightSidebarProps {
 }
 
 export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSidebarProps) {
+  const { toast } = useToast();
+  
   // Initialize with project data when available
   const [coreDirection, setCoreDirection] = useState({
     whatBuilding: activeProject?.coreDirection?.whatBuilding || '',
@@ -27,6 +30,9 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
     executionRules: false,
     brandCulture: false,
   });
+
+  // Track recently saved sections for visual feedback
+  const [recentlySaved, setRecentlySaved] = useState<Set<string>>(new Set());
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -77,6 +83,25 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
 
   const handleSave = (section: string) => {
     console.log(`Saving ${section} for ${activeView} ${activeProject?.id || activeTeam?.id || activeAgent?.id}`);
+    
+    // Add section to recently saved set
+    setRecentlySaved(prev => new Set([...prev, section]));
+    
+    // Show toast notification
+    toast({
+      title: "Saved successfully",
+      description: `${section.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} has been saved to the project bible.`,
+      duration: 3000,
+    });
+    
+    // Remove from recently saved after 2 seconds for visual feedback
+    setTimeout(() => {
+      setRecentlySaved(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(section);
+        return newSet;
+      });
+    }, 2000);
   };
 
   // Agent Profile View
@@ -283,9 +308,20 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
               e.stopPropagation();
               handleSave('core-direction');
             }}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors"
+            className={`text-sm hover:text-opacity-80 transition-all duration-200 flex items-center gap-1 ${
+              recentlySaved.has('core-direction') 
+                ? 'text-green-400' 
+                : 'hatchin-blue'
+            }`}
           >
-            Save
+            {recentlySaved.has('core-direction') ? (
+              <>
+                <Check className="w-3 h-3" />
+                Saved
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
         
@@ -344,9 +380,20 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
               e.stopPropagation();
               handleSave('execution-rules');
             }}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors"
+            className={`text-sm hover:text-opacity-80 transition-all duration-200 flex items-center gap-1 ${
+              recentlySaved.has('execution-rules') 
+                ? 'text-green-400' 
+                : 'hatchin-blue'
+            }`}
           >
-            Save
+            {recentlySaved.has('execution-rules') ? (
+              <>
+                <Check className="w-3 h-3" />
+                Saved
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
         
@@ -380,9 +427,20 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
               e.stopPropagation();
               handleSave('team-culture');
             }}
-            className="hatchin-blue text-sm hover:text-opacity-80 transition-colors"
+            className={`text-sm hover:text-opacity-80 transition-all duration-200 flex items-center gap-1 ${
+              recentlySaved.has('team-culture') 
+                ? 'text-green-400' 
+                : 'hatchin-blue'
+            }`}
           >
-            Save
+            {recentlySaved.has('team-culture') ? (
+              <>
+                <Check className="w-3 h-3" />
+                Saved
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
         
