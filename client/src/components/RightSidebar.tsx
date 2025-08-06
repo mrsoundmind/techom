@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { X, Save } from "lucide-react";
 import { ProgressTimeline } from "@/components/ProgressTimeline";
-import type { Project } from "@shared/schema";
+import type { Project, Team, Agent } from "@shared/schema";
 
 interface RightSidebarProps {
   activeProject: Project | undefined;
+  activeTeam?: Team;
+  activeAgent?: Agent;
 }
 
-export function RightSidebar({ activeProject }: RightSidebarProps) {
+export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSidebarProps) {
   const [coreDirection, setCoreDirection] = useState({
     whatBuilding: '',
     whyMatters: '',
@@ -16,7 +18,21 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
   const [executionRules, setExecutionRules] = useState('');
   const [teamCulture, setTeamCulture] = useState('');
 
-  if (!activeProject) {
+  // Determine which view to show based on selection
+  const getActiveView = () => {
+    if (activeAgent) {
+      return 'agent';
+    } else if (activeTeam) {
+      return 'team';
+    } else if (activeProject) {
+      return 'project';
+    }
+    return 'none';
+  };
+
+  const activeView = getActiveView();
+
+  if (activeView === 'none') {
     return (
       <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 flex items-center justify-center">
         <div className="text-center hatchin-text-muted">
@@ -30,9 +46,74 @@ export function RightSidebar({ activeProject }: RightSidebarProps) {
   }
 
   const handleSave = (section: string) => {
-    console.log(`Saving ${section} for project ${activeProject.id}`);
+    console.log(`Saving ${section} for ${activeView} ${activeProject?.id || activeTeam?.id || activeAgent?.id}`);
   };
 
+  // Agent Profile View
+  if (activeView === 'agent') {
+    return (
+      <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
+        <div className="flex items-center justify-between mt-[5px] mb-[5px]">
+          <h2 className="font-semibold hatchin-text text-[16px]">👤 Agent Profile</h2>
+          <button className="hatchin-text-muted hover:text-hatchin-text">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="hatchin-text-muted text-[12px] mt-[5px] mb-[5px]">
+          Performance and capabilities of {activeAgent?.name}
+        </p>
+        
+        {/* Agent Info */}
+        <div className="mt-[18px] mb-[18px]">
+          <div className="hatchin-bg-card rounded-lg p-4 mb-4">
+            <div className="mb-2">
+              <span className="text-sm font-medium hatchin-text">Role: </span>
+              <span className="hatchin-text-muted text-sm">{activeAgent?.role}</span>
+            </div>
+            <div className="mb-2">
+              <span className="text-sm font-medium hatchin-text">Team: </span>
+              <span className="hatchin-text-muted text-sm">{activeAgent?.teamId || 'Individual Agent'}</span>
+            </div>
+            <div className="text-xs hatchin-text-muted">
+              Agent performance metrics and conversation analytics will appear here.
+            </div>
+          </div>
+        </div>
+      </aside>
+    );
+  }
+
+  // Team Dashboard View
+  if (activeView === 'team') {
+    return (
+      <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
+        <div className="flex items-center justify-between mt-[5px] mb-[5px]">
+          <h2 className="font-semibold hatchin-text text-[16px]">👥 Team Dashboard</h2>
+          <button className="hatchin-text-muted hover:text-hatchin-text">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="hatchin-text-muted text-[12px] mt-[5px] mb-[5px]">
+          Performance and collaboration metrics for {activeTeam?.name}
+        </p>
+        
+        {/* Team Info */}
+        <div className="mt-[18px] mb-[18px]">
+          <div className="hatchin-bg-card rounded-lg p-4 mb-4">
+            <div className="mb-2">
+              <span className="text-sm font-medium hatchin-text">Team: </span>
+              <span className="hatchin-text-muted text-sm">{activeTeam?.name}</span>
+            </div>
+            <div className="text-xs hatchin-text-muted">
+              Team collaboration metrics, performance analytics, and member insights will appear here.
+            </div>
+          </div>
+        </div>
+      </aside>
+    );
+  }
+
+  // Project Overview View (existing content)
   return (
     <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
       <div className="flex items-center justify-between mt-[5px] mb-[5px]">

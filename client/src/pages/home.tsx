@@ -477,6 +477,8 @@ export default function Home() {
         
         <RightSidebar
           activeProject={activeProject}
+          activeTeam={teams.find(t => t.id === activeTeamId)}
+          activeAgent={agents.find(a => a.id === activeAgentId)}
         />
       </div>
       
