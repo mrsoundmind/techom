@@ -87,10 +87,18 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
     // Add section to recently saved set
     setRecentlySaved(prev => new Set(Array.from(prev).concat(section)));
     
+    // Get the correct sidebar name based on active view
+    const getSidebarName = () => {
+      if (activeView === 'agent') return 'Agent Profile';
+      if (activeView === 'team') return 'Team Dashboard';
+      if (activeView === 'project') return 'Project Overview';
+      return 'sidebar';
+    };
+    
     // Show toast notification
     toast({
       title: "Saved successfully",
-      description: `${section.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} has been saved to the project bible.`,
+      description: `${section.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} has been saved to ${getSidebarName()}.`,
       duration: 3000,
     });
     
