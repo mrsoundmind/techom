@@ -341,169 +341,207 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
   if (activeView === 'team') {
     return (
       <aside className="w-80 hatchin-bg-panel rounded-2xl p-6 overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
-              <span className="text-white text-sm font-medium">{activeTeam?.emoji || '👥'}</span>
+            <div className="w-6 h-6 rounded-lg bg-blue-500 flex items-center justify-center">
+              <span className="text-white text-sm">👥</span>
             </div>
-            <div>
-              <h2 className="font-semibold hatchin-text text-[16px]">Team Dashboard</h2>
-              <p className="text-xs hatchin-text-muted">{activeTeam?.name}</p>
+            <h2 className="font-semibold hatchin-text text-[16px]">Team Dashboard</h2>
+          </div>
+          <button className="hatchin-text-muted hover:text-hatchin-text transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Team Progress */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium hatchin-text mb-3">Team Progress</h3>
+          <div className="hatchin-bg-card rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm hatchin-text-muted">Overall Progress • 5 of 14 tasks completed</span>
+              <span className="text-sm font-semibold hatchin-text">36%</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+              <div className="bg-blue-500 h-2 rounded-full transition-all duration-1000" style={{ width: '36%' }}></div>
+            </div>
+            
+            <div className="text-sm hatchin-text mb-3">What is everyone working on?</div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-pink-400"></div>
+                <div>
+                  <p className="text-sm hatchin-text">Lead Designer</p>
+                  <p className="text-xs hatchin-text-muted">Active on project</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                <div>
+                  <p className="text-sm hatchin-text">Frontend Developer</p>
+                  <p className="text-xs hatchin-text-muted">Active on project</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {isConnected ? (
-              <Wifi className="w-4 h-4 text-green-400" title="Real-time updates connected" />
-            ) : (
-              <WifiOff className="w-4 h-4 text-gray-500" title="Real-time updates disconnected" />
-            )}
-            <button className="hatchin-text-muted hover:text-hatchin-text transition-colors">
-              <X className="w-4 h-4" />
+        </div>
+
+        {/* Team Goal */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+              <h3 className="text-sm font-medium hatchin-text">Team Goal</h3>
+            </div>
+            <button className="hatchin-text-muted hover:text-hatchin-text">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
             </button>
           </div>
-        </div>
-        
-        {/* Team Status Banner */}
-        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-3 mb-6 border border-blue-500/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm hatchin-text font-medium">Active Team</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-xs hatchin-text-muted">{realTimeMetrics.activeParticipants.length > 0 ? realTimeMetrics.activeParticipants.length : '3'} members online</span>
-            </div>
+          <div className="hatchin-bg-card rounded-xl p-4 border-l-4 border-l-yellow-400">
+            <p className="text-sm hatchin-text mb-2">User experience and interface design</p>
+            <p className="text-xs hatchin-text-muted">Last updated: May 31, 2025</p>
           </div>
         </div>
 
-        {/* Team Performance Overview */}
-        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold hatchin-text">Performance Overview</h3>
-            {isConnected && (
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-400 font-medium">Live</span>
-              </div>
-            )}
+        {/* Team Milestones */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+            <h3 className="text-sm font-medium hatchin-text">Team Milestones</h3>
           </div>
-          
-          {/* Performance Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-lg p-3 border border-blue-500/20">
-              <div className="text-xl font-bold hatchin-text">{realTimeMetrics.messagesCount > 0 ? realTimeMetrics.messagesCount : '45'}</div>
-              <div className="text-xs hatchin-text-muted">Messages Today</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-lg p-3 border border-green-500/20">
-              <div className="text-xl font-bold text-green-400">{realTimeMetrics.taskCompletions}</div>
-              <div className="text-xs hatchin-text-muted">Tasks Complete</div>
-            </div>
-          </div>
-
-          {/* Team Health Score */}
-          <div className="bg-gray-800/30 rounded-lg p-3">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm hatchin-text">Team Health</span>
-              <span className="text-sm font-semibold text-green-400">92%</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="bg-gradient-to-r from-green-400 to-emerald-400 h-2 rounded-full transition-all duration-1000" style={{ width: '92%' }}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Team Members */}
-        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Team Members</h3>
           <div className="space-y-3">
-            {[
-              { name: 'Product Designer', role: 'Design Lead', status: 'active', performance: 94 },
-              { name: 'UI Engineer', role: 'Frontend Dev', status: 'active', performance: 88 },
-              { name: 'UX Researcher', role: 'Research', status: 'away', performance: 91 }
-            ].map((member, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-gray-800/30 rounded-lg">
+            {/* Strategy Phase - On Track */}
+            <div className="hatchin-bg-card rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center">
-                    <span className="text-xs text-white font-medium">{member.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs hatchin-text font-medium">{member.name}</p>
-                    <p className="text-xs hatchin-text-muted">{member.role}</p>
-                  </div>
+                  <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                  <span className="text-sm font-medium hatchin-text">Strategy Phase</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs hatchin-text">{member.performance}%</span>
-                  <div className={`w-2 h-2 rounded-full ${member.status === 'active' ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                  <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">On Track</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs hatchin-text-muted">5 of 6 tasks complete</span>
+                <span className="text-xs hatchin-text-muted">Due: Jun 5, 2025</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="bg-blue-500 h-2 rounded-full transition-all duration-1000" style={{ width: '83%' }}></div>
+              </div>
+            </div>
 
-        {/* Collaboration Insights */}
-        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Collaboration Insights</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-xs hatchin-text-muted">Avg Response Time</span>
-              <span className="text-xs hatchin-text">1.8s</span>
+            {/* UI Polish - At Risk */}
+            <div className="hatchin-bg-card rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+                  <span className="text-sm font-medium hatchin-text">UI Polish</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">At Risk</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs hatchin-text-muted">2 of 4 tasks complete</span>
+                <span className="text-xs hatchin-text-muted">Due: Jun 8, 2025</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+                <div className="bg-purple-500 h-2 rounded-full transition-all duration-1000" style={{ width: '50%' }}></div>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-yellow-400">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span>Needs attention: 2 tasks behind schedule</span>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-xs hatchin-text-muted">Sync Rate</span>
-              <span className="text-xs text-green-400">92%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-xs hatchin-text-muted">Cross-team Collab</span>
-              <span className="text-xs text-blue-400">High</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-xs hatchin-text-muted">Last Activity</span>
-              <span className="text-xs hatchin-text">{realTimeMetrics.lastActivity.toLocaleTimeString()}</span>
+
+            {/* MVP Release - Upcoming */}
+            <div className="hatchin-bg-card rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-gray-500"></div>
+                  <span className="text-sm font-medium hatchin-text">MVP Release</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded">Upcoming</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs hatchin-text-muted">0 of 5 tasks complete</span>
+                <span className="text-xs hatchin-text-muted">Due: Jun 15, 2025</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="bg-gray-600 h-2 rounded-full transition-all duration-1000" style={{ width: '0%' }}></div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Recent Team Activity */}
-        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Recent Activity</h3>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+              <h3 className="text-sm font-medium hatchin-text">Recent Team Activity</h3>
+            </div>
+            <button className="text-xs text-blue-400 hover:text-blue-300">Show All</button>
+          </div>
           <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-green-400 rounded-full mt-1.5"></div>
+            <div className="hatchin-bg-card rounded-xl p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="flex-1">
-                <p className="text-xs hatchin-text">Design review completed</p>
-                <p className="text-xs hatchin-text-muted">Team collaboration • 2h ago</p>
+                <p className="text-sm hatchin-text">Product Designer</p>
+                <p className="text-xs hatchin-text-muted">edited pitch outline</p>
+                <p className="text-xs hatchin-text-muted">2h ago</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-blue-400 rounded-full mt-1.5"></div>
+            
+            <div className="hatchin-bg-card rounded-xl p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15.586 13H14a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="flex-1">
-                <p className="text-xs hatchin-text">Sprint planning session</p>
-                <p className="text-xs hatchin-text-muted">All members participated • 4h ago</p>
+                <p className="text-sm hatchin-text">UI Engineer</p>
+                <p className="text-xs hatchin-text-muted">added mockups</p>
+                <p className="text-xs hatchin-text-muted">1h ago</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5"></div>
+
+            <div className="hatchin-bg-card rounded-xl p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clipRule="evenodd" />
+                </svg>
+              </div>
               <div className="flex-1">
-                <p className="text-xs hatchin-text">Feature prototype shared</p>
-                <p className="text-xs hatchin-text-muted">Cross-team feedback • 6h ago</p>
+                <p className="text-sm hatchin-text">Product Designer</p>
+                <p className="text-xs hatchin-text-muted">updated positioning</p>
+                <p className="text-xs hatchin-text-muted">10m ago</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Team Analytics */}
-        <div className="hatchin-bg-card rounded-xl p-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Team Analytics</h3>
-          <div className="text-xs hatchin-text-muted leading-relaxed mb-3">
-            {activeTeam?.name} shows excellent collaboration patterns with consistent high-quality output. 
-            Team dynamics are strong with balanced participation from all members.
+        {/* Focus Areas */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+            <h3 className="text-sm font-medium hatchin-text">Focus Areas</h3>
           </div>
-          <div className="flex flex-wrap gap-1">
-            {['High Collaboration', 'Fast Response', 'Quality Focus', 'Innovation'].map((strength, index) => (
-              <span key={index} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs border border-blue-500/30">
-                {strength}
-              </span>
-            ))}
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs">Launch</span>
+            <span className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs">MVP</span>
+            <button className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs border border-blue-500/30 hover:bg-blue-500/30 transition-colors">
+              + Add
+            </button>
           </div>
         </div>
       </aside>
