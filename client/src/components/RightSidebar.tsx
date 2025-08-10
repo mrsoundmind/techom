@@ -356,19 +356,6 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
           </button>
         </div>
 
-        {/* Team Goal */}
-        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold hatchin-text">Team Goal</h3>
-            <button className="text-xs hatchin-text-muted hover:text-hatchin-text">
-              Edit
-            </button>
-          </div>
-          <div className="text-sm hatchin-text leading-relaxed">
-            Complete the SaaS MVP with core features including user authentication, dashboard interface, and payment integration by end of Q2 2025.
-          </div>
-        </div>
-
         {/* Team Overview */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
           <h3 className="text-sm font-semibold hatchin-text mb-4">Team Overview</h3>
@@ -401,14 +388,68 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
           </div>
         </div>
 
-        {/* Team Milestones */}
+        {/* Team Goal - Editable */}
+        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => toggleSection('teamGoal')}
+          >
+            <div className="flex items-center gap-2">
+              {expandedSections.teamGoal ? 
+                <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+                <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+              }
+              <h3 className="text-sm font-semibold hatchin-text">Team Goal</h3>
+            </div>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave('team-goal', null);
+              }}
+              className={`text-sm hover:text-opacity-80 transition-all duration-200 flex items-center gap-1 ${
+                recentlySaved.has('team-goal') 
+                  ? 'text-green-400' 
+                  : 'hatchin-blue'
+              }`}
+            >
+              {recentlySaved.has('team-goal') ? (
+                <>
+                  <Check className="w-3 h-3" />
+                  Saved
+                </>
+              ) : (
+                'Save'
+              )}
+            </button>
+          </div>
+          
+          {expandedSections.teamGoal && (
+            <div className="mt-4">
+              <textarea
+                className="w-full hatchin-bg-card border border-gray-700 rounded-lg p-3 text-sm hatchin-text resize-none focus:outline-none focus:border-blue-500 transition-colors"
+                rows={3}
+                defaultValue="Complete the SaaS MVP with core features including user authentication, dashboard interface, and payment integration by end of Q2 2025."
+                placeholder="Enter team goal..."
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Team Milestones - with collapsible tasks */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
           <h3 className="text-sm font-semibold hatchin-text mb-4">Team Milestones</h3>
           <div className="space-y-3">
             {/* Strategy Phase */}
-            <div className="bg-gray-800/30 rounded-lg p-3 border-l-4 border-blue-400">
-              <div className="flex items-center justify-between mb-2">
+            <div className="bg-gray-800/30 rounded-lg p-3">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleSection('strategyPhase')}
+              >
                 <div className="flex items-center gap-2">
+                  {expandedSections.strategyPhase ? 
+                    <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+                    <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+                  }
                   <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                   <span className="text-sm font-medium hatchin-text">Strategy Phase</span>
                 </div>
@@ -416,16 +457,52 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
                   On Track
                 </span>
               </div>
-              <div className="text-xs hatchin-text-muted mb-2">5 of 6 tasks complete • Due: Jun 5, 2025</div>
+              <div className="text-xs hatchin-text-muted mb-2 mt-2">5 of 6 tasks complete • Due: Jun 5, 2025</div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div className="bg-blue-400 h-2 rounded-full" style={{ width: '83%' }}></div>
               </div>
+              
+              {expandedSections.strategyPhase && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">Market research analysis</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">Competitive analysis</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">User persona definition</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">Feature prioritization</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">MVP scope definition</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                    <span className="hatchin-text-muted">Strategy documentation</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* UI Polish */}
-            <div className="bg-gray-800/30 rounded-lg p-3 border-l-4 border-purple-400">
-              <div className="flex items-center justify-between mb-2">
+            <div className="bg-gray-800/30 rounded-lg p-3">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleSection('uiPolish')}
+              >
                 <div className="flex items-center gap-2">
+                  {expandedSections.uiPolish ? 
+                    <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+                    <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+                  }
                   <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
                   <span className="text-sm font-medium hatchin-text">UI Polish</span>
                 </div>
@@ -433,7 +510,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
                   At Risk
                 </span>
               </div>
-              <div className="text-xs hatchin-text-muted mb-2">2 of 4 tasks complete • Due: Jun 8, 2025</div>
+              <div className="text-xs hatchin-text-muted mb-2 mt-2">2 of 4 tasks complete • Due: Jun 8, 2025</div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div className="bg-purple-400 h-2 rounded-full" style={{ width: '50%' }}></div>
               </div>
@@ -441,12 +518,40 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
                 <div className="w-3 h-3 text-yellow-400">⚠️</div>
                 <span className="text-xs text-yellow-400">Needs attention: 2 tasks behind schedule</span>
               </div>
+              
+              {expandedSections.uiPolish && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">Design system setup</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="hatchin-text line-through">Component library</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                    <span className="hatchin-text text-red-400">Responsive design</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                    <span className="hatchin-text text-red-400">Accessibility audit</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* MVP Release */}
-            <div className="bg-gray-800/30 rounded-lg p-3 border-l-4 border-gray-500">
-              <div className="flex items-center justify-between mb-2">
+            <div className="bg-gray-800/30 rounded-lg p-3">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleSection('mvpRelease')}
+              >
                 <div className="flex items-center gap-2">
+                  {expandedSections.mvpRelease ? 
+                    <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
+                    <ChevronRight className="w-4 h-4 hatchin-text-muted" />
+                  }
                   <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
                   <span className="text-sm font-medium hatchin-text">MVP Release</span>
                 </div>
@@ -454,16 +559,41 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
                   Upcoming
                 </span>
               </div>
-              <div className="text-xs hatchin-text-muted mb-2">0 of 5 tasks complete • Due: Jun 15, 2025</div>
+              <div className="text-xs hatchin-text-muted mb-2 mt-2">0 of 5 tasks complete • Due: Jun 15, 2025</div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div className="bg-gray-500 h-2 rounded-full" style={{ width: '0%' }}></div>
               </div>
+              
+              {expandedSections.mvpRelease && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                    <span className="hatchin-text-muted">Beta testing setup</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                    <span className="hatchin-text-muted">Performance optimization</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                    <span className="hatchin-text-muted">Security audit</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                    <span className="hatchin-text-muted">Deployment pipeline</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                    <span className="hatchin-text-muted">Launch preparation</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Team Members Progress */}
-        <div className="hatchin-bg-card rounded-xl p-4">
+        <div className="hatchin-bg-card rounded-xl p-4 mb-4">
           <h3 className="text-sm font-semibold hatchin-text mb-4">Member Progress</h3>
           <div className="space-y-3">
             {[
@@ -492,6 +622,42 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Team Insights */}
+        <div className="hatchin-bg-card rounded-xl p-4">
+          <h3 className="text-sm font-semibold hatchin-text mb-4">Team Insights</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-xs hatchin-text-muted">Avg Response Time</span>
+              <span className="text-xs hatchin-text">1.8s</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-xs hatchin-text-muted">Collaboration Rate</span>
+              <span className="text-xs text-green-400">92%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-xs hatchin-text-muted">Team Health</span>
+              <span className="text-xs text-blue-400">Excellent</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-xs hatchin-text-muted">Last Activity</span>
+              <span className="text-xs hatchin-text">{realTimeMetrics.lastActivity.toLocaleTimeString()}</span>
+            </div>
+          </div>
+          
+          <div className="mt-4 pt-3 border-t border-gray-700">
+            <div className="text-xs hatchin-text-muted leading-relaxed mb-3">
+              Team shows excellent collaboration patterns with high-quality output. Strong dynamics with balanced participation from all members.
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {['High Collaboration', 'Fast Response', 'Quality Focus'].map((strength, index) => (
+                <span key={index} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs border border-blue-500/30">
+                  {strength}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </aside>

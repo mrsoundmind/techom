@@ -216,6 +216,11 @@ export interface RightSidebarExpandedSections {
   performance?: boolean;
   skills?: boolean;
   activity?: boolean;
+  // Team Dashboard sections
+  teamGoal?: boolean;
+  strategyPhase?: boolean;
+  uiPolish?: boolean;
+  mvpRelease?: boolean;
 }
 
 export interface RightSidebarUserPreferences {

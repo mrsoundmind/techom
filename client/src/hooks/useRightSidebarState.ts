@@ -115,6 +115,11 @@ const defaultPreferences: RightSidebarUserPreferences = {
     performance: true,
     skills: true,
     activity: false,
+    // Team Dashboard sections
+    teamGoal: false,
+    strategyPhase: false,
+    uiPolish: false,
+    mvpRelease: false,
   },
   defaultView: 'project',
   autoSave: true,
