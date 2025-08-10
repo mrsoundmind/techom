@@ -380,7 +380,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
               <div className="text-lg font-bold hatchin-text">3</div>
               <div className="text-xs hatchin-text-muted">Team Members</div>
             </div>
-            <div className="bg-gray-800/30 rounded-lg p-3">
+            <div className="bg-gray-800/30 rounded-lg p-3 pl-[5px] pr-[5px] pt-[4px] pb-[4px]">
               <div className="text-lg font-bold text-green-400">{realTimeMetrics.taskCompletions || '17'}</div>
               <div className="text-xs hatchin-text-muted">Tasks Done</div>
             </div>
