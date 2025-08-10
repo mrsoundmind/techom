@@ -418,7 +418,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
                   el.style.height = el.scrollHeight + 'px';
                 }
               }}
-              className="w-full hatchin-bg-card border border-gray-700 rounded-lg p-3 text-sm hatchin-text resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[80px] overflow-hidden"
+              className="w-full hatchin-bg-card border border-gray-700 rounded-lg p-3 text-sm hatchin-text resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[80px] overflow-hidden bg-[#212327] pt-[5px] pb-[5px] mt-[0px] mb-[0px]"
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = 'auto';
