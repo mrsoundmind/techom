@@ -399,14 +399,12 @@ const TaskManager: React.FC<TaskManagerProps> = ({
                           <p className="text-xs hatchin-text-muted mt-1 break-words">{task.description}</p>
                         )}
                         
-                        <div className="flex items-center justify-between mt-2">
-                          {task.assignee && (
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3 hatchin-text-muted" />
-                              <span className="text-xs hatchin-text-muted truncate">{task.assignee}</span>
-                            </div>
-                          )}
-                        </div>
+                        {task.assignee && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <User className="w-3 h-3 hatchin-text-muted" />
+                            <span className="text-xs hatchin-text-muted truncate">{task.assignee}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
