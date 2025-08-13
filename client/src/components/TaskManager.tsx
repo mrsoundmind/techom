@@ -136,6 +136,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [showNewTaskForm, setShowNewTaskForm] = useState(false);
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
+  const [dragOverSection, setDragOverSection] = useState<string | null>(null);
 
   const toggleSection = useCallback((sectionId: string) => {
     setSections(prev => prev.map(section => 
@@ -170,6 +171,23 @@ const TaskManager: React.FC<TaskManagerProps> = ({
   const addNewTask = useCallback(() => {
     if (!newTaskTitle.trim()) return;
 
+    // Smart assignment based on task content
+    const getSmartAssignee = (title: string) => {
+      const lowerTitle = title.toLowerCase();
+      if (lowerTitle.includes('design') || lowerTitle.includes('wireframe') || lowerTitle.includes('ui')) {
+        return 'Product Designer';
+      } else if (lowerTitle.includes('backend') || lowerTitle.includes('api') || lowerTitle.includes('database')) {
+        return 'Backend Developer';
+      } else if (lowerTitle.includes('frontend') || lowerTitle.includes('component') || lowerTitle.includes('interface')) {
+        return 'UI Engineer';
+      } else if (lowerTitle.includes('test') || lowerTitle.includes('qa') || lowerTitle.includes('bug')) {
+        return 'QA Lead';
+      } else if (lowerTitle.includes('product') || lowerTitle.includes('feature') || lowerTitle.includes('requirement')) {
+        return 'Product Manager';
+      }
+      return 'Backend Developer'; // Default fallback
+    };
+
     const newTask: Task = {
       id: `task-${Date.now()}`,
       title: newTaskTitle,
@@ -179,7 +197,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({
       tags: [],
       projectId,
       teamId,
-      assignee: agentId
+      assignee: getSmartAssignee(newTaskTitle)
     };
 
     // Add to regular tasks section by default
@@ -191,20 +209,26 @@ const TaskManager: React.FC<TaskManagerProps> = ({
 
     setNewTaskTitle('');
     setShowNewTaskForm(false);
-  }, [newTaskTitle, projectId, teamId, agentId]);
+  }, [newTaskTitle, projectId, teamId]);
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     setDraggedTask(taskId);
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, sectionId: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    setDragOverSection(sectionId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverSection(null);
   };
 
   const handleDrop = (e: React.DragEvent, targetSectionId: string) => {
     e.preventDefault();
+    setDragOverSection(null);
     
     if (!draggedTask) return;
 
@@ -249,15 +273,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({
     return <Circle className="w-4 h-4 hatchin-text-muted" />;
   };
 
-  const getPriorityColor = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'urgent': return 'border-l-red-400';
-      case 'high': return 'border-l-orange-400';
-      case 'medium': return 'border-l-blue-400';
-      case 'low': return 'border-l-gray-400';
-      default: return 'border-l-gray-400';
-    }
-  };
+
 
   const getTotalTasks = () => {
     return sections.reduce((total, section) => total + section.tasks.length, 0);
@@ -269,13 +285,18 @@ const TaskManager: React.FC<TaskManagerProps> = ({
     );
   };
 
-  const getOverdueTasks = () => {
-    const today = new Date();
-    return sections.reduce(
-      (total, section) => total + section.tasks.filter(task => 
-        task.dueDate && new Date(task.dueDate) < today && task.status !== 'completed'
-      ).length, 0
-    );
+  // Remove getPriorityColor function as we're removing the colored borders
+  const getCompletedSection = () => {
+    const completedTasks = sections.reduce((acc, section) => {
+      return [...acc, ...section.tasks.filter(task => task.status === 'completed')];
+    }, [] as Task[]);
+    
+    return {
+      id: 'completed',
+      title: 'Completed',
+      collapsed: false,
+      tasks: completedTasks
+    };
   };
 
   return (
@@ -295,19 +316,15 @@ const TaskManager: React.FC<TaskManagerProps> = ({
         </button>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="hatchin-bg-panel rounded-lg p-3 text-center">
-          <div className="text-xl font-semibold hatchin-text">{getTotalTasks()}</div>
-          <div className="text-sm hatchin-text-muted">Total</div>
+      {/* Quick Stats - Only Total and Done */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="hatchin-bg-panel rounded-lg p-2.5 text-center">
+          <div className="text-lg font-semibold hatchin-text">{getTotalTasks()}</div>
+          <div className="text-xs hatchin-text-muted">Total</div>
         </div>
-        <div className="hatchin-bg-panel rounded-lg p-3 text-center">
-          <div className="text-xl font-semibold text-green-400">{getCompletedTasks()}</div>
-          <div className="text-sm hatchin-text-muted">Done</div>
-        </div>
-        <div className="hatchin-bg-panel rounded-lg p-3 text-center">
-          <div className="text-xl font-semibold text-red-400">{getOverdueTasks()}</div>
-          <div className="text-sm hatchin-text-muted">Overdue</div>
+        <div className="hatchin-bg-panel rounded-lg p-2.5 text-center">
+          <div className="text-lg font-semibold text-green-400">{getCompletedTasks()}</div>
+          <div className="text-xs hatchin-text-muted">Done</div>
         </div>
       </div>
 
@@ -356,7 +373,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({
 
       {/* Task Sections */}
       <div className="space-y-4">
-        {sections.map((section) => (
+        {[...sections, getCompletedSection()].map((section) => (
           <div key={section.id} className="space-y-3">
             <div
               className="flex items-center justify-between cursor-pointer group py-1"
@@ -378,21 +395,28 @@ const TaskManager: React.FC<TaskManagerProps> = ({
 
             {!section.collapsed && (
               <div 
-                className="space-y-3"
-                onDragOver={handleDragOver}
+                className={`space-y-3 min-h-[60px] rounded-lg transition-all ${
+                  dragOverSection === section.id ? 'bg-blue-500/10 border-2 border-blue-400/50' : ''
+                }`}
+                onDragOver={(e) => handleDragOver(e, section.id)}
+                onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, section.id)}
               >
                 {section.tasks.map((task) => (
                   <div
                     key={task.id}
-                    draggable
+                    draggable={section.id !== 'completed'}
                     onDragStart={(e) => handleDragStart(e, task.id)}
-                    className={`group bg-gray-800/40 rounded-lg p-4 hover:bg-gray-800/60 transition-all border-l-4 ${getPriorityColor(task.priority)} cursor-move`}
+                    className={`group bg-gray-800/40 rounded-lg p-4 hover:bg-gray-800/60 transition-all ${
+                      section.id !== 'completed' ? 'cursor-move' : 'cursor-default'
+                    }`}
                     data-testid={`task-${task.id}`}
                   >
                     <div className="flex items-start gap-4">
                       <div className="flex items-center gap-3">
-                        <GripVertical className="w-4 h-4 hatchin-text-muted opacity-50" />
+                        {section.id !== 'completed' && (
+                          <GripVertical className="w-4 h-4 hatchin-text-muted opacity-50" />
+                        )}
                         <button
                           onClick={() => toggleTaskStatus(task.id)}
                           className="hover:scale-110 transition-transform"
@@ -437,7 +461,9 @@ const TaskManager: React.FC<TaskManagerProps> = ({
                 
                 {section.tasks.length === 0 && (
                   <div className="text-center py-8">
-                    <p className="text-sm hatchin-text-muted">No tasks in this section</p>
+                    <p className="text-sm hatchin-text-muted">
+                      {dragOverSection === section.id ? 'Drop task here' : 'No tasks in this section'}
+                    </p>
                   </div>
                 )}
               </div>
