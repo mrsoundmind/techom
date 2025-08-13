@@ -315,7 +315,6 @@ const TaskManager: React.FC<TaskManagerProps> = ({
           <Plus className="w-5 h-5" />
         </button>
       </div>
-
       {/* Quick Stats - Only Total and Done */}
       <div className="grid grid-cols-2 gap-3 mb-6">
         <div className="hatchin-bg-panel rounded-lg p-2.5 text-center">
@@ -327,7 +326,6 @@ const TaskManager: React.FC<TaskManagerProps> = ({
           <div className="text-xs hatchin-text-muted">Done</div>
         </div>
       </div>
-
       {/* New Task Form */}
       {showNewTaskForm && (
         <div className="mb-6 p-4 bg-gray-800/30 rounded-lg border border-gray-700">
@@ -370,7 +368,6 @@ const TaskManager: React.FC<TaskManagerProps> = ({
           </div>
         </div>
       )}
-
       {/* Task Sections */}
       <div className="space-y-4">
         {[...sections, getCompletedSection()].map((section) => (
@@ -451,7 +448,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({
                         {task.assignee && (
                           <div className="flex items-center gap-2 mt-3">
                             <User className="w-3 h-3 hatchin-text-muted" />
-                            <span className="text-sm hatchin-text-muted">{task.assignee}</span>
+                            <span className="hatchin-text-muted text-[12px]">{task.assignee}</span>
                           </div>
                         )}
                       </div>
