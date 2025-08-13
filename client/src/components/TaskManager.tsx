@@ -267,12 +267,6 @@ const TaskManager: React.FC<TaskManagerProps> = ({
         <div className="flex items-center gap-2">
           <Target className="w-5 h-5 text-blue-400" />
           <h3 className="text-sm font-semibold hatchin-text">Task Manager</h3>
-          {isConnected && (
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-green-400">Live</span>
-            </div>
-          )}
         </div>
         <button
           onClick={() => setShowNewTaskForm(true)}
