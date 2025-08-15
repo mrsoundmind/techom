@@ -186,7 +186,7 @@ export function LeftSidebar({
 
 
   return (
-    <aside className="w-64 hatchin-bg-panel overflow-y-auto p-4 mt-[-10px] mb-[-10px] pl-[7px] pr-[7px] ml-[0px] mr-[0px]">
+    <aside className="w-64 hatchin-bg-panel overflow-y-auto p-4 rounded-r-2xl rounded-l-none ml-[-10px]">
       {/* Welcome Header */}
       <div ref={dropdownRef} className="relative mb-4 pb-4 hatchin-border border-b">
         <div 
