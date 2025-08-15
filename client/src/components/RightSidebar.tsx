@@ -652,7 +652,6 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         </div>
         <h2 className="font-semibold hatchin-text text-[16px]">Project Brain</h2>
       </div>
-      
       {/* Tab Navigation */}
       <div className="flex mb-6 border-b border-gray-700/50">
         <button
@@ -680,7 +679,6 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
           Tasks
         </button>
       </div>
-
       {/* Content based on current view */}
       {currentView === 'tasks' ? (
         <>
@@ -721,7 +719,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
       {/* Project Progress */}
       <div className="mt-[18px] mb-[18px]">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium hatchin-text">Project Progress</h3>
+          <h3 className="font-medium hatchin-text text-[12px]">Project Progress</h3>
           {isConnected && realTimeProgress > 0 && (
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
