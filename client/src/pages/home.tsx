@@ -466,7 +466,7 @@ export default function Home() {
           onDeleteAgent={handleDeleteAgent}
         />
         
-        <div className="flex-1 py-2.5">
+        <div className="flex-1" style={{ paddingTop: '3px', paddingBottom: '3px' }}>
           <CenterPanel
             activeProject={activeProject}
             activeProjectTeams={activeProjectTeams}
@@ -477,7 +477,7 @@ export default function Home() {
           />
         </div>
         
-        <div className="py-2.5">
+        <div style={{ paddingTop: '3px', paddingBottom: '3px' }}>
           <RightSidebar
             activeProject={activeProject}
             activeTeam={teams.find(t => t.id === activeTeamId)}
