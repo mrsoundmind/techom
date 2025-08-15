@@ -186,11 +186,11 @@ export function LeftSidebar({
 
 
   return (
-    <aside className="w-52 hatchin-bg-panel rounded-2xl overflow-y-auto">
+    <aside className="w-64 hatchin-bg-panel overflow-y-auto p-4">
       {/* Welcome Header */}
-      <div ref={dropdownRef} className="relative mb-4 pb-4 hatchin-border border-b px-0 pt-0">
+      <div ref={dropdownRef} className="relative mb-4 pb-4 hatchin-border border-b">
         <div 
-          className="flex items-center justify-between cursor-pointer hover:bg-hatchin-border rounded-none p-3 transition-colors"
+          className="flex items-center justify-between cursor-pointer hover:bg-hatchin-border rounded-lg p-2 transition-colors"
           onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
         >
           <div className="flex items-center gap-3">
@@ -204,7 +204,7 @@ export function LeftSidebar({
         
         {/* User Dropdown Menu */}
         {isUserMenuOpen && (
-          <div className="absolute top-full left-0 right-0 mt-2 mx-3 hatchin-bg-card border hatchin-border rounded-lg shadow-lg z-50 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-2 hatchin-bg-card border hatchin-border rounded-lg shadow-lg z-50 overflow-hidden">
             <div className="py-1">
               <button className="w-full flex items-center gap-3 px-3 py-2 text-sm hatchin-text hover:bg-hatchin-border transition-colors">
                 <User className="w-4 h-4" />
@@ -225,7 +225,7 @@ export function LeftSidebar({
         )}
       </div>
       {/* Search Bar */}
-      <div className="relative mb-6 px-0">
+      <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 hatchin-text-muted" />
         <input 
           ref={searchInputRef}
@@ -233,7 +233,7 @@ export function LeftSidebar({
           placeholder="Search projects or hatches (⌘K)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full hatchin-bg-card hatchin-border border rounded-none py-2.5 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent pl-[32px] pr-[32px]"
+          className="w-full hatchin-bg-card hatchin-border border rounded-lg py-2.5 text-sm hatchin-text placeholder-hatchin-text-muted focus:outline-none focus:ring-2 focus:ring-hatchin-blue focus:border-transparent pl-[32px] pr-[32px]"
         />
         {searchQuery && (
           <button
@@ -245,8 +245,8 @@ export function LeftSidebar({
         )}
       </div>
       {/* Projects Section */}
-      <div className="mb-6 px-0">
-        <div className="flex items-center justify-between mb-4 px-3">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="font-medium hatchin-text-muted uppercase tracking-wide text-[12px]">
             Projects
           </h2>
@@ -278,7 +278,7 @@ export function LeftSidebar({
             searchQuery={searchQuery}
           />
         ) : searchQuery ? (
-          <div className="text-center py-8 px-3">
+          <div className="text-center py-8">
             <div className="hatchin-text-muted text-sm">
               No results found for "{searchQuery}"
             </div>
