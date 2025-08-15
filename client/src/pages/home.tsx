@@ -444,7 +444,7 @@ export default function Home() {
 
   return (
     <div className="hatchin-bg-dark min-h-screen overflow-hidden">
-      <div className="h-screen flex">
+      <div className="h-screen flex gap-3">
         <LeftSidebar
           projects={projects}
           teams={teams}
@@ -466,24 +466,20 @@ export default function Home() {
           onDeleteAgent={handleDeleteAgent}
         />
         
-        <div className="ml-3">
-          <CenterPanel
-            activeProject={activeProject}
-            activeProjectTeams={activeProjectTeams}
-            activeProjectAgents={activeProjectAgents}
-            activeTeamId={activeTeamId}
-            activeAgentId={activeAgentId}
-            onAddAgent={handleCreateAgent}
-          />
-        </div>
+        <CenterPanel
+          activeProject={activeProject}
+          activeProjectTeams={activeProjectTeams}
+          activeProjectAgents={activeProjectAgents}
+          activeTeamId={activeTeamId}
+          activeAgentId={activeAgentId}
+          onAddAgent={handleCreateAgent}
+        />
         
-        <div className="ml-3">
-          <RightSidebar
-            activeProject={activeProject}
-            activeTeam={teams.find(t => t.id === activeTeamId)}
-            activeAgent={agents.find(a => a.id === activeAgentId)}
-          />
-        </div>
+        <RightSidebar
+          activeProject={activeProject}
+          activeTeam={teams.find(t => t.id === activeTeamId)}
+          activeAgent={agents.find(a => a.id === activeAgentId)}
+        />
       </div>
       
       {/* Egg Hatching Animation */}
