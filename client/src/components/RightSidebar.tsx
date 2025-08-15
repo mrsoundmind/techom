@@ -894,7 +894,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
               <ChevronDown className="w-4 h-4 hatchin-text-muted" /> : 
               <ChevronRight className="w-4 h-4 hatchin-text-muted" />
             }
-            <h3 className="text-sm font-medium hatchin-text">Brand Guidelines & Culture</h3>
+            <h3 className="font-medium hatchin-text text-[12px]">Brand Guidelines & Culture</h3>
           </div>
           <button 
             onClick={(e) => {
