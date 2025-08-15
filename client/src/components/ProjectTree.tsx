@@ -107,9 +107,9 @@ export function ProjectTree({
         return (
           <div key={project.id} className="space-y-1 mt-[-6px] mb-[-6px]">
             {/* Project Level */}
-            <div className="flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group">
+            <div className="flex items-center justify-between px-0 py-2 rounded-none transition-all duration-200 group">
               <div 
-                className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-2 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm pt-[7px] pb-[7px] ml-[4px] mr-[4px] mt-[-3px] mb-[-3px] relative ${
+                className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-none p-3 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm relative ${
                   isProjectActive && !activeTeamId && !activeAgentId 
                     ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
                     : ''
@@ -138,13 +138,13 @@ export function ProjectTree({
                   {highlightMatch(project.name, searchQuery)}
                 </span>
               </div>
-              <button className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:hatchin-text transition-opacity flex-shrink-0">
+              <button className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:hatchin-text transition-opacity flex-shrink-0 mr-3">
                 <MoreHorizontal className="w-3.5 h-3.5" />
               </button>
             </div>
             {/* Teams and Individual Agents */}
             {isProjectExpanded && (
-              <div className="ml-7 space-y-1">
+              <div className="ml-4 space-y-1">
                 {/* Teams */}
                 {projectTeams.map(team => {
                   const teamAgents = agents.filter(a => a.teamId === team.id);
@@ -154,9 +154,9 @@ export function ProjectTree({
                   return (
                     <div key={team.id} className="space-y-1">
                       {/* Team Level */}
-                      <div className="flex items-center justify-between px-3 py-1.5 rounded-lg transition-all duration-200 group">
+                      <div className="flex items-center justify-between px-0 py-1.5 rounded-none transition-all duration-200 group">
                         <div 
-                          className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-1 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm mt-[-4px] mb-[-4px] relative ${
+                          className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-none p-2 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm relative ${
                             isTeamActive && !activeAgentId 
                               ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
                               : ''
@@ -190,7 +190,7 @@ export function ProjectTree({
                         </div>
                         {onDeleteTeam && (
                           <button 
-                            className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:text-red-400 transition-all flex-shrink-0 p-1"
+                            className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:text-red-400 transition-all flex-shrink-0 p-1 mr-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteTeam(team.id);
@@ -204,21 +204,21 @@ export function ProjectTree({
                       </div>
                       {/* Team Agents */}
                       {isTeamExpanded && (
-                        <div className="ml-7 space-y-0.5">
+                        <div className="ml-4 space-y-0.5">
                           {teamAgents.map(agent => {
                             const isAgentActive = agent.id === activeAgentId;
                             
                             return (
                               <div 
                                 key={agent.id}
-                                className={`flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 relative group ${
+                                className={`flex items-center justify-between px-0 py-1.5 rounded-none cursor-pointer transition-all duration-200 relative group ${
                                   isAgentActive 
                                     ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
                                     : 'hover:bg-hatchin-border hover:shadow-sm'
                                 }`}
                               >
                                 <div 
-                                  className="flex items-center gap-3 min-w-0 flex-1"
+                                  className="flex items-center gap-3 min-w-0 flex-1 pl-3"
                                   onClick={() => onSelectAgent(agent.id)}
                                 >
                                   <User className={`w-4 h-4 mr-1 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
@@ -228,7 +228,7 @@ export function ProjectTree({
                                 </div>
                                 {onDeleteAgent && (
                                   <button 
-                                    className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:text-red-400 transition-all flex-shrink-0 p-1"
+                                    className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:text-red-400 transition-all flex-shrink-0 p-1 mr-3"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       onDeleteAgent(agent.id);
@@ -257,14 +257,14 @@ export function ProjectTree({
                     return (
                       <div 
                         key={agent.id}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 relative group ${
+                        className={`flex items-center justify-between px-0 py-1.5 rounded-none cursor-pointer transition-all duration-200 relative group ${
                           isAgentActive 
                             ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
                             : 'hover:bg-hatchin-border hover:shadow-sm'
                         }`}
                       >
                         <div 
-                          className="flex items-center gap-3 min-w-0 flex-1"
+                          className="flex items-center gap-3 min-w-0 flex-1 pl-3"
                           onClick={() => onSelectAgent(agent.id)}
                         >
                           <User className={`w-4 h-4 mr-1 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
@@ -274,7 +274,7 @@ export function ProjectTree({
                         </div>
                         {onDeleteAgent && (
                           <button 
-                            className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:text-red-400 transition-all flex-shrink-0 p-1"
+                            className="opacity-0 group-hover:opacity-100 hatchin-text-muted hover:text-red-400 transition-all flex-shrink-0 p-1 mr-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteAgent(agent.id);
