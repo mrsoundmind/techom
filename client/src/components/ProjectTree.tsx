@@ -154,15 +154,15 @@ export function ProjectTree({
                   return (
                     <div key={team.id} className="space-y-1">
                       {/* Team Level */}
-                      <div className="flex items-center justify-between px-3 py-1.5 rounded-lg transition-all duration-200 group">
-                        <div 
-                          className={`flex items-center gap-2 min-w-0 flex-1 cursor-pointer rounded-lg p-1 transition-all duration-200 hover:bg-hatchin-border hover:shadow-sm mt-[-4px] mb-[-4px] relative ${
-                            isTeamActive && !activeAgentId 
-                              ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
-                              : ''
-                          }`}
-                          onClick={() => onSelectTeam(team.id)}
-                        >
+                      <div 
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 group hover:bg-hatchin-border hover:shadow-sm relative ${
+                          isTeamActive && !activeAgentId 
+                            ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
+                            : ''
+                        }`}
+                        onClick={() => onSelectTeam(team.id)}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
                           <div 
                             className="flex-shrink-0"
                             onClick={(e) => {
@@ -181,10 +181,10 @@ export function ProjectTree({
                             )}
                           </div>
                           <Users className={`w-4 h-4 mr-2 ${getProjectIconColor(projects.find(p => p.id === team.projectId)?.color || 'blue')}`} />
-                          <span className="hatchin-text text-[12px]">
+                          <span className="hatchin-text text-[12px] truncate">
                             {highlightMatch(team.name, searchQuery)}
                           </span>
-                          <span className="text-xs hatchin-text-muted flex-shrink-0">
+                          <span className="text-xs hatchin-text-muted flex-shrink-0 ml-1">
                             ({teamAgents.length})
                           </span>
                         </div>
@@ -211,18 +211,16 @@ export function ProjectTree({
                             return (
                               <div 
                                 key={agent.id}
-                                className={`flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 relative group ${
+                                className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 relative group hover:bg-hatchin-border hover:shadow-sm ${
                                   isAgentActive 
                                     ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
-                                    : 'hover:bg-hatchin-border hover:shadow-sm'
+                                    : ''
                                 }`}
+                                onClick={() => onSelectAgent(agent.id)}
                               >
-                                <div 
-                                  className="flex items-center gap-3 min-w-0 flex-1"
-                                  onClick={() => onSelectAgent(agent.id)}
-                                >
-                                  <User className={`w-4 h-4 mr-1 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
-                                  <span className="hatchin-text-muted text-[12px] ml-[-12px] mr-[-12px] pl-[-4px] pr-[-4px]">
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                  <User className={`w-4 h-4 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
+                                  <span className="hatchin-text-muted text-[12px] truncate">
                                     {highlightMatch(agent.role || agent.name, searchQuery)}
                                   </span>
                                 </div>
@@ -257,18 +255,16 @@ export function ProjectTree({
                     return (
                       <div 
                         key={agent.id}
-                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-200 relative group ${
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 relative group hover:bg-hatchin-border hover:shadow-sm ${
                           isAgentActive 
                             ? 'bg-hatchin-blue/10 border-l-2 border-hatchin-blue' 
-                            : 'hover:bg-hatchin-border hover:shadow-sm'
+                            : ''
                         }`}
+                        onClick={() => onSelectAgent(agent.id)}
                       >
-                        <div 
-                          className="flex items-center gap-3 min-w-0 flex-1"
-                          onClick={() => onSelectAgent(agent.id)}
-                        >
-                          <User className={`w-4 h-4 mr-1 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
-                          <span className="text-sm hatchin-text-muted">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <User className={`w-4 h-4 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
+                          <span className="hatchin-text-muted text-[12px] truncate">
                             {highlightMatch(agent.name, searchQuery)}
                           </span>
                         </div>
