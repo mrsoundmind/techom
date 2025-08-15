@@ -181,7 +181,7 @@ export function ProjectTree({
                             )}
                           </div>
                           <Users className={`w-4 h-4 mr-2 ${getProjectIconColor(projects.find(p => p.id === team.projectId)?.color || 'blue')}`} />
-                          <span className="text-sm hatchin-text truncate">
+                          <span className="hatchin-text truncate text-[12px]">
                             {highlightMatch(team.name, searchQuery)}
                           </span>
                           <span className="text-xs hatchin-text-muted flex-shrink-0">
