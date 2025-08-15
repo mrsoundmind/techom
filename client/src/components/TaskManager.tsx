@@ -700,7 +700,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({
                 ) : (
                   <ChevronDown className="w-4 h-4 hatchin-text-muted" />
                 )}
-                <span className="text-base font-medium hatchin-text">{section.title}</span>
+                <span className="font-medium hatchin-text text-[12px]">{section.title}</span>
                 <span className="text-sm hatchin-text-muted bg-gray-700 px-2 py-1 rounded-full">
                   {section.tasks.length}
                 </span>
