@@ -682,25 +682,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
       {/* Content based on current view */}
       {currentView === 'tasks' ? (
         <>
-          {/* Overall Progress Section */}
-          <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[12px] font-medium hatchin-text">Overall Progress</h3>
-              <span className="text-sm font-semibold text-blue-400">
-                {Math.min(100, (activeProject?.progress || 0) + realTimeProgress)}%
-              </span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2 mb-3">
-              <div 
-                className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full transition-all duration-1000"
-                style={{ width: `${Math.min(100, (activeProject?.progress || 0) + realTimeProgress)}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-xs hatchin-text-muted">
-              <span>Project timeline on track</span>
-              <span>{realTimeMetrics.taskCompletions > 0 ? `+${realTimeMetrics.taskCompletions} tasks` : ''}</span>
-            </div>
-          </div>
+          
           
           <div className="-mx-6 px-6">
             <TaskManager 
