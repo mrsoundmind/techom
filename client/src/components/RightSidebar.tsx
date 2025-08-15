@@ -815,7 +815,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
           </div>
 
           <div>
-            <h4 className="text-sm font-medium hatchin-text mb-3">Who is this for?</h4>
+            <h4 className="font-medium hatchin-text mb-3 text-[12px]">Who is this for?</h4>
             <textarea 
               value={coreDirection.whoFor}
               onChange={(e) => updateCoreDirection('whoFor', e.target.value)}
