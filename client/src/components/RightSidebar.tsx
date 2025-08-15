@@ -783,7 +783,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         
         <div className="mt-4 space-y-6">
           <div>
-            <h4 className="text-sm font-medium hatchin-text mb-3">What are you building?</h4>
+            <h4 className="font-medium hatchin-text mb-3 text-[12px]">What are you building?</h4>
             <textarea 
               value={coreDirection.whatBuilding}
               onChange={(e) => updateCoreDirection('whatBuilding', e.target.value)}
