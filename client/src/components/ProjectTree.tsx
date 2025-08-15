@@ -181,7 +181,7 @@ export function ProjectTree({
                             )}
                           </div>
                           <Users className={`w-4 h-4 mr-2 ${getProjectIconColor(projects.find(p => p.id === team.projectId)?.color || 'blue')}`} />
-                          <span className="hatchin-text truncate text-[12px]">
+                          <span className="hatchin-text text-[12px]">
                             {highlightMatch(team.name, searchQuery)}
                           </span>
                           <span className="text-xs hatchin-text-muted flex-shrink-0">
@@ -222,7 +222,7 @@ export function ProjectTree({
                                   onClick={() => onSelectAgent(agent.id)}
                                 >
                                   <User className={`w-4 h-4 mr-1 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
-                                  <span className="hatchin-text-muted truncate text-[12px] ml-[-12px] mr-[-12px] pl-[-4px] pr-[-4px]">
+                                  <span className="hatchin-text-muted text-[12px] ml-[-12px] mr-[-12px] pl-[-4px] pr-[-4px]">
                                     {highlightMatch(agent.role || agent.name, searchQuery)}
                                   </span>
                                 </div>
@@ -268,7 +268,7 @@ export function ProjectTree({
                           onClick={() => onSelectAgent(agent.id)}
                         >
                           <User className={`w-4 h-4 mr-1 ${getProjectIconColor(projects.find(p => p.id === agent.projectId)?.color || 'blue')}`} />
-                          <span className="text-sm hatchin-text-muted truncate">
+                          <span className="text-sm hatchin-text-muted">
                             {highlightMatch(agent.name, searchQuery)}
                           </span>
                         </div>
