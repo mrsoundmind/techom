@@ -191,7 +191,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         {/* Performance Overview */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold hatchin-text">Performance Overview</h3>
+            <h3 className="text-[12px] font-semibold hatchin-text">Performance Overview</h3>
             {isConnected && (
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -257,7 +257,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
 
         {/* Skills & Expertise */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Skills & Expertise</h3>
+          <h3 className="text-[12px] font-semibold hatchin-text mb-4">Skills & Expertise</h3>
           <div className="space-y-3">
             {/* Skill bars */}
             {[
@@ -284,7 +284,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
 
         {/* Recent Activity */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Recent Activity</h3>
+          <h3 className="text-[12px] font-semibold hatchin-text mb-4">Recent Activity</h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -312,7 +312,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
 
         {/* Development Insights */}
         <div className="hatchin-bg-card rounded-xl p-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Development Insights</h3>
+          <h3 className="text-[12px] font-semibold hatchin-text mb-4">Development Insights</h3>
           <div className="text-xs hatchin-text-muted leading-relaxed mb-3">
             {activeAgent?.name} excels in {activeAgent?.role.toLowerCase()} tasks with strong analytical thinking 
             and clear communication. Recent performance shows consistent improvement in problem-solving speed.
@@ -344,7 +344,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         </div>
         {/* Team Overview */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Team Overview</h3>
+          <h3 className="text-[12px] font-semibold hatchin-text mb-4">Team Overview</h3>
           
           {/* Overall Progress */}
           <div className="mb-4">
@@ -376,7 +376,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         {/* Team Goal - Always Visible */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold hatchin-text">Team Goal</h3>
+            <h3 className="text-[12px] font-semibold hatchin-text">Team Goal</h3>
             <button 
               onClick={() => handleSave('team-goal', null)}
               className={`text-sm hover:text-opacity-80 transition-all duration-200 flex items-center gap-1 ${
@@ -574,7 +574,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         </div>
         {/* Team Members Progress */}
         <div className="hatchin-bg-card rounded-xl p-4 mb-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Member Progress</h3>
+          <h3 className="text-[12px] font-semibold hatchin-text mb-4">Member Progress</h3>
           <div className="space-y-3">
             {[
               { name: 'Product Designer', role: 'Design Lead', tasksComplete: 6, totalTasks: 8, completion: 75 },
@@ -606,7 +606,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
         </div>
         {/* Team Insights */}
         <div className="hatchin-bg-card rounded-xl p-4">
-          <h3 className="text-sm font-semibold hatchin-text mb-4">Team Insights</h3>
+          <h3 className="text-[12px] font-semibold hatchin-text mb-4">Team Insights</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-xs hatchin-text-muted">Avg Response Time</span>
@@ -685,7 +685,7 @@ export function RightSidebar({ activeProject, activeTeam, activeAgent }: RightSi
           {/* Overall Progress Section */}
           <div className="hatchin-bg-card rounded-xl p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium hatchin-text">Overall Progress</h3>
+              <h3 className="text-[12px] font-medium hatchin-text">Overall Progress</h3>
               <span className="text-sm font-semibold text-blue-400">
                 {Math.min(100, (activeProject?.progress || 0) + realTimeProgress)}%
               </span>
